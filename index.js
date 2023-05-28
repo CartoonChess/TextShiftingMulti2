@@ -10,15 +10,15 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
     // io.emit -> send to all
     // socket.broadcast.emit -> send to all but sender client
+
+    // These happen constantly so we're disabling for now
+    // console.log('A user has connected.');
+    // socket.broadcast.emit('chat message', ({msg: 'A user has connected.', username: 'System'}));
     
-    console.log('A user has connected.');
-    //socket.broadcast.emit('chat message', 'A user has connected.');
-    socket.broadcast.emit('chat message', ({msg: 'A user has connected.', username: 'System'}));
-    
-    socket.on('disconnect', () => {
-        console.log('A user has disconnected.');
-        socket.broadcast.emit('chat message', ({msg: 'A user has disconnected.', username: 'System'}));
-    });
+    // socket.on('disconnect', () => {
+    //     console.log('A user has disconnected.');
+    //     socket.broadcast.emit('chat message', ({msg: 'A user has disconnected.', username: 'System'}));
+    // });
     
     // socket.on('chat message', msg => {
     socket.on('chat message', ({msg, user}) => {
@@ -26,8 +26,12 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('chat message', ({msg: msg, username: user}));
     });
 
-    socket.on('move', ({surroundings}) => {
-        socket.broadcast.emit('move', ({surroundings: surroundings}));
+    // socket.on('move', ({surroundings}) => {
+    //     socket.broadcast.emit('move', ({surroundings: surroundings}));
+    // });
+
+    socket.on('move', ({positionOnMap}) => {
+        socket.broadcast.emit('move', ({positionOnMap: positionOnMap}));
     });
 });
 

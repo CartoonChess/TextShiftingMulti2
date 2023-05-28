@@ -10,8 +10,16 @@
         document.addEventListener('DOMContentLoaded', function () {
             var socket = io();
 
-            socket.on('move', ({surroundings}) => {
-                updateConsole(surroundings);
+            // socket.on('move', ({surroundings}) => {
+            //     // Convert from json back to Surroundings
+            //     surroundings = Object.assign(new Surroundings, JSON.parse(surroundings));
+            //     updateConsole(surroundings);
+            // });
+
+            socket.on('move', ({positionOnMap}) => {
+                // Convert from json back to Coordinate
+                positionOnMap = Object.assign(new Coordinate, JSON.parse(positionOnMap));
+                updateConsole(`X ${positionOnMap.column}, Y ${positionOnMap.line}`);
             });
             
             class Coordinate {
@@ -122,8 +130,11 @@
                     document.getElementById(`line${i}`).textContent = lines[i];
                 }
                 playerSurroundings.update(lines, playerPosition);
-                // updateConsole(playerSurroundings);
-                socket.emit('move', {surroundings: playerSurroundings.toString()});
+                // socket.emit('move', {surroundings: JSON.stringify(playerSurroundings)});
+                var positionOnMapX = currentPosition + screenCenter.column;
+                var positionOnMapY = topArrayIndex + screenCenter.line;
+                const positionOnMap = new Coordinate(positionOnMapX, positionOnMapY);
+                socket.emit('move', {positionOnMap: JSON.stringify(positionOnMap)});
             }
 
             function canMove(direction) {
