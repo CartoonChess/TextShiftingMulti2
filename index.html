@@ -1,61 +1,284 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Socket.IO chat</title>
-        <style>
-            body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
-            #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-            #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
-            #input:focus { outline: none; }
-            #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
-
-            #messages { list-style-type: none; margin: 0; padding: 0; }
-            #messages > li { padding: 0.5rem 1rem; }
-            #messages > li:nth-child(odd) { background: #efefef; }
-        </style>
-    </head>
-    <body>
-        <ul id="messages"></ul>
-        <form id="form" action="">
-            <input id="input" autocomplete="off" /><button>Send</button>
-        </form>
-        <script src="/socket.io/socket.io.js"></script>
-
-        <script>
-            function generateUsername() {
-                return Math.random().toString();
-            }
-            
-            function showMsg(msg, sender) {
-                if (!sender) { sender = 'Me'};
-                var item = document.createElement('li');
-                item.textContent = `${sender}: ${msg}`;
-                messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
-            }
-
-            const username = generateUsername();
-            
+<head>
+    <title>Text Shifting</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
             var socket = io();
 
-            var messages = document.getElementById('messages');
-            var form = document.getElementById('form');
-            var input = document.getElementById('input');
+            socket.on('move', ({surroundings}) => {
+                updateConsole(surroundings);
+            });
+            
+            class Coordinate {
+                constructor(column, line) {
+                    this.column = column;
+                    this.line = line;
+                }
+                // possibly provide some func/prop that provides .leftOfMe
+            }
 
-            form.addEventListener('submit', function(event) {
-                event.preventDefault();
-                if (input.value) {
-                    socket.emit('chat message', {msg: input.value, user: username})
-                    showMsg(input.value);
-                    input.value = '';
+            class Direction {
+                static Up = new Direction("up")
+                static Down = new Direction("down")
+                static Left = new Direction("left")
+                static Right = new Direction("right")
+
+                constructor(name) {
+                    this.name = name
+                }
+            }
+
+            class Surroundings {
+                constructor(lines, coordinate) {
+                    if (lines && coordinate) {
+                        this.update(lines, coordinate);
+                    } else {
+                        this.here = ' ';
+                        this.up = ' ';
+                        this.down = ' ';
+                        this.left = ' ';
+                        this.right = ' ';
+                    }
+                }
+                update(lines, coordinate) {
+                    const x = coordinate.column;
+                    const y = coordinate.line;
+                    this.here = lines[y][x];
+                    this.up = lines[y - 1][x];
+                    this.down = lines[y + 1][x];
+                    this.left = lines[y][x - 1];
+                    this.right = lines[y][x + 1];
+                }
+                toString() {
+                    return ` ${this.up} \n${this.left}${this.here}${this.right}\n ${this.down} `;
+                }
+            }
+
+            function generateArrays(numberOfElements) {
+                const arrays = [];
+
+                for (let i = 0; i < numberOfElements; i++) {
+                    const array = [];
+                    for (let j = 0; j < numberOfElements; j++) {
+                        const randomNumber = Math.random();
+                        let character;
+
+                        if (randomNumber < 0.65) {
+                            character = ' ';
+                        } else if (randomNumber < 0.8) {
+                            character = '.';
+                        } else if (randomNumber < 0.95) {
+                            character = ',';
+                        } else if (randomNumber < 0.99) {
+                            character = ';';
+                        } else {
+                            character = '~';
+                        }
+
+                        array.push(character);
+                    }
+                    arrays.push(array);
+                }
+                return arrays;
+            }
+
+
+            // Full map
+            var numberOfElements = 29;
+            var arrays = generateArrays(numberOfElements);
+            const mapCenter = new Coordinate(Math.floor(numberOfElements / 2), Math.floor(numberOfElements / 2));
+            // Screen area
+            var numberOfLines = 9;
+            var numberOfColumns = 9;
+            const screenCenter = new Coordinate(Math.floor(numberOfColumns / 2), Math.floor(numberOfLines / 2));
+            // Current view
+            var topArrayIndex = mapCenter.line - screenCenter.line;
+            var currentPosition = mapCenter.column - screenCenter.column;
+            const playerPosition = screenCenter; // syntactic sugar
+            var playerSurroundings = new Surroundings();
+
+            function replaceCharAt(index, chr, str) {
+                // If called as a func of string, operate on copy of String itself
+                if (!str) {str = this;}
+                if (index > str.length - 1) return str;
+                return str.substring(0, index) + chr + str.substring(index + 1);
+            }
+            // Add this as a method on String
+            String.prototype.replaceCharAt = replaceCharAt;
+
+            function updateText() {
+                const lines = [];
+                for (let i = 0; i < numberOfLines; i++) {
+                    lines[i] = arrays[topArrayIndex + i].slice(currentPosition, currentPosition + numberOfColumns).join('');
+                    // Show @char at centre of both axes
+                    if (i === playerPosition.line) {
+                        lines[i] = lines[i].replaceCharAt(playerPosition.line, '@');
+                    }
+                    document.getElementById(`line${i}`).textContent = lines[i];
+                }
+                playerSurroundings.update(lines, playerPosition);
+                // updateConsole(playerSurroundings);
+                socket.emit('move', {surroundings: playerSurroundings.toString()});
+            }
+
+            function canMove(direction) {
+                switch (direction) {
+                    case Direction.Up: {
+                        return topArrayIndex > 0 && playerSurroundings.up != ';';
+                        break;
+                    }
+                    case Direction.Down: {
+                        return topArrayIndex + numberOfLines < arrays.length && playerSurroundings.down != ';';
+                        break;
+                    }
+                    case Direction.Left: {
+                        return currentPosition > 0 && playerSurroundings.left != ';';
+                        break;
+                    }
+                    case Direction.Right: {
+                        return currentPosition < numberOfElements - numberOfColumns && playerSurroundings.right != ';';
+                        break;
+                    }
+                    default: {
+                        // this should never happen
+                    }
+                }
+            }
+
+            function shiftRight() {
+                if (canMove(Direction.Right)) {
+                    currentPosition++;
+                    updateText();
+                }
+            }
+
+            function shiftLeft() {
+                if (canMove(Direction.Left)) {
+                    currentPosition--;
+                    updateText();
+                }
+            }
+
+            function switchArrayUp() {
+                if (canMove(Direction.Up)) {
+                    topArrayIndex--;
+                    updateText();
+                }
+            }
+
+            function switchArrayDown() {
+                if (canMove(Direction.Down)) {
+                    topArrayIndex++;
+                    updateText();
+                }
+            }
+
+            function updateConsole(msg) {
+                document.getElementById('console').textContent = msg;
+            }
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'ArrowRight') {
+                    shiftRight();
+                } else if (event.key === 'ArrowLeft') {
+                    shiftLeft();
+                } else if (event.key === 'ArrowUp') {
+                    switchArrayUp();
+                } else if (event.key === 'ArrowDown') {
+                    switchArrayDown();
                 }
             });
 
-            // socket.on('chat message', function(msg) {
-            socket.on('chat message', ({msg, username}) => {
-                showMsg(msg, username);
+            updateText();
+
+            // Mobile
+
+            // Ignore swipes so page won't move
+            // Except this doesn't actually work
+            // document.addEventListener("touchmove", function (event) {
+            //     event.codeventDefault();
+            // });
+
+            // Now the actual swipes
+            // Unfortunately Y isn't doing anything
+
+            var initialX = null;
+            var initialY = null;
+
+            document.addEventListener("touchstart", function (event) {
+                initialX = event.touches[0].clientX;
+                initialY = event.touches[0].clientY;
             });
-        </script>
-    </body>
+
+            document.addEventListener("touchend", function (event) {
+                if (initialX !== null) {
+                    var currentX = event.changedTouches[0].clientX;
+                    var deltaX = currentX - initialX;
+                    if (deltaX < 0) {
+                        shiftLeft();
+                    } else if (deltaX > 0) {
+                        shiftRight();
+                    }
+                    initialX = null;
+                }
+                if (initialY !== null) {
+                    var currentY = event.changedTouches[0].clientY;
+                    var deltaY = currentY - initialY;
+                    if (deltaY < 0) {
+                        shiftDown();
+                    } else if (deltaY > 0) {
+                        shiftUp();
+                    }
+                    initialY = null;
+                }
+            });
+        });
+    </script>
+    <style>
+        body {
+            overflow: hidden;
+            /* Disable scrolling */
+            touch-action: none;
+            /* Disable touch events */
+        }
+
+        #console {
+            margin-top: 15px;
+            padding: 5px;
+            background: #1e1e1e;
+            color: #ffffff;
+        }
+
+        @media (codefers-color-scheme: dark) {
+
+            html,
+            body {
+                background: #1e1e1e;
+                color: #ffffff;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <pre>
+        <code id="line0"></code>
+        <code id="line1"></code>
+        <code id="line2"></code>
+        <code id="line3"></code>
+        <code id="line4"></code>
+        <code id="line5"></code>
+        <code id="line6"></code>
+        <code id="line7"></code>
+        <code id="line8"></code>
+    </pre>
+
+    <pre id="console"></pre>
+</body>
+
 </html>

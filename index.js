@@ -25,6 +25,10 @@ io.on('connection', (socket) => {
         //io.emit('chat message', msg);
         socket.broadcast.emit('chat message', ({msg: msg, username: user}));
     });
+
+    socket.on('move', ({surroundings}) => {
+        socket.broadcast.emit('move', ({surroundings: surroundings}));
+    });
 });
 
 http.listen(port, () => {
