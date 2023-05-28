@@ -19,7 +19,16 @@
             socket.on('move', ({positionOnMap}) => {
                 // Convert from json back to Coordinate
                 positionOnMap = Object.assign(new Coordinate, JSON.parse(positionOnMap));
-                updateConsole(`X ${positionOnMap.column}, Y ${positionOnMap.line}`);
+                // updateConsole(`X ${positionOnMap.column}, Y ${positionOnMap.line}`);
+
+                // const remotePlayerPositionOnMap = new Coordinate(0, 0);
+                const remotePlayerIsWithinXView = positionOnMap.column >= currentPosition && positionOnMap.column < currentPosition + numberOfColumns;
+                const remotePlayerIsWithinYView = positionOnMap.line >= topArrayIndex && positionOnMap.line < topArrayIndex + numberOfLines;
+                if (remotePlayerIsWithinXView && remotePlayerIsWithinYView) {
+                    updateConsole(`In view: X ${positionOnMap.column}, Y ${positionOnMap.line}`);
+                } else {
+                    updateConsole(`Off screen: X ${positionOnMap.column}, Y ${positionOnMap.line}`);
+                }
             });
             
             class Coordinate {
