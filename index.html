@@ -10,7 +10,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             var socket = io();
 
-            socket.on('move', ({positionOnMap}) => {
+            socket.on('move', (positionOnMap) => {
                 // Convert from json back to Coordinate
                 remotePlayerPositionOnMap = Object.assign(new Coordinate, JSON.parse(positionOnMap));
                 if (remotePlayerWasRecentlyInView || remotePlayerIsInView()) {
@@ -138,7 +138,7 @@
                 const positionOnMap = new Coordinate(
                     currentPosition + screenCenter.column,
                     topArrayIndex + screenCenter.line);
-                socket.emit('move', {positionOnMap: JSON.stringify(positionOnMap)});
+                socket.emit('move', JSON.stringify(positionOnMap));
                 // Just toying around
                 playerSurroundings.update(lines, playerPosition);
                 updateConsole(playerSurroundings);
@@ -287,12 +287,13 @@
 
         #console {
             margin-top: 15px;
+            /*border: 1px #e1e1e1;*/
             padding: 5px;
             background: #1e1e1e;
             color: #ffffff;
         }
 
-        @media (codefers-color-scheme: dark) {
+        @media (prefers-color-scheme: dark) {
 
             html,
             body {

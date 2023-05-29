@@ -7,6 +7,14 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/chat.html', (req, res) => {
+    res.sendFile(__dirname + '/chat.html');
+});
+
+app.get('/talk', (req, res) => {
+    res.sendFile(__dirname + '/chat.html');
+});
+
 io.on('connection', (socket) => {
     // io.emit -> send to all
     // socket.broadcast.emit -> send to all but sender client
@@ -20,18 +28,12 @@ io.on('connection', (socket) => {
     //     socket.broadcast.emit('chat message', ({msg: 'A user has disconnected.', username: 'System'}));
     // });
     
-    // socket.on('chat message', msg => {
     socket.on('chat message', ({msg, user}) => {
-        //io.emit('chat message', msg);
         socket.broadcast.emit('chat message', ({msg: msg, username: user}));
     });
 
-    // socket.on('move', ({surroundings}) => {
-    //     socket.broadcast.emit('move', ({surroundings: surroundings}));
-    // });
-
-    socket.on('move', ({positionOnMap}) => {
-        socket.broadcast.emit('move', ({positionOnMap: positionOnMap}));
+    socket.on('move', (positionOnMap) => {
+        socket.broadcast.emit('move', (positionOnMap));
     });
 });
 
