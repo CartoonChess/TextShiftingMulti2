@@ -8,7 +8,72 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            var socket = io();
+            // Get player set up for remote connection
+            // var socket = io();
+            // Using default URL param
+            const socket = io(window.location.host, { autoConnect: false });
+            //socket.auth = { username: "joe" };
+            // socket.connect();
+
+            // `localStorage` is a property of browser `window`
+            const sessionId = localStorage.getItem('sessionId');
+            if (sessionId) {
+                socket.auth = { sessionId };
+                // socket.connect();
+                updateConsole(`had seshId ${sessionId}.`)
+            }
+            
+            // Not in the tutorial but
+            // let's just try connecting down here instead
+            socket.connect();
+
+            // Get session ID, whether new or returning
+            socket.on('session', ({ sessionId, userId }) => {
+                // 'attach sessionId to next reconnection attempts'
+                socket.auth = { sessionId };
+                // Store in browser's localStorage
+                localStorage.setItem('sessionId', sessionId);
+                // Save (public) userId
+                socket.userId = userId;
+                updateConsole(`got userId ${socket.userId}.`);
+            });
+
+            // Not sure this actually works
+            socket.on('connect_error', (err) => {
+                var errorMessage = '(unknown error)';
+                if (err.message) { errorMessage = err.message; }
+                updateConsole(`ERROR: [Socket.io]: ${errorMessage}.`);
+            });
+
+            // socket.on('self connected', (id) => {
+            //     updateConsole(`You're in (ID: ${id}).`);
+            // });
+
+            var socketConnectCount = 0;
+            socket.on('connect', () => {
+                socketConnectCount++;
+                updateConsole(`Socket connect count: ${socketConnectCount}.`);
+            });
+
+            var socketDisonnectCount = 0;
+            socket.on('disconnect', (reason) => {
+                socketDisonnectCount++;
+                updateConsole(`Socket disconnect count: ${socketDisonnectCount}. Reason: ${reason}.`);
+            });
+
+            // socket.on('users'...
+            socket.on('all players', (allPlayers) => {
+                updateConsole(`all players: ${JSON.stringify(allPlayers)}.`);
+            });
+
+            // socket.on('user connected'...
+            socket.on('other connected', ({ userId }) => {
+                updateConsole(`Friend's in (ID: ${userId}).`);
+            });
+
+            socket.on('other disconnected', (userId) => {
+                updateConsole(`userId ${userId} left.`);
+            });
 
             socket.on('move', (positionOnMap) => {
                 // Convert from json back to Coordinate
@@ -17,11 +82,19 @@
                     updateText();
                 }
             });
+
+            // socket.on('private message'...
+            socket.on('move2', ({ userId, position }) => {
+                updateConsole(`${userId} moves to ${position}.`);
+            });
             
             class Coordinate {
                 constructor(column, line) {
                     this.column = column;
                     this.line = line;
+                }
+                toString() {
+                    return `(x: ${this.column}, y: ${this.line})`;
                 }
                 // possibly provide some func/prop that provides .leftOfMe
             }
@@ -33,7 +106,7 @@
                 static Right = new Direction("right")
 
                 constructor(name) {
-                    this.name = name
+                    this.name = name;
                 }
             }
 
@@ -60,6 +133,55 @@
                 }
                 toString() {
                     return ` ${this.up} \n${this.left}${this.here}${this.right}\n ${this.down} `;
+                }
+            }
+
+            class Player {
+                #position;
+                get position() {
+                    return new Coordinate(
+                    currentPosition + screenCenter.column,
+                    topArrayIndex + screenCenter.line);
+                }
+            }
+
+            class RemotePlayer extends Player {
+                // Private properties aren't inherited
+                #position;
+                #positionInView;
+                #isInView;
+                wasInView = true;
+                
+                constructor(id, position) {
+                    this.id = id;
+                    if (!position) {
+                        position = new Coordinate(-1, -1);
+                    }
+                    this.#position = position;
+                }
+                get position() {
+                    return this.#position;
+                }
+                set position(coordindate) {
+                    this.#position = coordinate;
+                }
+                get positionInView() {
+                    if (this.#isInView) {
+                        // Convert remote player's position to viewport coord
+                        return new Coordinate(
+                            this.#position.column - currentPosition,
+                            this.#position.line - topArrayIndex
+                        );
+                    } else {
+                        return new Coordinate(-1, -1);
+                    }
+                }
+                // This also updates wasInView
+                get isInView() {
+                    const isInXView = this.#position.column >= currentPosition && this.#position.column < currentPosition + numberOfColumns;
+                    const isInYView = this.#position.line >= topArrayIndex && this.#position.line < topArrayIndex + numberOfLines;
+                    this.wasInView = isInXView && isInYView;
+                    return this.wasInView;
                 }
             }
 
@@ -108,6 +230,17 @@
             // Remote player (position refers to entire map, not viewport)
             var remotePlayerPositionOnMap = new Coordinate(-1, -1);
             var remotePlayerWasRecentlyInView = true;
+            // Just for info purposes
+            var textUpdateCount = 0;
+
+            const player = new Player();
+            const remotePlayers = [];
+
+            // This will all be handled by socket 'all players' later
+            // Make sure to remove self
+            // remotePlayers.push({
+            //     userId: session.userId
+            // });
             
 
             function replaceCharAt(index, chr, str) {
@@ -129,19 +262,19 @@
                         lines[i] = lines[i].replaceCharAt(playerPosition.column, '@');
                     }
                     // Show %char for remote player
+                    // This will soon have to check char is in view column
                     if (i === remotePlayer.line) {
                         lines[i] = lines[i].replaceCharAt(remotePlayer.column, '%');
                     }
                     document.getElementById(`line${i}`).textContent = lines[i];
                 }
-                // Send position to other players
-                const positionOnMap = new Coordinate(
-                    currentPosition + screenCenter.column,
-                    topArrayIndex + screenCenter.line);
-                socket.emit('move', JSON.stringify(positionOnMap));
                 // Just toying around
                 playerSurroundings.update(lines, playerPosition);
-                updateConsole(playerSurroundings);
+                updateConsole(`position: ${player.position}`);
+                // textUpdateCount++;
+                // updateConsole(textUpdateCount);
+                // updateConsole(socket.id);
+                // updateConsole(`ping: ${pingServer()}ms.`);
             }
 
             function canMove(direction) {
@@ -172,6 +305,7 @@
                 if (canMove(Direction.Right)) {
                     currentPosition++;
                     updateText();
+                    broadcastMove();
                 }
             }
 
@@ -179,6 +313,7 @@
                 if (canMove(Direction.Left)) {
                     currentPosition--;
                     updateText();
+                    broadcastMove();
                 }
             }
 
@@ -186,6 +321,7 @@
                 if (canMove(Direction.Up)) {
                     topArrayIndex--;
                     updateText();
+                    broadcastMove();
                 }
             }
 
@@ -193,10 +329,32 @@
                 if (canMove(Direction.Down)) {
                     topArrayIndex++;
                     updateText();
+                    broadcastMove();
                 }
             }
 
+            // Send position to other players
+            function broadcastMove() {
+                const positionOnMap = new Coordinate(
+                    currentPosition + screenCenter.column,
+                    topArrayIndex + screenCenter.line);
+                // Should this be broadcast/other instead? Can it be?
+                socket.emit('move', JSON.stringify(positionOnMap));
+            }
+
+            function pingServer() {
+                const start = Date.now();
+                socket.emit('latency', () => {
+                    const duration = Date.now() - start;
+                    return duration;
+                });
+            }
+
             function updateConsole(msg) {
+                const debug = true;
+                if (debug) {
+                    msg = document.getElementById('console').textContent + `${msg}\n`;
+                }
                 document.getElementById('console').textContent = msg;
             }
 
@@ -212,7 +370,9 @@
                 }
             });
 
+            // First load
             updateText();
+            broadcastMove();
 
             function remotePlayerIsInView() {
                 const remotePlayerIsWithinXView = remotePlayerPositionOnMap.column >= currentPosition && remotePlayerPositionOnMap.column < currentPosition + numberOfColumns;
@@ -286,19 +446,21 @@
         }
 
         #console {
+            /* keep multiplace spaces but still wrap */
+            white-space: pre-wrap;
             margin-top: 15px;
-            /*border: 1px #e1e1e1;*/
             padding: 5px;
             background: #1e1e1e;
             color: #ffffff;
         }
 
         @media (prefers-color-scheme: dark) {
-
-            html,
-            body {
+            html, body {
                 background: #1e1e1e;
                 color: #ffffff;
+            }
+            #console {
+                background: #000000;
             }
         }
     </style>
