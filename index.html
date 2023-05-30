@@ -9,17 +9,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Get player set up for remote connection
-            // var socket = io();
             // Using default URL param
             const socket = io(window.location.host, { autoConnect: false });
             //socket.auth = { username: "joe" };
-            // socket.connect();
 
             // `localStorage` is a property of browser `window`
             const sessionId = localStorage.getItem('sessionId');
             if (sessionId) {
                 socket.auth = { sessionId };
-                // socket.connect();
                 updateConsole(`had seshId ${sessionId}.`)
             }
             
@@ -77,9 +74,7 @@
 
             socket.on('move', (positionOnMap) => {
                 // Convert from json back to Coordinate
-                // remotePlayerPositionOnMap = Object.assign(new Coordinate, JSON.parse(positionOnMap));
                 remotePlayer.position = Object.assign(new Coordinate, JSON.parse(positionOnMap));
-                // if (remotePlayerWasRecentlyInView || remotePlayerIsInView()) {
                 if (remotePlayer.wasInView || remotePlayer.isInView) {
                     updateText();
                 }
@@ -184,7 +179,6 @@
                 get isInView() {
                     const isInXView = this.#position.column >= currentPosition && this.#position.column < currentPosition + numberOfColumns;
                     const isInYView = this.#position.line >= topArrayIndex && this.#position.line < topArrayIndex + numberOfLines;
-                    updateConsole(`isInXView:${isInXView},isInYView${isInXView}`);
                     this.wasInView = isInXView && isInYView;
                     return this.wasInView;
                 }
@@ -261,8 +255,6 @@
             String.prototype.replaceCharAt = replaceCharAt;
 
             function updateText() {
-                updateConsole(`mapx:${remotePlayer.position.column},viewx:${remotePlayer.positionInView.column}`);
-                // const remotePlayer = getRemotePlayerPositionInView();
                 const lines = [];
                 for (let i = 0; i < numberOfLines; i++) {
                     lines[i] = arrays[topArrayIndex + i].slice(currentPosition, currentPosition + numberOfColumns).join('');
@@ -270,22 +262,11 @@
                     if (i === playerPosition.line) {
                         lines[i] = lines[i].replaceCharAt(playerPosition.column, '@');
                     }
-                    // Show %char for remote player
-                    // if (i === remotePlayer.line) {
-                    //     lines[i] = lines[i].replaceCharAt(remotePlayer.column, '%');
-                    // }
                     if (i === remotePlayer.positionInView.line) {
                         lines[i] = lines[i].replaceCharAt(remotePlayer.positionInView.column, '%');
                     }
                     document.getElementById(`line${i}`).textContent = lines[i];
                 }
-                // Just toying around
-                playerSurroundings.update(lines, playerPosition);
-                // updateConsole(`position: ${player.position}`);
-                // textUpdateCount++;
-                // updateConsole(textUpdateCount);
-                // updateConsole(socket.id);
-                // updateConsole(`ping: ${pingServer()}ms.`);
             }
 
             function canMove(direction) {
@@ -385,25 +366,25 @@
             updateText();
             broadcastMove();
 
-            function remotePlayerIsInView() {
-                const remotePlayerIsWithinXView = remotePlayerPositionOnMap.column >= currentPosition && remotePlayerPositionOnMap.column < currentPosition + numberOfColumns;
-                const remotePlayerIsWithinYView = remotePlayerPositionOnMap.line >= topArrayIndex && remotePlayerPositionOnMap.line < topArrayIndex + numberOfLines;
-                const inView = remotePlayerIsWithinXView && remotePlayerIsWithinYView;
-                remotePlayerWasRecentlyInView = inView;
-                return inView;
-            }
+            // function remotePlayerIsInView() {
+            //     const remotePlayerIsWithinXView = remotePlayerPositionOnMap.column >= currentPosition && remotePlayerPositionOnMap.column < currentPosition + numberOfColumns;
+            //     const remotePlayerIsWithinYView = remotePlayerPositionOnMap.line >= topArrayIndex && remotePlayerPositionOnMap.line < topArrayIndex + numberOfLines;
+            //     const inView = remotePlayerIsWithinXView && remotePlayerIsWithinYView;
+            //     remotePlayerWasRecentlyInView = inView;
+            //     return inView;
+            // }
             
-            function getRemotePlayerPositionInView() {
-                if (remotePlayerIsInView()) {
-                    // Convert remote player's position to viewport coord
-                    return new Coordinate(
-                        remotePlayerPositionOnMap.column - currentPosition,
-                        remotePlayerPositionOnMap.line - topArrayIndex
-                    );
-                } else {
-                    return new Coordinate(-1, -1);
-                }
-            }
+            // function getRemotePlayerPositionInView() {
+            //     if (remotePlayerIsInView()) {
+            //         // Convert remote player's position to viewport coord
+            //         return new Coordinate(
+            //             remotePlayerPositionOnMap.column - currentPosition,
+            //             remotePlayerPositionOnMap.line - topArrayIndex
+            //         );
+            //     } else {
+            //         return new Coordinate(-1, -1);
+            //     }
+            // }
 
             // Mobile
 
