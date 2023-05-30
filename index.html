@@ -75,10 +75,15 @@
                 updateConsole(`userId ${userId} left.`);
             });
 
+            // Shouldn't be here
+            const remotePlayer = new RemotePlayer('1');
+
             socket.on('move', (positionOnMap) => {
                 // Convert from json back to Coordinate
-                remotePlayerPositionOnMap = Object.assign(new Coordinate, JSON.parse(positionOnMap));
-                if (remotePlayerWasRecentlyInView || remotePlayerIsInView()) {
+                // remotePlayerPositionOnMap = Object.assign(new Coordinate, JSON.parse(positionOnMap));
+                remotePlayer.position = Object.assign(new Coordinate, JSON.parse(positionOnMap));
+                // if (remotePlayerWasRecentlyInView || remotePlayerIsInView()) {
+                if (remotePlayer.wasInView || remotePlayer.isInView) {
                     updateText();
                 }
             });
@@ -253,7 +258,8 @@
             String.prototype.replaceCharAt = replaceCharAt;
 
             function updateText() {
-                const remotePlayer = getRemotePlayerPositionInView();
+                updateConsole('updateText...');
+                // const remotePlayer = getRemotePlayerPositionInView();
                 const lines = [];
                 for (let i = 0; i < numberOfLines; i++) {
                     lines[i] = arrays[topArrayIndex + i].slice(currentPosition, currentPosition + numberOfColumns).join('');
@@ -262,9 +268,11 @@
                         lines[i] = lines[i].replaceCharAt(playerPosition.column, '@');
                     }
                     // Show %char for remote player
-                    // This will soon have to check char is in view column
-                    if (i === remotePlayer.line) {
-                        lines[i] = lines[i].replaceCharAt(remotePlayer.column, '%');
+                    // if (i === remotePlayer.line) {
+                    //     lines[i] = lines[i].replaceCharAt(remotePlayer.column, '%');
+                    // }
+                    if (i === remotePlayer.position.line) {
+                        lines[i] = lines[i].replaceCharAt(remotePlayer.position.column, '%');
                     }
                     document.getElementById(`line${i}`).textContent = lines[i];
                 }
