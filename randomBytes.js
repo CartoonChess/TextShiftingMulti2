@@ -9,15 +9,15 @@ class RandomBytes {
     alphanumeric(length) {
         return this.random(36, length);
     }
-    
+
     hex(length) {
         return this.random(16, length);
     }
-    
+
     decimal(length) {
         return this.random(10, length);
     }
-    
+
     binary(length) {
         return this.random(2, length);
     }

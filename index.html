@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="/socket.io/socket.io.js"></script>
+    <script src="randomBytes.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Get player set up for remote connection
@@ -105,6 +106,17 @@
                 constructor(name) {
                     this.name = name;
                 }
+                static fromInt(num) {
+                    switch (num) {
+                        case 1: { return this.Right; }
+                        case 2: { return this.Down; }
+                        case 3: { return this.Left; }
+                        default: { return this.Up; }
+                    }
+                }
+                toString() {
+                    return this.name;
+                }
             }
 
             class Surroundings {
@@ -135,9 +147,12 @@
 
             class Player {
                 #position;
+                // Ultimately this should be reversed
+                // Player moves this coord
+                // Viewport is calculated around this as centre
                 get position() {
                     return new Coordinate(
-                    currentPosition + screenCenter.column,
+                    viewLeftColumn + screenCenter.column,
                     topArrayIndex + screenCenter.line);
                 }
             }
@@ -168,7 +183,7 @@
                     if (this.isInView) {
                         // Convert remote player's position to viewport coord
                         return new Coordinate(
-                            this.#position.column - currentPosition,
+                            this.#position.column - viewLeftColumn,
                             this.#position.line - topArrayIndex
                         );
                     } else {
@@ -177,19 +192,40 @@
                 }
                 // This also updates wasInView
                 get isInView() {
-                    const isInXView = this.#position.column >= currentPosition && this.#position.column < currentPosition + numberOfColumns;
+                    const isInXView = this.#position.column >= viewLeftColumn && this.#position.column < viewLeftColumn + numberOfColumns;
                     const isInYView = this.#position.line >= topArrayIndex && this.#position.line < topArrayIndex + numberOfLines;
                     this.wasInView = isInXView && isInYView;
                     return this.wasInView;
                 }
             }
 
-            function generateArrays(numberOfElements) {
-                const arrays = [];
+            // Screen area
+            const numberOfColumns = 9;
+            const numberOfLines = 9;
+            const screenCenter = new Coordinate(Math.floor(numberOfColumns / 2), Math.floor(numberOfLines / 2));
 
-                for (let i = 0; i < numberOfElements; i++) {
-                    const array = [];
-                    for (let j = 0; j < numberOfElements; j++) {
+            function generateArrays(numberOfElements) {
+                // Build walls around player acessible area
+                // TODO: Someday we'll provide for when the map is smaller than the view
+                const leftBound = Math.floor(numberOfColumns / 2) - 1;
+                const rightBound = numberOfElements - leftBound - 1;
+                const topBound = Math.floor(numberOfLines / 2) - 1;
+                const bottomBound = numberOfElements - topBound - 1;
+                const boundCharacter = '#';
+                
+                const lines = [];
+
+                for (let y = 0; y < numberOfElements; y++) {
+                    if (y === topBound || y === bottomBound) {
+                        lines.push(Array(numberOfElements).fill(boundCharacter));
+                        continue;
+                    }
+                    const line = [];
+                    for (let x = 0; x < numberOfElements; x++) {
+                        if (x === leftBound || x === rightBound) {
+                            line.push(boundCharacter);
+                            continue;
+                        }
                         const randomNumber = Math.random();
                         let character;
 
@@ -205,30 +241,23 @@
                             character = '~';
                         }
 
-                        array.push(character);
+                        line.push(character);
                     }
-                    arrays.push(array);
+                    lines.push(line);
                 }
-                return arrays;
+                
+                return lines;
             }
-
-
+            
             // Full map
-            var numberOfElements = 29;
-            var arrays = generateArrays(numberOfElements);
+            const numberOfElements = 29;
+            const arrays = generateArrays(numberOfElements);
             const mapCenter = new Coordinate(Math.floor(numberOfElements / 2), Math.floor(numberOfElements / 2));
-            // Screen area
-            var numberOfLines = 9;
-            var numberOfColumns = 9;
-            const screenCenter = new Coordinate(Math.floor(numberOfColumns / 2), Math.floor(numberOfLines / 2));
             // Current view
+            var viewLeftColumn = mapCenter.column - screenCenter.column; // prev `currentPosition`
             var topArrayIndex = mapCenter.line - screenCenter.line;
-            var currentPosition = mapCenter.column - screenCenter.column;
             const playerPosition = screenCenter; // syntactic sugar
             var playerSurroundings = new Surroundings();
-            // Remote player (position refers to entire map, not viewport)
-            var remotePlayerPositionOnMap = new Coordinate(-1, -1);
-            var remotePlayerWasRecentlyInView = true;
             // Just for info purposes
             var textUpdateCount = 0;
 
@@ -241,9 +270,59 @@
             //     userId: session.userId
             // });
 
-            const remotePlayer = new RemotePlayer('1');
-            updateConsole(`remotePlayer: ${remotePlayer.id}`);
+            // const remotePlayer = new RemotePlayer('1');
+            // updateConsole(`remotePlayer: ${remotePlayer.id}`);
+
+            function simulateRemotePlayers() {
+                const randomBytes = new RandomBytes();
+                const randomId = () => randomBytes.hex(16);
+                
+                const randomOffset = () => Math.floor(Math.random() * 5 - Math.ceil(2));
+                const numberOfPlayers = Math.floor(Math.random() * (Math.floor(5) - Math.ceil(2) + 1) + Math.ceil(2));
+                
+                for (i = 0; i < numberOfPlayers; i++) {
+                    const remotePlayer = new RemotePlayer(
+                        randomId,
+                        new Coordinate(
+                            player.position.column + randomOffset,
+                            player.position.line + randomOffset,
+                        )
+                    );
+                    remotePlayers.push(remotePlayer);
+                }
+
+                remotePlayers.forEach(remotePlayer => simulateRemotePlayerMovement(remotePlayer));
+            }
             
+            function simulateRemotePlayerMovement(remotePlayer) {
+                const randomDirection = () => Math.floor(Math.random() * 4);
+                const randomDelay = () => Math.floor(Math.random() * (Math.floor(2000) - Math.ceil(200) + 1) + Math.ceil(200));
+                setTimeout(() => {
+                    // remotePlayer.position = Object.assign(new Coordinate, JSON.parse(positionOnMap));
+                    const newPosition = remotePlayer.position;
+                    switch (Direction.frontInt(randomDirection)) {
+                        case Direction.Left: {
+                            newPosition.column--;
+                            break;
+                        }
+                        case Direction.Right: {
+                            newPosition.column++;
+                            break;
+                        }
+                        case Direction.Down: {
+                            newPosition.line++;
+                            break;
+                        }
+                        default: {
+                            newPosition.line--; 
+                        }
+                    }
+                    remotePlayer.position = newPosition;
+                    if (remotePlayer.wasInView || remotePlayer.isInView) {
+                        updateText();
+                    }
+                }, randomDelay);
+            }
 
             function replaceCharAt(index, chr, str) {
                 // If called as a func of string, operate on copy of String itself
@@ -257,16 +336,21 @@
             function updateText() {
                 const lines = [];
                 for (let i = 0; i < numberOfLines; i++) {
-                    lines[i] = arrays[topArrayIndex + i].slice(currentPosition, currentPosition + numberOfColumns).join('');
+                    lines[i] = arrays[topArrayIndex + i].slice(viewLeftColumn, viewLeftColumn + numberOfColumns).join('');
                     // Show @char at centre of both axes
                     if (i === playerPosition.line) {
                         lines[i] = lines[i].replaceCharAt(playerPosition.column, '@');
                     }
-                    if (i === remotePlayer.positionInView.line) {
-                        lines[i] = lines[i].replaceCharAt(remotePlayer.positionInView.column, '%');
+                    // if (i === remotePlayer.positionInView.line) {
+                    //     lines[i] = lines[i].replaceCharAt(remotePlayer.positionInView.column, '%');
+                    // }
+                    if (i === remotePlayers[0].positionInView.line) {
+                        lines[i] = lines[i].replaceCharAt(remotePlayers[0].positionInView.column, '%');
                     }
                     document.getElementById(`line${i}`).textContent = lines[i];
                 }
+                // Used to determine whether player can move again
+                playerSurroundings.update(lines, playerPosition);
             }
 
             function canMove(direction) {
@@ -280,11 +364,11 @@
                         break;
                     }
                     case Direction.Left: {
-                        return currentPosition > 0 && playerSurroundings.left != ';';
+                        return viewLeftColumn > 0 && playerSurroundings.left != ';';
                         break;
                     }
                     case Direction.Right: {
-                        return currentPosition < numberOfElements - numberOfColumns && playerSurroundings.right != ';';
+                        return viewLeftColumn < numberOfElements - numberOfColumns && playerSurroundings.right != ';';
                         break;
                     }
                     default: {
@@ -295,7 +379,7 @@
 
             function shiftRight() {
                 if (canMove(Direction.Right)) {
-                    currentPosition++;
+                    viewLeftColumn++;
                     updateText();
                     broadcastMove();
                 }
@@ -303,7 +387,7 @@
 
             function shiftLeft() {
                 if (canMove(Direction.Left)) {
-                    currentPosition--;
+                    viewLeftColumn--;
                     updateText();
                     broadcastMove();
                 }
@@ -328,7 +412,7 @@
             // Send position to other players
             function broadcastMove() {
                 const positionOnMap = new Coordinate(
-                    currentPosition + screenCenter.column,
+                    viewLeftColumn + screenCenter.column,
                     topArrayIndex + screenCenter.line);
                 // Should this be broadcast/other instead? Can it be?
                 socket.emit('move', JSON.stringify(positionOnMap));
@@ -363,11 +447,12 @@
             });
 
             // First load
+            simulateRemotePlayers();
             updateText();
             broadcastMove();
 
             // function remotePlayerIsInView() {
-            //     const remotePlayerIsWithinXView = remotePlayerPositionOnMap.column >= currentPosition && remotePlayerPositionOnMap.column < currentPosition + numberOfColumns;
+            //     const remotePlayerIsWithinXView = remotePlayerPositionOnMap.column >= viewLeftColumn && remotePlayerPositionOnMap.column < viewLeftColumn + numberOfColumns;
             //     const remotePlayerIsWithinYView = remotePlayerPositionOnMap.line >= topArrayIndex && remotePlayerPositionOnMap.line < topArrayIndex + numberOfLines;
             //     const inView = remotePlayerIsWithinXView && remotePlayerIsWithinYView;
             //     remotePlayerWasRecentlyInView = inView;
@@ -378,7 +463,7 @@
             //     if (remotePlayerIsInView()) {
             //         // Convert remote player's position to viewport coord
             //         return new Coordinate(
-            //             remotePlayerPositionOnMap.column - currentPosition,
+            //             remotePlayerPositionOnMap.column - viewLeftColumn,
             //             remotePlayerPositionOnMap.line - topArrayIndex
             //         );
             //     } else {

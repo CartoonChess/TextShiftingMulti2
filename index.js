@@ -23,6 +23,11 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
+// Feels like a hack lol
+app.get('/randomBytes.js', (req, res) => {
+    res.sendFile(__dirname + '/randomBytes.js');
+});
+
 app.get('/chat.html', (req, res) => {
     res.sendFile(__dirname + '/chat.html');
 });
