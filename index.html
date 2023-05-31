@@ -282,10 +282,10 @@
                 
                 for (i = 0; i < numberOfPlayers; i++) {
                     const remotePlayer = new RemotePlayer(
-                        randomId,
+                        randomId(),
                         new Coordinate(
-                            player.position.column + randomOffset,
-                            player.position.line + randomOffset,
+                            player.position.column + randomOffset(),
+                            player.position.line + randomOffset(),
                         )
                     );
                     remotePlayers.push(remotePlayer);
@@ -297,10 +297,11 @@
             function simulateRemotePlayerMovement(remotePlayer) {
                 const randomDirection = () => Math.floor(Math.random() * 4);
                 const randomDelay = () => Math.floor(Math.random() * (Math.floor(2000) - Math.ceil(200) + 1) + Math.ceil(200));
-                setTimeout(() => {
+                
+                var loop = function() {
                     // remotePlayer.position = Object.assign(new Coordinate, JSON.parse(positionOnMap));
                     const newPosition = remotePlayer.position;
-                    switch (Direction.frontInt(randomDirection)) {
+                    switch (Direction.fromInt(randomDirection())) {
                         case Direction.Left: {
                             newPosition.column--;
                             break;
@@ -321,7 +322,9 @@
                     if (remotePlayer.wasInView || remotePlayer.isInView) {
                         updateText();
                     }
-                }, randomDelay);
+                    setTimeout(loop, randomDelay());
+                }
+                setTimeout(loop, randomDelay());
             }
 
             function replaceCharAt(index, chr, str) {
