@@ -33,6 +33,7 @@
                 localStorage.setItem('sessionId', sessionId);
                 // Save (public) userId
                 socket.userId = userId;
+                // socket.positionOnMap = positionOnMap;
                 updateConsole(`got userId ${socket.userId}.`);
             });
 
@@ -62,10 +63,20 @@
             // socket.on('users'...
             socket.on('all players', (allPlayers) => {
                 updateConsole(`all players: ${JSON.stringify(allPlayers)}.`);
+                // for (i = 0; i < numberOfPlayers; i++) {
+                //     const remotePlayer = new RemotePlayer(
+                //         randomId(),
+                //         new Coordinate(
+                //             player.position.column + randomOffset(),
+                //             player.position.line + randomOffset(),
+                //         )
+                //     );
+                //     remotePlayers.push(remotePlayer);
+                // }
             });
 
             // socket.on('user connected'...
-            socket.on('other connected', ({ userId }) => {
+            socket.on('other connected', ({ userId, positionOnMap }) => {
                 updateConsole(`Friend's in (ID: ${userId}).`);
             });
 
@@ -74,22 +85,52 @@
             });
 
             socket.on('move', (positionOnMap) => {
+                updateConsole('old move...');
                 // Convert from json back to Coordinate
-                remotePlayer.position = Object.assign(new Coordinate, JSON.parse(positionOnMap));
-                if (remotePlayer.wasInView || remotePlayer.isInView) {
-                    updateText();
-                }
+                // remotePlayer.position = Object.assign(new Coordinate, JSON.parse(positionOnMap));
+                // if (remotePlayer.wasInView || remotePlayer.isInView) {
+                //     updateText();
+                // }
             });
 
             // socket.on('private message'...
-            socket.on('move2', ({ userId, position }) => {
-                updateConsole(`${userId} moves to ${position}.`);
+            socket.on('move', ({ userId, positionOnMap }) => {
+                // updateConsole(`they moved...`);
+                //some kinda find-match func to get correct player
+                //const remotePlayer = remotePlayers.
+                // then we also have to assign it the new position in that array...
+                const position = Coordinate.fromJson(positionOnMap);
+                // updateConsole(`${userId} moves to ${position}.`);
+
+                // simulation
+                if (remotePlayers.length === 0) {
+                    updateConsole(`adding player to array`);
+                    const remotePlayer = new RemotePlayer(
+                        userId,
+                        position
+                    );
+                    remotePlayers.push(remotePlayer);
+                } else {
+                    updateConsole(`player already in array`);
+                    remotePlayers[0].position = position;
+                }
+
+                if (remotePlayers[0].wasInView || remotePlayers[0].isInView) {
+                    updateConsole(`remotePlayer was/is in view`);
+                    updateText();
+                }
             });
             
             class Coordinate {
                 constructor(column, line) {
                     this.column = column;
                     this.line = line;
+                }
+                static fromJson(json) {
+                    return Object.assign(new this, JSON.parse(json));
+                }
+                toJson() {
+                    return JSON.stringify(this);
                 }
                 toString() {
                     return `(x: ${this.column}, y: ${this.line})`;
@@ -98,10 +139,11 @@
             }
 
             class Direction {
-                static Up = new Direction("up")
-                static Down = new Direction("down")
-                static Left = new Direction("left")
-                static Right = new Direction("right")
+                // TODO: should this be "new this"?
+                static Up = new Direction("up");
+                static Down = new Direction("down");
+                static Left = new Direction("left");
+                static Right = new Direction("right");
 
                 constructor(name) {
                     this.name = name;
@@ -270,9 +312,6 @@
             //     userId: session.userId
             // });
 
-            // const remotePlayer = new RemotePlayer('1');
-            // updateConsole(`remotePlayer: ${remotePlayer.id}`);
-
             function simulateRemotePlayers() {
                 const randomBytes = new RandomBytes();
                 const randomId = () => randomBytes.hex(16);
@@ -417,7 +456,7 @@
                     viewLeftColumn + screenCenter.column,
                     topArrayIndex + screenCenter.line);
                 // Should this be broadcast/other instead? Can it be?
-                socket.emit('move', JSON.stringify(positionOnMap));
+                socket.emit('move', positionOnMap.toJson());
             }
 
             function pingServer() {
@@ -449,29 +488,9 @@
             });
 
             // First load
-            simulateRemotePlayers();
+            // simulateRemotePlayers();
             updateText();
             broadcastMove();
-
-            // function remotePlayerIsInView() {
-            //     const remotePlayerIsWithinXView = remotePlayerPositionOnMap.column >= viewLeftColumn && remotePlayerPositionOnMap.column < viewLeftColumn + numberOfColumns;
-            //     const remotePlayerIsWithinYView = remotePlayerPositionOnMap.line >= topArrayIndex && remotePlayerPositionOnMap.line < topArrayIndex + numberOfLines;
-            //     const inView = remotePlayerIsWithinXView && remotePlayerIsWithinYView;
-            //     remotePlayerWasRecentlyInView = inView;
-            //     return inView;
-            // }
-            
-            // function getRemotePlayerPositionInView() {
-            //     if (remotePlayerIsInView()) {
-            //         // Convert remote player's position to viewport coord
-            //         return new Coordinate(
-            //             remotePlayerPositionOnMap.column - viewLeftColumn,
-            //             remotePlayerPositionOnMap.line - topArrayIndex
-            //         );
-            //     } else {
-            //         return new Coordinate(-1, -1);
-            //     }
-            // }
 
             // Mobile
 

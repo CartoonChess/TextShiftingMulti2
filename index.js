@@ -49,6 +49,7 @@ io.use((socket, next) => {
             // And the server remembers it
             socket.sessionId = sessionId;
             socket.userId = session.userId;
+            socket.positionOnMap = session.positionOnMap;
             return next();
         }
     }
@@ -56,6 +57,12 @@ io.use((socket, next) => {
     // User had no sessionId or the server wasn't aware (maybe restarted)
     socket.sessionId = randomId();
     socket.userId = randomId();
+    // TODO: Client should be providing this... or we warp them somehow
+    // We should be able to warp players anyone for multiple tabs open...
+    socket.positionOnMap = {
+        column: 14,
+        line: 14
+    }
     // When we're done
     next();
 });
@@ -73,13 +80,15 @@ io.on('connection', (socket) => {
     // Save sessions so they persist across refreshes
     // Doesn't apply if repl restarts
     sessionStore.saveSession(socket.sessionId, {
-        userId: socket.userId
+        userId: socket.userId,
+        positionOnMap: socket.positionOnMap
     });
 
     // Send session details back to user
     socket.emit('session', {
         sessionId: socket.sessionId,
-        userId: socket.userId
+        userId: socket.userId,
+        positionOnMap: socket.positionOnMap
     });
 
     // Have all sockets in the same browser join a "room" together
@@ -93,14 +102,16 @@ io.on('connection', (socket) => {
     const allPlayers = [];
     sessionStore.findAllSessions().forEach((session) => {
         allPlayers.push({
-            userId: session.userId
+            userId: session.userId,
+            positionOnMap: session.positionOnMap
         });
     });
     socket.emit('all players', allPlayers);
 
     // Tell other players about yourself
     socket.broadcast.emit('other connected', {
-        userId: socket.userId
+        userId: socket.userId,
+        positionOnMap: socket.positionOnMap
     });
     
     socket.on('disconnect', async (reason) => {
@@ -138,14 +149,14 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('chat message', ({msg: msg, username: user}));
     });
 
+    // socket.on('move', (positionOnMap) => {
+    //     socket.broadcast.emit('move', (positionOnMap));
+    // });
     socket.on('move', (positionOnMap) => {
-        socket.broadcast.emit('move', (positionOnMap));
-    });
-
-    socket.on('move2', ({ position }) => {
-        socket.broadcast.emit('move2', {
+        socket.positionOnMap = positionOnMap;
+        socket.broadcast.emit('move', {
             userId: socket.userId,
-            position: position
+            positionOnMap: positionOnMap
         });
     });
 });
