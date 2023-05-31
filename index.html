@@ -344,11 +344,10 @@
                     if (i === playerPosition.line) {
                         lines[i] = lines[i].replaceCharAt(playerPosition.column, '@');
                     }
-                    // if (i === remotePlayer.positionInView.line) {
-                    //     lines[i] = lines[i].replaceCharAt(remotePlayer.positionInView.column, '%');
-                    // }
-                    if (i === remotePlayers[0].positionInView.line) {
-                        lines[i] = lines[i].replaceCharAt(remotePlayers[0].positionInView.column, '%');
+                    for (const remotePlayer of remotePlayers) {
+                        if (i === remotePlayer.positionInView.line) {
+                            lines[i] = lines[i].replaceCharAt(remotePlayer.positionInView.column, '%');
+                        }
                     }
                     document.getElementById(`line${i}`).textContent = lines[i];
                 }
