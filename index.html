@@ -37,7 +37,6 @@
                 updateConsole(`got userId ${socket.userId}.`);
             });
 
-            // Not sure this actually works
             socket.on('connect_error', (err) => {
                 var errorMessage = '(unknown error)';
                 if (err.message) { errorMessage = err.message; }
@@ -60,42 +59,54 @@
                 updateConsole(`Socket disconnect count: ${socketDisonnectCount}. Reason: ${reason}.`);
             });
 
+            // Get already-connected users when joining
             // socket.on('users'...
             socket.on('all players', (allPlayers) => {
-                updateConsole(`all players: ${JSON.stringify(allPlayers)}.`);
-                // for (i = 0; i < numberOfPlayers; i++) {
-                //     const remotePlayer = new RemotePlayer(
-                //         randomId(),
-                //         new Coordinate(
-                //             player.position.column + randomOffset(),
-                //             player.position.line + randomOffset(),
-                //         )
-                //     );
-                //     remotePlayers.push(remotePlayer);
-                // }
+                // Let's just replace the old data and get in sync w/ server
+                remotePlayers.length = 0;
+                allPlayers.forEach((json) => {
+                    const remotePlayer = RemotePlayer.fromJson(json);
+                    // Only add if it's not ourself
+                    if (remotePlayer.id !== socket.userId) {
+                        remotePlayers.push(remotePlayer);
+                    }
+                });
             });
 
+            // Get new users who join after you
             // socket.on('user connected'...
-            socket.on('other connected', ({ userId, positionOnMap }) => {
-                updateConsole(`Friend's in (ID: ${userId}).`);
+            // socket.on('other connected', ({ userId, positionOnMap }) => {
+            socket.on('other connected', (remotePlayerJson) => {
+                const remotePlayer = RemotePlayer.fromJson(remotePlayerJson);
+                updateConsole(`Friend's in (ID: ${remotePlayer.id}).`);
+                if (remotePlayer.id === socket.userId) { return; }
+                // Only add if it's a new player, not a second session
+                for (const existingPlayer of remotePlayers) {
+                    if (remotePlayer.id === existingPlayer.id) { return; }
+                }
+                remotePlayers.push(remotePlayer);
             });
 
+            // Only happens when remote user ends all sessions
             socket.on('other disconnected', (userId) => {
                 updateConsole(`userId ${userId} left.`);
+                for (i = 0; i < remotePlayers.length; i++) {
+                    if (remotePlayers[i].id === userId) {
+                        return remotePlayers.splice(i, 1);
+                    }
+                }
             });
 
-            socket.on('move', (positionOnMap) => {
-                updateConsole('old move...');
-                // Convert from json back to Coordinate
-                // remotePlayer.position = Object.assign(new Coordinate, JSON.parse(positionOnMap));
-                // if (remotePlayer.wasInView || remotePlayer.isInView) {
-                //     updateText();
-                // }
-            });
+            // socket.on('move', (positionOnMap) => {
+            //     // Convert from json back to Coordinate
+            //     remotePlayer.position = Object.assign(new Coordinate, JSON.parse(positionOnMap));
+            //     if (remotePlayer.wasInView || remotePlayer.isInView) {
+            //         updateText();
+            //     }
+            // });
 
             // socket.on('private message'...
             socket.on('move', ({ userId, positionOnMap }) => {
-                // updateConsole(`they moved...`);
                 //some kinda find-match func to get correct player
                 //const remotePlayer = remotePlayers.
                 // then we also have to assign it the new position in that array...
@@ -104,19 +115,16 @@
 
                 // simulation
                 if (remotePlayers.length === 0) {
-                    updateConsole(`adding player to array`);
                     const remotePlayer = new RemotePlayer(
                         userId,
                         position
                     );
                     remotePlayers.push(remotePlayer);
                 } else {
-                    updateConsole(`player already in array`);
                     remotePlayers[0].position = position;
                 }
 
                 if (remotePlayers[0].wasInView || remotePlayers[0].isInView) {
-                    updateConsole(`remotePlayer was/is in view`);
                     updateText();
                 }
             });
@@ -125,6 +133,9 @@
                 constructor(column, line) {
                     this.column = column;
                     this.line = line;
+                }
+                static fromObject(obj) {
+                    return Object.assign(new this, obj);
                 }
                 static fromJson(json) {
                     return Object.assign(new this, JSON.parse(json));
@@ -215,6 +226,15 @@
                     }
                     this.#position = position;
                 }
+                static fromJson(json) {
+                    const position = Coordinate.fromObject(json.positionOnMap);
+                    // json.positionOnMap = position;
+                    // return Object.assign(new this, JSON.parse(json));
+                    return new this(
+                        json.userId,
+                        position
+                    )
+                }
                 get position() {
                     return this.#position;
                 }
@@ -245,6 +265,8 @@
             const numberOfColumns = 9;
             const numberOfLines = 9;
             const screenCenter = new Coordinate(Math.floor(numberOfColumns / 2), Math.floor(numberOfLines / 2));
+
+            const solidCharacter = ';'; // emojis freak out, prob because not one char
 
             function generateArrays(numberOfElements) {
                 // Build walls around player acessible area
@@ -278,7 +300,7 @@
                         } else if (randomNumber < 0.95) {
                             character = ',';
                         } else if (randomNumber < 0.99) {
-                            character = ';';
+                            character = solidCharacter;
                         } else {
                             character = '~';
                         }
@@ -397,19 +419,19 @@
             function canMove(direction) {
                 switch (direction) {
                     case Direction.Up: {
-                        return topArrayIndex > 0 && playerSurroundings.up != ';';
+                        return topArrayIndex > 0 && playerSurroundings.up != solidCharacter;
                         break;
                     }
                     case Direction.Down: {
-                        return topArrayIndex + numberOfLines < arrays.length && playerSurroundings.down != ';';
+                        return topArrayIndex + numberOfLines < arrays.length && playerSurroundings.down != solidCharacter;
                         break;
                     }
                     case Direction.Left: {
-                        return viewLeftColumn > 0 && playerSurroundings.left != ';';
+                        return viewLeftColumn > 0 && playerSurroundings.left != solidCharacter;
                         break;
                     }
                     case Direction.Right: {
-                        return viewLeftColumn < numberOfElements - numberOfColumns && playerSurroundings.right != ';';
+                        return viewLeftColumn < numberOfElements - numberOfColumns && playerSurroundings.right != solidCharacter;
                         break;
                     }
                     default: {

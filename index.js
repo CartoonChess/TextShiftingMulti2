@@ -67,6 +67,7 @@ io.use((socket, next) => {
     next();
 });
 
+// io.on('connection', (socket) => {
 io.on('connection', (socket) => {
     // io.emit -> send to all
     // io.to(...).emit -> send to socket.id '...'
@@ -120,12 +121,11 @@ io.on('connection', (socket) => {
         const isDisconnected = matchingSockets.length === 0;
         if (isDisconnected) {
             socket.broadcast.emit('other disconnected', socket.userId);
-            // We can save final details here; not needed for now?
-            // sessionStore.saveSession(socket.sessionId, {
-            //     userId: socket.userId,
-            //     username: socket.username,
-            //     connected: false
-            // });
+            // We can save final details here
+            sessionStore.saveSession(socket.sessionId, {
+                userId: socket.userId,
+                positionOnMap: socket.positionOnMap
+            });
         } else {
             console.log(`-> (but they still have ${matchingSockets.length} session(s) open.)`);
         }
