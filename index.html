@@ -114,18 +114,29 @@
                 // updateConsole(`${userId} moves to ${position}.`);
 
                 // simulation
-                if (remotePlayers.length === 0) {
-                    const remotePlayer = new RemotePlayer(
-                        userId,
-                        position
-                    );
-                    remotePlayers.push(remotePlayer);
-                } else {
-                    remotePlayers[0].position = position;
-                }
+                // if (remotePlayers.length === 0) {
+                //     const remotePlayer = new RemotePlayer(
+                //         userId,
+                //         position
+                //     );
+                //     remotePlayers.push(remotePlayer);
+                // } else {
+                //     remotePlayers[0].position = position;
+                // }
 
-                if (remotePlayers[0].wasInView || remotePlayers[0].isInView) {
-                    updateText();
+                // if (remotePlayers[0].wasInView || remotePlayers[0].isInView) {
+                //     updateText();
+                // }
+
+                // TODO: Syncing our own moves between tabs
+                // (we prev filtered self out of remotePlayers)
+                for (i = 0; i < remotePlayers.length; i++) {
+                    if (remotePlayers[i].id === userId) {
+                        remotePlayers[i].position = position;
+                        if (remotePlayers[i].wasInView || remotePlayers[i].isInView) {
+                            return updateText();
+                        }
+                    }
                 }
             });
             
