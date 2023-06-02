@@ -172,6 +172,7 @@
                         this.right = ' ';
                     }
                 }
+                // TODO: getters like `player.surroundings(Direction.Up)`
                 update(coordinate, lines) {
                     const x = coordinate.column;
                     const y = coordinate.line;
@@ -283,15 +284,22 @@
             const numberOfLines = 9;
             const screenCenter = new Coordinate(Math.floor(numberOfColumns / 2), Math.floor(numberOfLines / 2));
 
+            // Map and view bounds
+            const numberOfElements = 29;
+            const leftBound = Math.floor(numberOfColumns / 2) - 1;
+            const rightBound = numberOfElements - leftBound - 1;
+            const topBound = Math.floor(numberOfLines / 2) - 1;
+            const bottomBound = numberOfElements - topBound - 1;
+
             const solidCharacter = ';'; // emojis freak out, prob because not one char
 
             function generateArrays(numberOfElements) {
                 // Build walls around player acessible area
                 // TODO: Someday we'll provide for when the map is smaller than the view
-                const leftBound = Math.floor(numberOfColumns / 2) - 1;
-                const rightBound = numberOfElements - leftBound - 1;
-                const topBound = Math.floor(numberOfLines / 2) - 1;
-                const bottomBound = numberOfElements - topBound - 1;
+                // const leftBound = Math.floor(numberOfColumns / 2) - 1;
+                // const rightBound = numberOfElements - leftBound - 1;
+                // const topBound = Math.floor(numberOfLines / 2) - 1;
+                // const bottomBound = numberOfElements - topBound - 1;
                 const boundCharacter = '#';
                 
                 const lines = [];
@@ -331,12 +339,16 @@
             }
             
             // Full map
-            const numberOfElements = 29;
+            // const numberOfElements = 29;
+            // const foo = Math.floor(numberOfLines / 2);
             const arrays = generateArrays(numberOfElements);
             const mapCenter = new Coordinate(Math.floor(numberOfElements / 2), Math.floor(numberOfElements / 2));
             // Current view
+            // TODO: viewLeftColumn and topArrayIndex should be deprecated
             var viewLeftColumn = mapCenter.column - screenCenter.column; // prev `currentPosition`
             var topArrayIndex = mapCenter.line - screenCenter.line;
+            // const viewTopLeftCoordinate = new Coordinate(0, 0);
+            // const viewBottomRightCoordinate = new Coordinate(numberOfElements - 1, numberOfElements - 1);
             // const playerPosition = screenCenter; // syntactic sugar
             // var playerSurroundings = new Surroundings();
             // Just for info purposes
@@ -430,12 +442,13 @@
             function updateText() {
                 const lines = [];
                 for (let i = 0; i < numberOfLines; i++) {
-                    const line = player.position.line - Math.floor(numberOfLines / 2) + i;
+                    const lineIndex = player.position.line - Math.floor(numberOfLines / 2) + i;
                     const leftColumn = player.position.column - Math.floor(numberOfColumns / 2);
-                    lines[i] = arrays[line].slice(leftColumn, leftColumn + numberOfColumns).join('');
+                    lines[i] = arrays[lineIndex].slice(leftColumn, leftColumn + numberOfColumns).join('');
                     // Show @char at centre of both axes
-                    if (i === player.position.line) {
-                        lines[i] = lines[i].replaceCharAt(player.position.column, '@');
+                    // if (lineIndex === player.position.line) {
+                    if (i === screenCenter.line) {
+                        lines[i] = lines[i].replaceCharAt(screenCenter.column, '@');
                     }
                     for (const remotePlayer of remotePlayers) {
                         if (i === remotePlayer.positionInView.line) {
@@ -445,7 +458,8 @@
                     document.getElementById(`line${i}`).textContent = lines[i];
                 }
                 // Used to determine whether player can move again
-                player.surroundings.update(player.position, lines);
+                // player.surroundings.update(player.position, lines);
+                player.surroundings.update(player.position, arrays);
             }
 
             // function canMove(direction) {
@@ -468,23 +482,24 @@
             //     }
             // }
             function moveIfAble(character, direction) {
-                updateConsole(`player coord on moveIfAble: ${character.position}`);
                 var canMove = false;
                 switch (direction) {
                     case Direction.Up: {
-                        canMove = topArrayIndex > 0 && character.surroundings.up != solidCharacter;
+                        // canMove = topArrayIndex > 0 && character.surroundings.up != solidCharacter;
+                        // canMove = character.position.line > Math.floor(numberOfLines / 2) > 0 && character.surroundings.up != solidCharacter;
+                        canMove = character.position.line > topBound + 1 > 0 && character.surroundings.up != solidCharacter;
                         break;
                     }
                     case Direction.Down: {
-                        canMove = topArrayIndex + numberOfLines < arrays.length && character.surroundings.down != solidCharacter;
+                        canMove = character.position.line < bottomBound - 1 && character.surroundings.down != solidCharacter;
                         break;
                     }
                     case Direction.Left: {
-                        canMove = viewLeftColumn > 0 && character.surroundings.left != solidCharacter;
+                        canMove = character.position.column > leftBound + 1 > 0 && character.surroundings.left != solidCharacter;
                         break;
                     }
                     case Direction.Right: {
-                        canMove = viewLeftColumn < numberOfElements - numberOfColumns && character.surroundings.right != solidCharacter;
+                        canMove = character.position.column < rightBound - 1 && character.surroundings.right != solidCharacter;
                         break;
                     }
                     default: {
@@ -492,7 +507,6 @@
                     }
                 }
                 if (canMove) {
-                    updateConsole(`char coord: ${character.position}`);
                     character.move(direction);
                     updateText();
                     broadcastMove();
@@ -532,11 +546,13 @@
 
             // Send position to other players
             function broadcastMove() {
-                const positionOnMap = new Coordinate(
-                    viewLeftColumn + screenCenter.column,
-                    topArrayIndex + screenCenter.line);
+                // const positionOnMap = new Coordinate(
+                //     viewLeftColumn + screenCenter.column,
+                //     topArrayIndex + screenCenter.line);
+                // // Should this be broadcast/other instead? Can it be?
+                // socket.emit('move', positionOnMap.toJson());
                 // Should this be broadcast/other instead? Can it be?
-                socket.emit('move', positionOnMap.toJson());
+                socket.emit('move', player.position.toJson());
             }
 
             function pingServer() {
@@ -562,7 +578,6 @@
                 } else if (event.key === 'ArrowLeft') {
                     moveIfAble(player, Direction.Left);
                 } else if (event.key === 'ArrowUp') {
-                    updateConsole(`player coord on ArrowUp: ${player.position}`);
                     moveIfAble(player, Direction.Up);
                 } else if (event.key === 'ArrowDown') {
                     moveIfAble(player, Direction.Down);
