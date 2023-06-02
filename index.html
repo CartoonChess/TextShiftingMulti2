@@ -203,7 +203,7 @@
                         }
                         case Direction.Down: {
                             // topArrayIndex++;
-                            return this.position.line--;
+                            return this.position.line++;
                         }
                         case Direction.Left: {
                             // viewLeftColumn--;
@@ -430,7 +430,9 @@
             function updateText() {
                 const lines = [];
                 for (let i = 0; i < numberOfLines; i++) {
-                    lines[i] = arrays[topArrayIndex + i].slice(viewLeftColumn, viewLeftColumn + numberOfColumns).join('');
+                    const line = player.position.line - Math.floor(numberOfLines / 2) + i;
+                    const leftColumn = player.position.column - Math.floor(numberOfColumns / 2);
+                    lines[i] = arrays[line].slice(leftColumn, leftColumn + numberOfColumns).join('');
                     // Show @char at centre of both axes
                     if (i === player.position.line) {
                         lines[i] = lines[i].replaceCharAt(player.position.column, '@');
