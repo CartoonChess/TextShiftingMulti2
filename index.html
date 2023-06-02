@@ -135,11 +135,14 @@
             }
 
             class Direction {
-                // TODO: should this be "new this"?
-                static Up = new Direction("up");
-                static Down = new Direction("down");
-                static Left = new Direction("left");
-                static Right = new Direction("right");
+                // static Up = new Direction("up");
+                // static Down = new Direction("down");
+                // static Left = new Direction("left");
+                // static Right = new Direction("right");
+                static Up = new this('up');
+                static Down = new this('down');
+                static Left = new this('left');
+                static Right = new this('right');
 
                 constructor(name) {
                     this.name = name;
@@ -405,19 +408,15 @@
                 switch (direction) {
                     case Direction.Up: {
                         return topArrayIndex > 0 && playerSurroundings.up != solidCharacter;
-                        break;
                     }
                     case Direction.Down: {
                         return topArrayIndex + numberOfLines < arrays.length && playerSurroundings.down != solidCharacter;
-                        break;
                     }
                     case Direction.Left: {
                         return viewLeftColumn > 0 && playerSurroundings.left != solidCharacter;
-                        break;
                     }
                     case Direction.Right: {
                         return viewLeftColumn < numberOfElements - numberOfColumns && playerSurroundings.right != solidCharacter;
-                        break;
                     }
                     default: {
                         // this should never happen
@@ -425,33 +424,29 @@
                 }
             }
 
-            function shiftRight() {
-                if (canMove(Direction.Right)) {
-                    viewLeftColumn++;
-                    updateText();
-                    broadcastMove();
-                }
-            }
-
-            function shiftLeft() {
-                if (canMove(Direction.Left)) {
-                    viewLeftColumn--;
-                    updateText();
-                    broadcastMove();
-                }
-            }
-
-            function switchArrayUp() {
-                if (canMove(Direction.Up)) {
-                    topArrayIndex--;
-                    updateText();
-                    broadcastMove();
-                }
-            }
-
-            function switchArrayDown() {
-                if (canMove(Direction.Down)) {
-                    topArrayIndex++;
+            function movePlayer(direction) {
+                if (canMove(direction)) {
+                    switch (direction) {
+                        case Direction.Up: {
+                            topArrayIndex--;
+                            break;
+                        }
+                        case Direction.Down: {
+                            topArrayIndex++;
+                            break;
+                        }
+                        case Direction.Left: {
+                            viewLeftColumn--;
+                            break;
+                        }
+                        case Direction.Right: {
+                            viewLeftColumn++;
+                            break;
+                        }
+                        default: {
+                            // this should never happen
+                        }
+                    }
                     updateText();
                     broadcastMove();
                 }
@@ -484,13 +479,13 @@
 
             document.addEventListener('keydown', function (event) {
                 if (event.key === 'ArrowRight') {
-                    shiftRight();
+                    movePlayer(Direction.Right);
                 } else if (event.key === 'ArrowLeft') {
-                    shiftLeft();
+                    movePlayer(Direction.Left);
                 } else if (event.key === 'ArrowUp') {
-                    switchArrayUp();
+                    movePlayer(Direction.Up);
                 } else if (event.key === 'ArrowDown') {
-                    switchArrayDown();
+                    movePlayer(Direction.Down);
                 }
             });
 
@@ -523,9 +518,9 @@
                     var currentX = event.changedTouches[0].clientX;
                     var deltaX = currentX - initialX;
                     if (deltaX < 0) {
-                        shiftLeft();
+                        movePlayer(Direction.Left);
                     } else if (deltaX > 0) {
-                        shiftRight();
+                        movePlayer(Direction.Right);
                     }
                     initialX = null;
                 }
@@ -533,9 +528,9 @@
                     var currentY = event.changedTouches[0].clientY;
                     var deltaY = currentY - initialY;
                     if (deltaY < 0) {
-                        shiftDown();
+                        movePlayer(Direction.Down);
                     } else if (deltaY > 0) {
-                        shiftUp();
+                        movePlayer(Direction.Up);
                     }
                     initialY = null;
                 }

@@ -29,11 +29,7 @@ app.get('/randomBytes.js', (req, res) => {
 });
 
 app.get('/chat.html', (req, res) => {
-    res.sendFile(__dirname + '/chat.html');
-});
-
-app.get('/talk', (req, res) => {
-    res.sendFile(__dirname + '/chat.html');
+    res.sendFile(__dirname + '/__chat.html');
 });
 
 // `.use` ("middleware"?) perhaps executed only once per socket when first connecting
@@ -98,10 +94,6 @@ io.on('connection', (socket) => {
     // Have all sockets in the same browser join a "room" together
     // (pretty sure we're not taking advantage of this yet though)
     socket.join(socket.userId);
-    
-    // socket.on('disconnect', (reason) => {
-    //     console.log(`User with ID ${socket.userId} has disconnected. Reason: ${reason}.`);
-    // });
 
     // Get data on all other users
     const allPlayers = [];
@@ -156,9 +148,6 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('chat message', ({msg: msg, username: user}));
     });
 
-    // socket.on('move', (positionOnMap) => {
-    //     socket.broadcast.emit('move', (positionOnMap));
-    // });
     socket.on('move', (positionOnMap) => {
         socket.positionOnMap = positionOnMap;
         socket.broadcast.emit('move', {
@@ -167,14 +156,8 @@ io.on('connection', (socket) => {
         });
         // Update session store as well so new players will see this
         // TODO: sockets of the same sessionId should sync to this
-        // sessionStore.saveSession(socket.sessionId, {
-        //     userId: socket.userId,
-        //     positionOnMap: socket.positionOnMap
-        // });
-
-        const positionObject = JSON.parse(positionOnMap);
         sessionStore.updateSession(socket.sessionId, {
-            positionOnMap: positionObject
+            positionOnMap: JSON.parse(positionOnMap)
         });
     });
 });
