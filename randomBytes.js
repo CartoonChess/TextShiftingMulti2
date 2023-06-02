@@ -23,6 +23,7 @@ class RandomBytes {
     }
 }
 
+// this throws a (harmless?) error
 module.exports = {
     RandomBytes
 };
