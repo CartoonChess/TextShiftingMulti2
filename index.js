@@ -78,11 +78,13 @@ io.on('connection', (socket) => {
 
     console.log(`A user has connected (userId ${socket.userId}, sessionId ${socket.sessionId}, socket.id ${socket.id}).`);
     socket.emit('self connected', socket.id);
+    
 
     // Save sessions so they persist across refreshes
     // Doesn't apply if repl restarts
     sessionStore.saveSession(socket.sessionId, {
         userId: socket.userId,
+        isOnline: true,
         positionOnMap: socket.positionOnMap
     });
 
@@ -94,6 +96,7 @@ io.on('connection', (socket) => {
     });
 
     // Have all sockets in the same browser join a "room" together
+    // (pretty sure we're not taking advantage of this yet though)
     socket.join(socket.userId);
     
     // socket.on('disconnect', (reason) => {
@@ -103,10 +106,12 @@ io.on('connection', (socket) => {
     // Get data on all other users
     const allPlayers = [];
     sessionStore.findAllSessions().forEach((session) => {
-        allPlayers.push({
-            userId: session.userId,
-            positionOnMap: session.positionOnMap
-        });
+        if (session.isOnline) {
+            allPlayers.push({
+                userId: session.userId,
+                positionOnMap: session.positionOnMap
+            });
+        }
     });
     socket.emit('all players', allPlayers);
 
@@ -125,7 +130,8 @@ io.on('connection', (socket) => {
             // We can save final details here
             sessionStore.saveSession(socket.sessionId, {
                 userId: socket.userId,
-                positionOnMap: socket.positionOnMap // TODO: obj?
+                isOnline: false,
+                positionOnMap: JSON.parse(socket.positionOnMap) // TODO: no parse?
             });
         } else {
             console.log(`-> (but they still have ${matchingSockets.length} session(s) open.)`);

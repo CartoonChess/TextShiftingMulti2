@@ -95,9 +95,10 @@
                 updateConsole(`userId ${userId} left.`);
                 for (i = 0; i < remotePlayers.length; i++) {
                     if (remotePlayers[i].id === userId) {
-                        return remotePlayers.splice(i, 1);
+                        remotePlayers.splice(i, 1);
                     }
                 }
+                updateText();
             });
 
             // socket.on('private message'...
