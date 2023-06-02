@@ -104,10 +104,17 @@
             // socket.on('private message'...
             socket.on('move', ({ userId, positionOnMap }) => {
                 const position = Coordinate.fromJson(positionOnMap);
+                
+                // If you moved in one tab, update all your tabs
+                if (userId === socket.userId) {
+                    player.position = position;
+                    return updateText();
+                }
+
+                // Otherwise, let's see which remote user moved
                 for (i = 0; i < remotePlayers.length; i++) {
                     if (remotePlayers[i].id === userId) {
                         remotePlayers[i].position = position;
-                        updateConsole(`saved as: ${remotePlayers[i].position}`);
                         const isInView = view.isVisible(remotePlayers[i]);
                         if (remotePlayers[i].wasInView || isInView) {
                             updateText();
