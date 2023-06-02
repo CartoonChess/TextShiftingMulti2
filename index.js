@@ -90,7 +90,7 @@ io.on('connection', (socket) => {
     socket.emit('session', {
         sessionId: socket.sessionId,
         userId: socket.userId,
-        positionOnMap: socket.positionOnMap
+        positionOnMap: socket.positionOnMap // TODO: may cause obj/json errors
     });
 
     // Have all sockets in the same browser join a "room" together
@@ -125,7 +125,7 @@ io.on('connection', (socket) => {
             // We can save final details here
             sessionStore.saveSession(socket.sessionId, {
                 userId: socket.userId,
-                positionOnMap: socket.positionOnMap
+                positionOnMap: socket.positionOnMap // TODO: obj?
             });
         } else {
             console.log(`-> (but they still have ${matchingSockets.length} session(s) open.)`);
@@ -159,7 +159,17 @@ io.on('connection', (socket) => {
             userId: socket.userId,
             positionOnMap: positionOnMap
         });
+        // Update session store as well so new players will see this
         // TODO: sockets of the same sessionId should sync to this
+        // sessionStore.saveSession(socket.sessionId, {
+        //     userId: socket.userId,
+        //     positionOnMap: socket.positionOnMap
+        // });
+
+        const positionObject = JSON.parse(positionOnMap);
+        sessionStore.updateSession(socket.sessionId, {
+            positionOnMap: positionObject
+        });
     });
 });
 

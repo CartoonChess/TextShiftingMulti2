@@ -66,11 +66,13 @@
                 remotePlayers.length = 0;
                 allPlayers.forEach((json) => {
                     const remotePlayer = RemotePlayer.fromJson(json);
+                    updateConsole(`found player (id ${remotePlayer.id}, position ${remotePlayer.position}`);
                     // Only add if it's not ourself
                     if (remotePlayer.id !== socket.userId) {
                         remotePlayers.push(remotePlayer);
                     }
                 });
+                updateConsole(`number of remote players: ${remotePlayers.length}`);
                 updateText();
             });
 
@@ -97,14 +99,6 @@
                     }
                 }
             });
-
-            // socket.on('move', (positionOnMap) => {
-            //     // Convert from json back to Coordinate
-            //     remotePlayer.position = Object.assign(new Coordinate, JSON.parse(positionOnMap));
-            //     if (remotePlayer.wasInView || remotePlayer.isInView) {
-            //         updateText();
-            //     }
-            // });
 
             // socket.on('private message'...
             socket.on('move', ({ userId, positionOnMap }) => {

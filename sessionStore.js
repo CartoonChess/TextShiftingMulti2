@@ -14,6 +14,11 @@ class InMemorySessionStore extends SessionStore {
     findSession(id) {
         return this.sessions.get(id);
     }
+
+    updateSession(id, pairs) {
+        const session = this.findSession(id);
+        Object.assign(session, pairs);
+    }
     
     saveSession(id, session) {
         this.sessions.set(id, session);
