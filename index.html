@@ -161,9 +161,9 @@
             }
 
             class Surroundings {
-                constructor(lines, coordinate) {
-                    if (lines && coordinate) {
-                        this.update(lines, coordinate);
+                constructor(coordinate, lines) {
+                    if (coordinate && lines) {
+                        this.update(coordinate, lines);
                     } else {
                         this.here = ' ';
                         this.up = ' ';
@@ -172,7 +172,7 @@
                         this.right = ' ';
                     }
                 }
-                update(lines, coordinate) {
+                update(coordinate, lines) {
                     const x = coordinate.column;
                     const y = coordinate.line;
                     this.here = lines[y][x];
@@ -186,16 +186,47 @@
                 }
             }
 
-            class Player {
-                #position;
+            // abstract
+            class Character {
+                move() {}
+            }
+
+            class Player extends Character {
+                // #position;
+                position;
+                surroundings = new Surroundings();
+
+                move(direction) {
+                    switch (direction) {
+                        case Direction.Up: {
+                            return this.position.line--;
+                        }
+                        case Direction.Down: {
+                            // topArrayIndex++;
+                            return this.position.line--;
+                        }
+                        case Direction.Left: {
+                            // viewLeftColumn--;
+                            return this.position.column--;
+                        }
+                        case Direction.Right: {
+                            // viewLeftColumn++;
+                            return this.position.column++;
+                        }
+                        default: {
+                            // this should never happen
+                        }
+                    }
+                }
+                
                 // Ultimately this should be reversed
                 // Player moves this coord
                 // Viewport is calculated around this as centre
-                get position() {
-                    return new Coordinate(
-                    viewLeftColumn + screenCenter.column,
-                    topArrayIndex + screenCenter.line);
-                }
+                // get position() {
+                //     return new Coordinate(
+                //     viewLeftColumn + screenCenter.column,
+                //     topArrayIndex + screenCenter.line);
+                // }
             }
 
             class RemotePlayer extends Player {
@@ -216,8 +247,6 @@
                 }
                 static fromJson(json) {
                     const position = Coordinate.fromObject(json.positionOnMap);
-                    // json.positionOnMap = position;
-                    // return Object.assign(new this, JSON.parse(json));
                     return new this(
                         json.userId,
                         position
@@ -308,19 +337,15 @@
             // Current view
             var viewLeftColumn = mapCenter.column - screenCenter.column; // prev `currentPosition`
             var topArrayIndex = mapCenter.line - screenCenter.line;
-            const playerPosition = screenCenter; // syntactic sugar
-            var playerSurroundings = new Surroundings();
+            // const playerPosition = screenCenter; // syntactic sugar
+            // var playerSurroundings = new Surroundings();
             // Just for info purposes
             var textUpdateCount = 0;
 
             const player = new Player();
+            // TODO: Calculate this instead
+            player.position = new Coordinate(14, 14);
             const remotePlayers = [];
-
-            // This will all be handled by socket 'all players' later
-            // Make sure to remove self
-            // remotePlayers.push({
-            //     userId: session.userId
-            // });
 
             function simulateRemotePlayers() {
                 const randomBytes = new RandomBytes();
@@ -348,7 +373,6 @@
                 const randomDelay = () => Math.floor(Math.random() * (Math.floor(2000) - Math.ceil(200) + 1) + Math.ceil(200));
                 
                 var loop = function() {
-                    // remotePlayer.position = Object.assign(new Coordinate, JSON.parse(positionOnMap));
                     const newPosition = remotePlayer.position;
                     switch (Direction.fromInt(randomDirection())) {
                         case Direction.Left: {
@@ -385,13 +409,31 @@
             // Add this as a method on String
             String.prototype.replaceCharAt = replaceCharAt;
 
+            // function updateText() {
+            //     const lines = [];
+            //     for (let i = 0; i < numberOfLines; i++) {
+            //         lines[i] = arrays[topArrayIndex + i].slice(viewLeftColumn, viewLeftColumn + numberOfColumns).join('');
+            //         // Show @char at centre of both axes
+            //         if (i === player.position.line) {
+            //             lines[i] = lines[i].replaceCharAt(player.position.column, '@');
+            //         }
+            //         for (const remotePlayer of remotePlayers) {
+            //             if (i === remotePlayer.positionInView.line) {
+            //                 lines[i] = lines[i].replaceCharAt(remotePlayer.positionInView.column, '%');
+            //             }
+            //         }
+            //         document.getElementById(`line${i}`).textContent = lines[i];
+            //     }
+            //     // Used to determine whether player can move again
+            //     player.surroundings.update(player.position, lines);
+            // }
             function updateText() {
                 const lines = [];
                 for (let i = 0; i < numberOfLines; i++) {
                     lines[i] = arrays[topArrayIndex + i].slice(viewLeftColumn, viewLeftColumn + numberOfColumns).join('');
                     // Show @char at centre of both axes
-                    if (i === playerPosition.line) {
-                        lines[i] = lines[i].replaceCharAt(playerPosition.column, '@');
+                    if (i === player.position.line) {
+                        lines[i] = lines[i].replaceCharAt(player.position.column, '@');
                     }
                     for (const remotePlayer of remotePlayers) {
                         if (i === remotePlayer.positionInView.line) {
@@ -401,56 +443,90 @@
                     document.getElementById(`line${i}`).textContent = lines[i];
                 }
                 // Used to determine whether player can move again
-                playerSurroundings.update(lines, playerPosition);
+                player.surroundings.update(player.position, lines);
             }
 
-            function canMove(direction) {
+            // function canMove(direction) {
+            //     switch (direction) {
+            //         case Direction.Up: {
+            //             return topArrayIndex > 0 && playerSurroundings.up != solidCharacter;
+            //         }
+            //         case Direction.Down: {
+            //             return topArrayIndex + numberOfLines < arrays.length && playerSurroundings.down != solidCharacter;
+            //         }
+            //         case Direction.Left: {
+            //             return viewLeftColumn > 0 && playerSurroundings.left != solidCharacter;
+            //         }
+            //         case Direction.Right: {
+            //             return viewLeftColumn < numberOfElements - numberOfColumns && playerSurroundings.right != solidCharacter;
+            //         }
+            //         default: {
+            //             // this should never happen
+            //         }
+            //     }
+            // }
+            function moveIfAble(character, direction) {
+                updateConsole(`player coord on moveIfAble: ${character.position}`);
+                var canMove = false;
                 switch (direction) {
                     case Direction.Up: {
-                        return topArrayIndex > 0 && playerSurroundings.up != solidCharacter;
+                        canMove = topArrayIndex > 0 && character.surroundings.up != solidCharacter;
+                        break;
                     }
                     case Direction.Down: {
-                        return topArrayIndex + numberOfLines < arrays.length && playerSurroundings.down != solidCharacter;
+                        canMove = topArrayIndex + numberOfLines < arrays.length && character.surroundings.down != solidCharacter;
+                        break;
                     }
                     case Direction.Left: {
-                        return viewLeftColumn > 0 && playerSurroundings.left != solidCharacter;
+                        canMove = viewLeftColumn > 0 && character.surroundings.left != solidCharacter;
+                        break;
                     }
                     case Direction.Right: {
-                        return viewLeftColumn < numberOfElements - numberOfColumns && playerSurroundings.right != solidCharacter;
+                        canMove = viewLeftColumn < numberOfElements - numberOfColumns && character.surroundings.right != solidCharacter;
+                        break;
                     }
                     default: {
                         // this should never happen
                     }
                 }
-            }
-
-            function movePlayer(direction) {
-                if (canMove(direction)) {
-                    switch (direction) {
-                        case Direction.Up: {
-                            topArrayIndex--;
-                            break;
-                        }
-                        case Direction.Down: {
-                            topArrayIndex++;
-                            break;
-                        }
-                        case Direction.Left: {
-                            viewLeftColumn--;
-                            break;
-                        }
-                        case Direction.Right: {
-                            viewLeftColumn++;
-                            break;
-                        }
-                        default: {
-                            // this should never happen
-                        }
-                    }
+                if (canMove) {
+                    updateConsole(`char coord: ${character.position}`);
+                    character.move(direction);
                     updateText();
                     broadcastMove();
                 }
             }
+
+            // function movePlayer(direction) {
+            //     if (canMove(direction)) {
+            //         switch (direction) {
+            //             case Direction.Up: {
+            //                 // topArrayIndex--;
+            //                 updateConsole(`coord before: ${player.position}`);
+            //                 player.position.
+            //                 return updateConsole(`coord after: ${player.position}`);
+            //                 break;
+            //             }
+            //             case Direction.Down: {
+            //                 topArrayIndex++;
+            //                 break;
+            //             }
+            //             case Direction.Left: {
+            //                 viewLeftColumn--;
+            //                 break;
+            //             }
+            //             case Direction.Right: {
+            //                 viewLeftColumn++;
+            //                 break;
+            //             }
+            //             default: {
+            //                 // this should never happen
+            //             }
+            //         }
+            //         updateText();
+            //         broadcastMove();
+            //     }
+            // }
 
             // Send position to other players
             function broadcastMove() {
@@ -479,13 +555,15 @@
 
             document.addEventListener('keydown', function (event) {
                 if (event.key === 'ArrowRight') {
-                    movePlayer(Direction.Right);
+                    // movePlayer(Direction.Right);
+                    moveIfAble(player, Direction.Right)
                 } else if (event.key === 'ArrowLeft') {
-                    movePlayer(Direction.Left);
+                    moveIfAble(player, Direction.Left);
                 } else if (event.key === 'ArrowUp') {
-                    movePlayer(Direction.Up);
+                    updateConsole(`player coord on ArrowUp: ${player.position}`);
+                    moveIfAble(player, Direction.Up);
                 } else if (event.key === 'ArrowDown') {
-                    movePlayer(Direction.Down);
+                    moveIfAble(player, Direction.Down);
                 }
             });
 

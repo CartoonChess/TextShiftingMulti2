@@ -123,7 +123,8 @@ io.on('connection', (socket) => {
             sessionStore.saveSession(socket.sessionId, {
                 userId: socket.userId,
                 isOnline: false,
-                positionOnMap: JSON.parse(socket.positionOnMap) // TODO: no parse?
+                // positionOnMap: JSON.parse(socket.positionOnMap) // TODO: no parse?
+                positionOnMap: socket.positionOnMap
             });
         } else {
             console.log(`-> (but they still have ${matchingSockets.length} session(s) open.)`);
