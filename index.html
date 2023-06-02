@@ -107,9 +107,13 @@
                 for (i = 0; i < remotePlayers.length; i++) {
                     if (remotePlayers[i].id === userId) {
                         remotePlayers[i].position = position;
-                        if (remotePlayers[i].wasInView || remotePlayers[i].isInView) {
-                            return updateText();
+                        updateConsole(`saved as: ${remotePlayers[i].position}`);
+                        // if (remotePlayers[i].wasInView || remotePlayers[i].isInView) {
+                        const isInView = view.isVisible(remotePlayers[i]);
+                        if (remotePlayers[i].wasInView || isInView) {
+                            updateText();
                         }
+                        remotePlayers[i].wasInView = isInView;
                     }
                 }
             });
@@ -134,11 +138,46 @@
                 // possibly provide some func/prop that provides .leftOfMe
             }
 
+            class View {
+                mapCenter;
+                localCenter;
+                #left;
+                #right;
+                #top;
+                #bottom;
+                
+                constructor(width, height) {
+                    this.width = width;
+                    this.height = height;
+                    this.localCenter = new Coordinate(
+                        Math.floor(this.width / 2),
+                        Math.floor(this.height / 2)
+                    );
+                }
+
+                get left() {
+                    return this.mapCenter.column - Math.floor(this.width / 2);
+                }
+                get right() {
+                    return this.mapCenter.column + Math.floor(this.width / 2);
+                }
+                get top() {
+                    return this.mapCenter.line - Math.floor(this.height / 2);
+                }
+                get bottom() {
+                    return this.mapCenter.line + Math.floor(this.height / 2);
+                }
+                
+                isVisible(tile, mapCenter) {
+                    if (mapCenter) { this.mapCenter = mapCenter; }
+                    const isInXView = tile.position.column >= this.left && tile.position.column <= this.right;
+                    const isInYView = this.position.line >= this.top && this.position.line <= this.bottom;
+                    // this.wasInView = isInXView && isInYView;
+                    return isInXView && isInYView;
+                }
+            }
+
             class Direction {
-                // static Up = new Direction("up");
-                // static Down = new Direction("down");
-                // static Left = new Direction("left");
-                // static Right = new Direction("right");
                 static Up = new this('up');
                 static Down = new this('down');
                 static Left = new this('left');
@@ -193,7 +232,6 @@
             }
 
             class Player extends Character {
-                // #position;
                 position;
                 surroundings = new Surroundings();
 
@@ -219,22 +257,13 @@
                         }
                     }
                 }
-                
-                // Ultimately this should be reversed
-                // Player moves this coord
-                // Viewport is calculated around this as centre
-                // get position() {
-                //     return new Coordinate(
-                //     viewLeftColumn + screenCenter.column,
-                //     topArrayIndex + screenCenter.line);
-                // }
             }
 
             class RemotePlayer extends Player {
                 // Private properties aren't inherited
-                #position;
-                #positionInView;
-                #isInView;
+                // #position;
+                // #positionInView;
+                // #isInView;
                 wasInView = true;
                 
                 constructor(id, position) {
@@ -244,7 +273,8 @@
                     if (!position) {
                         position = new Coordinate(-1, -1);
                     }
-                    this.#position = position;
+                    // this.#position = position;
+                    this.position = position;
                 }
                 static fromJson(json) {
                     const position = Coordinate.fromObject(json.positionOnMap);
@@ -253,42 +283,44 @@
                         position
                     )
                 }
-                get position() {
-                    return this.#position;
-                }
-                set position(coordinate) {
-                    this.#position = coordinate;
-                }
-                get positionInView() {
-                    if (this.isInView) {
-                        // Convert remote player's position to viewport coord
-                        return new Coordinate(
-                            this.#position.column - viewLeftColumn,
-                            this.#position.line - topArrayIndex
-                        );
-                    } else {
-                        return new Coordinate(-1, -1);
-                    }
-                }
+                // get position() {
+                //     return this.#position;
+                // }
+                // set position(coordinate) {
+                //     this.#position = coordinate;
+                // }
+                
+                // get positionInView() {
+                //     if (this.isInView) {
+                //         return new Coordinate(
+                //             this.position.column - viewLeftColumn,
+                //             this.position.line - topArrayIndex
+                //         );
+                //     } else {
+                //         return new Coordinate(-1, -1);
+                //     }
+                // }
+                
                 // This also updates wasInView
-                get isInView() {
-                    const isInXView = this.#position.column >= viewLeftColumn && this.#position.column < viewLeftColumn + numberOfColumns;
-                    const isInYView = this.#position.line >= topArrayIndex && this.#position.line < topArrayIndex + numberOfLines;
-                    this.wasInView = isInXView && isInYView;
-                    return this.wasInView;
-                }
+                // get isInView() {
+                //     const isInXView = this.position.column >= viewLeftColumn && this.position.column < viewLeftColumn + numberOfColumns;
+                //     const isInYView = this.position.line >= topArrayIndex && this.position.line < topArrayIndex + numberOfLines;
+                //     this.wasInView = isInXView && isInYView;
+                //     return this.wasInView;
+                // }
             }
 
             // Screen area
-            const numberOfColumns = 9;
-            const numberOfLines = 9;
-            const screenCenter = new Coordinate(Math.floor(numberOfColumns / 2), Math.floor(numberOfLines / 2));
+            // const numberOfColumns = 9;
+            // const numberOfLines = 9;
+            const view = new View(9, 9);
+            const screenCenter = new Coordinate(Math.floor(view.width / 2), Math.floor(view.height / 2));
 
             // Map and view bounds
             const numberOfElements = 29;
-            const leftBound = Math.floor(numberOfColumns / 2) - 1;
+            const leftBound = Math.floor(view.width / 2) - 1;
             const rightBound = numberOfElements - leftBound - 1;
-            const topBound = Math.floor(numberOfLines / 2) - 1;
+            const topBound = Math.floor(view.height / 2) - 1;
             const bottomBound = numberOfElements - topBound - 1;
 
             const solidCharacter = ';'; // emojis freak out, prob because not one char
@@ -440,15 +472,18 @@
             //     player.surroundings.update(player.position, lines);
             // }
             function updateText() {
+                view.mapCenter = player.position;
                 const lines = [];
-                for (let i = 0; i < numberOfLines; i++) {
-                    const lineIndex = player.position.line - Math.floor(numberOfLines / 2) + i;
-                    const leftColumn = player.position.column - Math.floor(numberOfColumns / 2);
-                    lines[i] = arrays[lineIndex].slice(leftColumn, leftColumn + numberOfColumns).join('');
+                for (let i = 0; i < view.height; i++) {
+                    // const lineIndex = player.position.line - Math.floor(view.height / 2) + i;
+                    // const leftColumn = player.position.column - Math.floor(view.width / 2);
+                    const lineIndex = view.top + i;
+                    lines[i] = arrays[lineIndex].slice(view.left, view.left + view.width).join('');
                     // Show @char at centre of both axes
                     // if (lineIndex === player.position.line) {
-                    if (i === screenCenter.line) {
-                        lines[i] = lines[i].replaceCharAt(screenCenter.column, '@');
+                    // if (i === Math.floor(view.height / 2)) {
+                    if (i === view.localCenter.line) {
+                        lines[i] = lines[i].replaceCharAt(view.localCenter.column, '@');
                     }
                     for (const remotePlayer of remotePlayers) {
                         if (i === remotePlayer.positionInView.line) {
@@ -573,7 +608,6 @@
 
             document.addEventListener('keydown', function (event) {
                 if (event.key === 'ArrowRight') {
-                    // movePlayer(Direction.Right);
                     moveIfAble(player, Direction.Right)
                 } else if (event.key === 'ArrowLeft') {
                     moveIfAble(player, Direction.Left);
