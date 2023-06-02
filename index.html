@@ -71,6 +71,7 @@
                         remotePlayers.push(remotePlayer);
                     }
                 });
+                updateText();
             });
 
             // Get new users who join after you
@@ -107,29 +108,7 @@
 
             // socket.on('private message'...
             socket.on('move', ({ userId, positionOnMap }) => {
-                //some kinda find-match func to get correct player
-                //const remotePlayer = remotePlayers.
-                // then we also have to assign it the new position in that array...
                 const position = Coordinate.fromJson(positionOnMap);
-                // updateConsole(`${userId} moves to ${position}.`);
-
-                // simulation
-                // if (remotePlayers.length === 0) {
-                //     const remotePlayer = new RemotePlayer(
-                //         userId,
-                //         position
-                //     );
-                //     remotePlayers.push(remotePlayer);
-                // } else {
-                //     remotePlayers[0].position = position;
-                // }
-
-                // if (remotePlayers[0].wasInView || remotePlayers[0].isInView) {
-                //     updateText();
-                // }
-
-                // TODO: Syncing our own moves between tabs
-                // (we prev filtered self out of remotePlayers)
                 for (i = 0; i < remotePlayers.length; i++) {
                     if (remotePlayers[i].id === userId) {
                         remotePlayers[i].position = position;

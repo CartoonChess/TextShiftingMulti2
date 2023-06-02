@@ -40,6 +40,7 @@ app.get('/talk', (req, res) => {
 io.use((socket, next) => {
     // Note we can attach any custom property we want here
     // socket.playerPosition = playerPosition;
+    console.log("to.use (middleware)");
 
     const sessionId = socket.handshake.auth.sessionId;
     if (sessionId) {
@@ -158,6 +159,7 @@ io.on('connection', (socket) => {
             userId: socket.userId,
             positionOnMap: positionOnMap
         });
+        // TODO: sockets of the same sessionId should sync to this
     });
 });
 
