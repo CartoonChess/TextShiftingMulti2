@@ -1,4 +1,5 @@
-const app = require('express')();
+const express = require('express');
+const app = express();
 const httpServer = require('http').Server(app);
 // this is probably a lie
 const port = process.env.PORT || 3000; // 443 is frontend tho
@@ -19,9 +20,9 @@ const randomBytes = new RandomBytes();
 // Generates new whenever referenced
 const randomId = () => randomBytes.hex(16);
 
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-});
+// app.get('/', (req, res) => {
+//     res.sendFile(__dirname + '/index.html');
+// });
 
 // Feels like a hack lol
 app.get('/randomBytes.js', (req, res) => {
@@ -29,8 +30,13 @@ app.get('/randomBytes.js', (req, res) => {
 });
 
 app.get('/chat.html', (req, res) => {
-    res.sendFile(__dirname + '/__chat.html');
+    res.sendFile(__dirname + '/__old/chat.html');
 });
+
+// Serve up the /public folder as the root html folder
+const path = require('path');
+const public = path.join(__dirname, 'public');
+app.use('/', express.static(public));
 
 // `.use` ("middleware"?) perhaps executed only once per socket when first connecting
 io.use((socket, next) => {

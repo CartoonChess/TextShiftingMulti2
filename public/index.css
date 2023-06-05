@@ -1,0 +1,35 @@
+body {
+    overflow: hidden;
+    /* Disable scrolling */
+    touch-action: none;
+    /* Disable touch events */
+}
+
+#console {
+    /* keep multiplace spaces but still wrap */
+    white-space: pre-wrap;
+    margin-top: 15px;
+    --border: 5px;
+    --bgcolor: #1e1e1e;
+    border: var(--border) solid var(--bgcolor);
+    /* this would only work if each line were its own span */
+    /* padding: 5 5 5 10px;
+    text-indent: -5px; */
+    background: var(--bgcolor);
+    color: #ffffff;
+    /* rem is basically "one text line height" */
+    height: calc(5rem + var(--border) * 2);
+    overflow-y: scroll;
+}
+
+@media (prefers-color-scheme: dark) {
+    html, body {
+        background: #1e1e1e;
+        color: #ffffff;
+    }
+    #console {
+        --bgcolor: #000000;
+        background: var(--bgcolor);
+        border-color: var(--bgcolor);
+    }
+}
