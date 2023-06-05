@@ -497,10 +497,13 @@
 
             function updateConsole(msg) {
                 const debug = true;
+                const element = document.getElementById('console');
                 if (debug) {
-                    msg = document.getElementById('console').textContent + `${msg}\n`;
+                    msg = element.textContent + `• ${msg}\n`;
                 }
-                document.getElementById('console').textContent = msg;
+                element.textContent = msg;
+                // Scroll to bottom automatically
+                element.scrollTop = element.scrollHeight;
             }
 
             document.addEventListener('keydown', function (event) {
@@ -575,9 +578,16 @@
             /* keep multiplace spaces but still wrap */
             white-space: pre-wrap;
             margin-top: 15px;
-            padding: 5px;
-            background: #1e1e1e;
+            --border: 5px;
+            --bgcolor: #1e1e1e;
+            border: var(--border) solid var(--bgcolor);
+            /* this would only work if each line were its own span */
+            /* padding: 5 5 5 10px;
+            text-indent: -5px; */
+            background: var(--bgcolor);
             color: #ffffff;
+            height: calc(5rem + var(--border) * 2);
+            overflow-y: scroll;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -586,7 +596,9 @@
                 color: #ffffff;
             }
             #console {
-                background: #000000;
+                --bgcolor: #000000;
+                background: var(--bgcolor);
+                border-color: var(--bgcolor);
             }
         }
     </style>
