@@ -46,14 +46,6 @@ app.get('/randomBytes.js', (req, res) => {
     res.sendFile(__dirname + '/randomBytes.js');
 });
 
-app.get('/foo.js', (req, res) => {
-    res.sendFile(__dirname + '/foo.js');
-});
-
-// app.get('/index.js', (req, res) => {
-//     res.sendFile(__dirname + '/public/index.js');
-// });
-
 app.get('/chat.html', (req, res) => {
     res.sendFile(__dirname + '/__old/chat.html');
 });

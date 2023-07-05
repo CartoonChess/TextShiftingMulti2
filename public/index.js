@@ -1,5 +1,3 @@
-console.log('=== index.js ===');
-
 // document.addEventListener('DOMContentLoaded', function () {
 // Get player set up for remote connection
 // Using default URL param
@@ -85,7 +83,7 @@ socket.on('other connected', (remotePlayerJson) => {
 // Only happens when remote user ends all sessions
 socket.on('other disconnected', (userId) => {
     updateConsole(`userId ${userId} left.`);
-    for (i = 0; i < remotePlayers.length; i++) {
+    for (let i = 0; i < remotePlayers.length; i++) {
         if (remotePlayers[i].id === userId) {
             remotePlayers.splice(i, 1);
         }
@@ -104,7 +102,7 @@ socket.on('move', ({ userId, positionOnMap }) => {
     }
 
     // Otherwise, let's see which remote user moved
-    for (i = 0; i < remotePlayers.length; i++) {
+    for (let i = 0; i < remotePlayers.length; i++) {
         if (remotePlayers[i].id === userId) {
             remotePlayers[i].position = position;
             const isInView = view.isVisible(remotePlayers[i]);
@@ -359,7 +357,7 @@ function simulateRemotePlayers() {
     const randomOffset = () => Math.floor(Math.random() * 5 - Math.ceil(2));
     const numberOfPlayers = Math.floor(Math.random() * (Math.floor(5) - Math.ceil(2) + 1) + Math.ceil(2));
     
-    for (i = 0; i < numberOfPlayers; i++) {
+    for (let i = 0; i < numberOfPlayers; i++) {
         const remotePlayer = new RemotePlayer(
             randomId(),
             new Coordinate(
@@ -491,7 +489,7 @@ function updateConsole(msg) {
     const debug = true;
     const element = document.getElementById('console');
     if (debug) {
-        // msg = element.textContent + `• ${msg}\n`;
+        msg = element.textContent + `• ${msg}\n`;
         // import { Foo } from './foo';
         // msg = element.textContent + `• ${Foo.foo()}\n`;
         // console.log();
