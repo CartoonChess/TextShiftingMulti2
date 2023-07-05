@@ -1,4 +1,5 @@
-class RandomBytes {
+// class RandomBytes {
+export class RandomBytes {
     random(base, length) {
         if (!base) { base = 2; }
         if (!length) { length = 1; }
@@ -24,6 +25,6 @@ class RandomBytes {
 }
 
 // this throws a (harmless?) error
-module.exports = {
-    RandomBytes
-};
+// module.exports = {
+//     RandomBytes
+// };

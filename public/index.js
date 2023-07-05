@@ -1,3 +1,5 @@
+console.log('=== index.js ===');
+
 // document.addEventListener('DOMContentLoaded', function () {
 // Get player set up for remote connection
 // Using default URL param
@@ -489,7 +491,10 @@ function updateConsole(msg) {
     const debug = true;
     const element = document.getElementById('console');
     if (debug) {
-        msg = element.textContent + `• ${msg}\n`;
+        // msg = element.textContent + `• ${msg}\n`;
+        // import { Foo } from './foo';
+        // msg = element.textContent + `• ${Foo.foo()}\n`;
+        // console.log();
     }
     element.textContent = msg;
     // Scroll to bottom automatically

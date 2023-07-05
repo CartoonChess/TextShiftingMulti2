@@ -1,6 +1,9 @@
-const express = require('express');
+// const express = require('express');
+import express from 'express';
 const app = express();
-const httpServer = require('http').Server(app);
+// const httpServer = require('http').Server(app);
+import http from 'http';
+const httpServer = http.Server(app);
 // this is probably a lie
 const port = process.env.PORT || 3000; // 443 is frontend tho
 // not sure we'll need the `, {/n...}` portion
@@ -9,13 +12,27 @@ const port = process.env.PORT || 3000; // 443 is frontend tho
 //         origin: `http://localhost:${port}`,
 //     },
 // });
-const io = require('socket.io')(httpServer);
+
+// const io = require('socket.io')(httpServer);
+
+// import { createServer } from 'http';
+import { Server } from 'socket.io';
+// const httpServer = createServer();
+// const io = new Server(httpServer, {
+//     // ...
+//     // took this from tutorial so not really sure what goes in here
+// });
+const io = new Server(httpServer);
+
+// httpServer.listen(3000);
 
 // For saving sessions and identifying users
-const { InMemorySessionStore } = require("./sessionStore");
+// const { InMemorySessionStore } = require("./sessionStore");}
+import { InMemorySessionStore } from './sessionStore.js';
 const sessionStore = new InMemorySessionStore();
 
-const { RandomBytes } = require("./randomBytes");
+// const { RandomBytes } = require("./randomBytes");
+import { RandomBytes } from './randomBytes.js';
 const randomBytes = new RandomBytes();
 // Generates new whenever referenced
 const randomId = () => randomBytes.hex(16);
@@ -29,14 +46,28 @@ app.get('/randomBytes.js', (req, res) => {
     res.sendFile(__dirname + '/randomBytes.js');
 });
 
+app.get('/foo.js', (req, res) => {
+    res.sendFile(__dirname + '/foo.js');
+});
+
+// app.get('/index.js', (req, res) => {
+//     res.sendFile(__dirname + '/public/index.js');
+// });
+
 app.get('/chat.html', (req, res) => {
     res.sendFile(__dirname + '/__old/chat.html');
 });
 
 // Serve up the /public folder as the root html folder
-const path = require('path');
-const public = path.join(__dirname, 'public');
-app.use('/', express.static(public));
+// const path = require('path');
+// https://flaviocopes.com/fix-dirname-not-defined-es-module-scope/
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const publicDir = path.join(__dirname, 'public');
+app.use('/', express.static(publicDir));
 
 // `.use` ("middleware"?) perhaps executed only once per socket when first connecting
 io.use((socket, next) => {

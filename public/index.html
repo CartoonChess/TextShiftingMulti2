@@ -6,8 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="index.css" rel="stylesheet">
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="randomBytes.js"></script>
+    <script type="module" src="/socket.io/socket.io.js"></script>
+    <script type="module" src="randomBytes.js"></script>
+    <script type="module" src="foo.js"></script>
 </head>
 
 <body>
@@ -25,7 +26,7 @@
 
     <pre id="console"></pre>
     <!-- JS must be called after DOM has loaded -->
-    <script src="index.js"></script>
+    <script type="module" src="index.js"></script>
 </body>
 
 </html>
