@@ -32,3 +32,42 @@ export class Map {
         );
     }
 }
+
+export class View {
+    mapCenter;
+    localCenter;
+    #left;
+    #right;
+    #top;
+    #bottom;
+    
+    constructor(width, height, mapCenter) {
+        this.width = width;
+        this.height = height;
+        this.mapCenter = mapCenter;
+        this.localCenter = new Coordinate(
+            Math.floor(this.width / 2),
+            Math.floor(this.height / 2)
+        );
+    }
+
+    get left() {
+        return this.mapCenter.column - Math.floor(this.width / 2);
+    }
+    get right() {
+        return this.mapCenter.column + Math.floor(this.width / 2);
+    }
+    get top() {
+        return this.mapCenter.line - Math.floor(this.height / 2);
+    }
+    get bottom() {
+        return this.mapCenter.line + Math.floor(this.height / 2);
+    }
+    
+    isVisible(tile, mapCenter) {
+        if (mapCenter) { this.mapCenter = mapCenter; }
+        const isInXView = tile.position.column >= this.left && tile.position.column <= this.right;
+        const isInYView = tile.position.line >= this.top && tile.position.line <= this.bottom;
+        return isInXView && isInYView;
+    }
+}
