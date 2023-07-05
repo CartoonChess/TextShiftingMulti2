@@ -1,3 +1,9 @@
+// adding "type":"module" to package.json means commonjs (x), es6 (o)
+// this changes some things:
+// 1. we write `export class/function Foo {}` instead of `module.exports ...`
+// 2. we use `import x from y` instead of require()
+// 3. we have to use `import="module"` in html <script>
+
 import express from 'express';
 const app = express();
 import http from 'http';
