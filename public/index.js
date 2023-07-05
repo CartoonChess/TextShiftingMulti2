@@ -1,6 +1,9 @@
 import { Direction, Surroundings } from './js/Direction.js';
 import { Coordinate, Map } from './js/Map.js';
 
+import MessageLog from './js/MessageLog.js';
+const log = new MessageLog(document.getElementById('console'), true);
+
 // Get player set up for remote connection
 // Using default URL param
 const socket = io(window.location.host, { autoConnect: false });
@@ -10,7 +13,7 @@ const socket = io(window.location.host, { autoConnect: false });
 const sessionId = localStorage.getItem('sessionId');
 if (sessionId) {
     socket.auth = { sessionId };
-    updateConsole(`had seshId ${sessionId}.`)
+    log.print(`had seshId ${sessionId}.`)
 }
 
 // Not in the tutorial but
@@ -26,29 +29,29 @@ socket.on('session', ({ sessionId, userId }) => {
     // Save (public) userId
     socket.userId = userId;
     // socket.positionOnMap = positionOnMap;
-    updateConsole(`got userId ${socket.userId}.`);
+    log.print(`got userId ${socket.userId}.`);
 });
 
 socket.on('connect_error', (err) => {
     var errorMessage = '(unknown error)';
     if (err.message) { errorMessage = err.message; }
-    updateConsole(`ERROR: [Socket.io]: ${errorMessage}.`);
+    log.print(`ERROR: [Socket.io]: ${errorMessage}.`);
 });
 
 // socket.on('self connected', (id) => {
-//     updateConsole(`You're in (ID: ${id}).`);
+//     log.print(`You're in (ID: ${id}).`);
 // });
 
 var socketConnectCount = 0;
 socket.on('connect', () => {
     socketConnectCount++;
-    updateConsole(`Socket connect count: ${socketConnectCount}.`);
+    log.print(`Socket connect count: ${socketConnectCount}.`);
 });
 
 var socketDisonnectCount = 0;
 socket.on('disconnect', (reason) => {
     socketDisonnectCount++;
-    updateConsole(`Socket disconnect count: ${socketDisonnectCount}. Reason: ${reason}.`);
+    log.print(`Socket disconnect count: ${socketDisonnectCount}. Reason: ${reason}.`);
 });
 
 // Get already-connected users when joining
@@ -58,13 +61,13 @@ socket.on('all players', (allPlayers) => {
     remotePlayers.length = 0;
     allPlayers.forEach((json) => {
         const remotePlayer = RemotePlayer.fromJson(json);
-        updateConsole(`found player (id ${remotePlayer.id}, position ${remotePlayer.position}`);
+        log.print(`found player (id ${remotePlayer.id}, position ${remotePlayer.position}`);
         // Only add if it's not ourself
         if (remotePlayer.id !== socket.userId) {
             remotePlayers.push(remotePlayer);
         }
     });
-    updateConsole(`number of remote players: ${remotePlayers.length}`);
+    log.print(`number of remote players: ${remotePlayers.length}`);
     updateText();
 });
 
@@ -73,7 +76,7 @@ socket.on('all players', (allPlayers) => {
 // socket.on('other connected', ({ userId, positionOnMap }) => {
 socket.on('other connected', (remotePlayerJson) => {
     const remotePlayer = RemotePlayer.fromJson(remotePlayerJson);
-    updateConsole(`Friend's in (ID: ${remotePlayer.id}).`);
+    log.print(`Friend's in (ID: ${remotePlayer.id}).`);
     if (remotePlayer.id === socket.userId) { return; }
     // Only add if it's a new player, not a second session
     for (const existingPlayer of remotePlayers) {
@@ -84,7 +87,7 @@ socket.on('other connected', (remotePlayerJson) => {
 
 // Only happens when remote user ends all sessions
 socket.on('other disconnected', (userId) => {
-    updateConsole(`userId ${userId} left.`);
+    log.print(`userId ${userId} left.`);
     for (let i = 0; i < remotePlayers.length; i++) {
         if (remotePlayers[i].id === userId) {
             remotePlayers.splice(i, 1);
@@ -403,17 +406,6 @@ function pingServer() {
         const duration = Date.now() - start;
         return duration;
     });
-}
-
-function updateConsole(msg) {
-    const debug = true;
-    const element = document.getElementById('console');
-    if (debug) {
-        msg = element.textContent + `• ${msg}\n`;
-    }
-    element.textContent = msg;
-    // Scroll to bottom automatically
-    element.scrollTop = element.scrollHeight;
 }
 
 document.addEventListener('keydown', function (event) {
