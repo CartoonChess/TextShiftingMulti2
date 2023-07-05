@@ -1,5 +1,5 @@
-import { RandomBytes } from './randomBytes.js';
-import { Direction } from './js/Direction.js';
+import { Direction, Surroundings } from './js/Direction.js';
+import { Coordinate, Map } from './js/Map.js';
 
 // Get player set up for remote connection
 // Using default URL param
@@ -116,26 +116,6 @@ socket.on('move', ({ userId, positionOnMap }) => {
     }
 });
 
-class Coordinate {
-    constructor(column, line) {
-        this.column = column;
-        this.line = line;
-    }
-    static fromObject(obj) {
-        return Object.assign(new this, obj);
-    }
-    static fromJson(json) {
-        return Object.assign(new this, JSON.parse(json));
-    }
-    toJson() {
-        return JSON.stringify(this);
-    }
-    toString() {
-        return `(x: ${this.column}, y: ${this.line})`;
-    }
-    // possibly provide some func/prop that provides .leftOfMe
-}
-
 class View {
     mapCenter;
     localCenter;
@@ -172,55 +152,6 @@ class View {
         const isInXView = tile.position.column >= this.left && tile.position.column <= this.right;
         const isInYView = tile.position.line >= this.top && tile.position.line <= this.bottom;
         return isInXView && isInYView;
-    }
-}
-
-// class Direction {
-//     static Up = new this('up');
-//     static Down = new this('down');
-//     static Left = new this('left');
-//     static Right = new this('right');
-
-//     constructor(name) {
-//         this.name = name;
-//     }
-//     static fromInt(num) {
-//         switch (num) {
-//             case 1: { return this.Right; }
-//             case 2: { return this.Down; }
-//             case 3: { return this.Left; }
-//             default: { return this.Up; }
-//         }
-//     }
-//     toString() {
-//         return this.name;
-//     }
-// }
-
-class Surroundings {
-    constructor(coordinate, lines) {
-        if (coordinate && lines) {
-            this.update(coordinate, lines);
-        } else {
-            this.here = ' ';
-            this.up = ' ';
-            this.down = ' ';
-            this.left = ' ';
-            this.right = ' ';
-        }
-    }
-    // TODO: getters like `player.surroundings(Direction.Up)`
-    update(coordinate, lines) {
-        const x = coordinate.column;
-        const y = coordinate.line;
-        this.here = lines[y][x];
-        this.up = lines[y - 1][x];
-        this.down = lines[y + 1][x];
-        this.left = lines[y][x - 1];
-        this.right = lines[y][x + 1];
-    }
-    toString() {
-        return ` ${this.up} \n${this.left}${this.here}${this.right}\n ${this.down} `;
     }
 }
 
@@ -274,21 +205,6 @@ class RemotePlayer extends Player {
             json.userId,
             position
         )
-    }
-}
-
-// TODO: Work global logic in here
-class Map {
-    #center;
-    constructor(width, height) {
-        this.width = width;
-        this.height = height;
-    }
-    get center() {
-        return new Coordinate(
-            Math.floor(this.width / 2),
-            Math.floor(this.height / 2)
-        );
     }
 }
 
@@ -351,6 +267,8 @@ const arrays = generateArrays(map.width, map.height);
 const player = new Player();
 player.position = map.center;
 const remotePlayers = [];
+
+import { RandomBytes } from './randomBytes.js';
 
 function simulateRemotePlayers() {
     const randomBytes = new RandomBytes();

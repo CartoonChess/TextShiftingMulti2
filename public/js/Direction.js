@@ -19,3 +19,30 @@ export class Direction {
         return this.name;
     }
 }
+
+export class Surroundings {
+    constructor(coordinate, lines) {
+        if (coordinate && lines) {
+            this.update(coordinate, lines);
+        } else {
+            this.here = ' ';
+            this.up = ' ';
+            this.down = ' ';
+            this.left = ' ';
+            this.right = ' ';
+        }
+    }
+    // TODO: getters like `player.surroundings(Direction.Up)`
+    update(coordinate, lines) {
+        const x = coordinate.column;
+        const y = coordinate.line;
+        this.here = lines[y][x];
+        this.up = lines[y - 1][x];
+        this.down = lines[y + 1][x];
+        this.left = lines[y][x - 1];
+        this.right = lines[y][x + 1];
+    }
+    toString() {
+        return ` ${this.up} \n${this.left}${this.here}${this.right}\n ${this.down} `;
+    }
+}
