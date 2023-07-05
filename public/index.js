@@ -1,4 +1,3 @@
-// document.addEventListener('DOMContentLoaded', function () {
 // Get player set up for remote connection
 // Using default URL param
 const socket = io(window.location.host, { autoConnect: false });
@@ -490,9 +489,6 @@ function updateConsole(msg) {
     const element = document.getElementById('console');
     if (debug) {
         msg = element.textContent + `• ${msg}\n`;
-        // import { Foo } from './foo';
-        // msg = element.textContent + `• ${Foo.foo()}\n`;
-        // console.log();
     }
     element.textContent = msg;
     // Scroll to bottom automatically
@@ -557,4 +553,3 @@ document.addEventListener("touchend", function (event) {
         initialY = null;
     }
 });
-// });

@@ -1,12 +1,10 @@
 // abstract class
-// class SessionStore {
 export class SessionStore {
     findSession(id) {}
     saveSession(id, session) {}
     findAllSessions() {}
 }
 
-// class InMemorySessionStore extends SessionStore {
 export class InMemorySessionStore extends SessionStore {
     constructor() {
         super();
@@ -30,7 +28,3 @@ export class InMemorySessionStore extends SessionStore {
         return [...this.sessions.values()];
     }
 }
-
-// module.exports = {
-//     InMemorySessionStore
-// };

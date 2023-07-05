@@ -1,4 +1,3 @@
-// class RandomBytes {
 export class RandomBytes {
     random(base, length) {
         if (!base) { base = 2; }
@@ -23,8 +22,3 @@ export class RandomBytes {
         return this.random(2, length);
     }
 }
-
-// this throws a (harmless?) error
-// module.exports = {
-//     RandomBytes
-// };
