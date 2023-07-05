@@ -5,7 +5,7 @@ body {
     /* Disable touch events */
 }
 
-#console {
+#message-log {
     /* keep multiplace spaces but still wrap */
     white-space: pre-wrap;
     margin-top: 15px;
@@ -27,7 +27,7 @@ body {
         background: #1e1e1e;
         color: #ffffff;
     }
-    #console {
+    #message-log {
         --bgcolor: #000000;
         background: var(--bgcolor);
         border-color: var(--bgcolor);

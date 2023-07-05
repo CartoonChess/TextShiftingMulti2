@@ -1,8 +1,10 @@
 import { Direction, Surroundings } from './js/Direction.js';
 import { Coordinate, Map } from './js/Map.js';
 
+import { Player, RemotePlayer } from './js/Character.js';
+
 import MessageLog from './js/MessageLog.js';
-const log = new MessageLog(document.getElementById('console'), true);
+const log = new MessageLog(document.getElementById('message-log'), true);
 
 // Get player set up for remote connection
 // Using default URL param
@@ -155,59 +157,6 @@ class View {
         const isInXView = tile.position.column >= this.left && tile.position.column <= this.right;
         const isInYView = tile.position.line >= this.top && tile.position.line <= this.bottom;
         return isInXView && isInYView;
-    }
-}
-
-// abstract
-class Character {
-    move() {}
-}
-
-class Player extends Character {
-    position;
-    surroundings = new Surroundings();
-
-    move(direction) {
-        switch (direction) {
-            case Direction.Up: {
-                return this.position.line--;
-            }
-            case Direction.Down: {
-                return this.position.line++;
-            }
-            case Direction.Left: {
-                return this.position.column--;
-            }
-            case Direction.Right: {
-                return this.position.column++;
-            }
-            default: {
-                // this should never happen
-            }
-        }
-    }
-}
-
-class RemotePlayer extends Player {
-    // Private properties aren't inherited
-    // (but we got rid of them all)
-    wasInView = true;
-    
-    constructor(id, position) {
-        // super must be called
-        super();
-        this.id = id;
-        if (!position) {
-            position = new Coordinate(-1, -1);
-        }
-        this.position = position;
-    }
-    static fromJson(json) {
-        const position = Coordinate.fromObject(json.positionOnMap);
-        return new this(
-            json.userId,
-            position
-        )
     }
 }
 
