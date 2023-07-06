@@ -21,15 +21,72 @@ export class Coordinate {
 // TODO: Work global logic in here
 export class Map {
     #center;
+    lines = [];
+    
     constructor(width, height) {
         this.width = width;
         this.height = height;
+
+        this.#generateArrays();
     }
+    
     get center() {
         return new Coordinate(
             Math.floor(this.width / 2),
             Math.floor(this.height / 2)
         );
+    }
+
+    // #generateArrays(width, height) {
+    #generateArrays() {
+    // function generateArrays(width, height, topBound, bottomBound) {
+        // Build walls around player acessible area
+        // TODO: Someday we'll provide for when the map is smaller than the view
+        const boundCharacter = '#';
+        
+        // const lines = [];
+
+        // TODO: Don't use these
+        // const leftBound = Math.floor(view.width / 2) - 1;
+        const leftBound = Math.floor(9 / 2) - 1;
+        const rightBound = this.width - leftBound - 1;
+        // const topBound = Math.floor(view.height / 2) - 1;
+        const topBound = Math.floor(9 / 2) - 1;
+        const bottomBound = this.height - topBound - 1;
+    
+        for (let y = 0; y < this.height; y++) {
+            if (y === topBound || y === bottomBound) {
+                this.lines.push(Array(this.width).fill(boundCharacter));
+                continue;
+            }
+            const line = [];
+            for (let x = 0; x < this.width; x++) {
+                if (x === leftBound || x === rightBound) {
+                    line.push(boundCharacter);
+                    continue;
+                }
+                const randomNumber = Math.random();
+                let character;
+    
+                if (randomNumber < 0.65) {
+                    character = ' ';
+                } else if (randomNumber < 0.8) {
+                    character = '.';
+                } else if (randomNumber < 0.95) {
+                    character = ',';
+                } else if (randomNumber < 0.99) {
+                    // character = solidCharacter;
+                    character = boundCharacter;
+                } else {
+                    character = '~';
+                }
+    
+                line.push(character);
+            }
+            this.lines.push(line);
+        }
+        
+        // return lines;
     }
 }
 
