@@ -27,7 +27,7 @@ export class Map {
         this.width = width;
         this.height = height;
 
-        this.#generateArrays();
+        // this.#generateArrays();
     }
     
     get center() {
@@ -38,7 +38,7 @@ export class Map {
     }
 
     // #generateArrays(width, height) {
-    #generateArrays() {
+    generateTestMap() {
     // function generateArrays(width, height, topBound, bottomBound) {
         // Build walls around player acessible area
         // TODO: Someday we'll provide for when the map is smaller than the view
@@ -93,44 +93,49 @@ export class Map {
 import '/String_prototype.js';
 
 export class View {
-    mapCenter;
-    localCenter;
+    // half the width and height of the view
+    staticCenter;
+    // the current corresponding map coordinate directly under the static center
+    mapCoordinateAtViewCenter;
     #left;
     #right;
     #top;
     #bottom;
 
     // Currently this MUST be set separately for things to work
-    arrays;
+    // arrays;
+    map;
 
-    // TODO: replace mapCenter and arrays with map object later
-    constructor(width, height, mapCenter) {
+    constructor(width, height) {
         this.width = width;
         this.height = height;
-        this.mapCenter = mapCenter;
-        this.localCenter = new Coordinate(
+        this.staticCenter = new Coordinate(
             Math.floor(this.width / 2),
             Math.floor(this.height / 2)
         );
-
-        // this.arrays = arrays;
     }
 
+    set map(map) {
+        this.map = map;
+        this.mapCoordinateAtViewCenter = map.center;
+    }
+
+    // TODO: rename these ... mapColumnAtViewLeft?
     get left() {
-        return this.mapCenter.column - Math.floor(this.width / 2);
+        return this.mapCoordinateAtViewCenter.column - Math.floor(this.width / 2);
     }
     get right() {
-        return this.mapCenter.column + Math.floor(this.width / 2);
+        return this.mapCoordinateAtViewCenter.column + Math.floor(this.width / 2);
     }
     get top() {
-        return this.mapCenter.line - Math.floor(this.height / 2);
+        return this.mapCoordinateAtViewCenter.line - Math.floor(this.height / 2);
     }
     get bottom() {
-        return this.mapCenter.line + Math.floor(this.height / 2);
+        return this.mapCoordinateAtViewCenter.line + Math.floor(this.height / 2);
     }
     
     isVisible(tile, mapCenter) {
-        if (mapCenter) { this.mapCenter = mapCenter; }
+        if (mapCenter) { this.mapCoordinateAtViewCenter = mapCenter; }
         const isInXView = tile.position.column >= this.left && tile.position.column <= this.right;
         const isInYView = tile.position.line >= this.top && tile.position.line <= this.bottom;
         return isInXView && isInYView;
@@ -139,15 +144,16 @@ export class View {
     // function updateText() {
     // TODO: Have this use map ref var instead, after map obj has lines
     update(player, remotePlayers) {
-        this.mapCenter = player.position;
+        this.mapCoordinateAtViewCenter = player.position;
         const lines = [];
         // Generate map lines and local player
         for (let i = 0; i < this.height; i++) {
             var lineIndex = this.top + i;
-            lines[i] = this.arrays[lineIndex].slice(this.left, this.left + this.width).join('');
+            // lines[i] = this.arrays[lineIndex].slice(this.left, this.left + this.width).join('');
+            lines[i] = this.map.lines[lineIndex].slice(this.left, this.left + this.width).join('');
             // Show @char at centre of both axes
-            if (i === this.localCenter.line) {
-                lines[i] = lines[i].replaceCharAt(this.localCenter.column, '@');
+            if (i === this.staticCenter.line) {
+                lines[i] = lines[i].replaceCharAt(this.staticCenter.column, '@');
             }
         }
         // Add in remote players
@@ -164,6 +170,7 @@ export class View {
         }
         // Used to determine whether player can move again
         // TODO: We should do this at time of move instead
-        player.surroundings.update(player.position, this.arrays);
+        // player.surroundings.update(player.position, this.arrays);
+        player.surroundings.update(player.position, this.map.lines);
     }
 }

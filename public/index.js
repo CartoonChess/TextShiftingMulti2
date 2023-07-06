@@ -7,9 +7,14 @@ import MessageLog from './js/MessageLog.js';
 const log = new MessageLog(document.getElementById('message-log'), true);
 
 // Map and view bounds
+// const map = new Map(29, 29);
+// const view = new View(9, 9, map.center);
+const view = new View(9, 9);
 const map = new Map(29, 29);
-// const map = new Map('29x29');
-const view = new View(9, 9, map.center);
+map.generateTestMap();
+view.map = map;
+
+// TODO: Stop using these
 const leftBound = Math.floor(view.width / 2) - 1;
 const rightBound = map.width - leftBound - 1;
 const topBound = Math.floor(view.height / 2) - 1;
@@ -17,57 +22,15 @@ const bottomBound = map.height - topBound - 1;
 
 const solidCharacter = '#'; // emojis freak out, prob because not one char
 
-// function generateArrays(width, height) {
-// // function generateArrays(width, height, topBound, bottomBound) {
-//     // Build walls around player acessible area
-//     // TODO: Someday we'll provide for when the map is smaller than the view
-//     const boundCharacter = '#';
-    
-//     const lines = [];
-
-//     for (let y = 0; y < height; y++) {
-//         if (y === topBound || y === bottomBound) {
-//             lines.push(Array(width).fill(boundCharacter));
-//             continue;
-//         }
-//         const line = [];
-//         for (let x = 0; x < width; x++) {
-//             if (x === leftBound || x === rightBound) {
-//                 line.push(boundCharacter);
-//                 continue;
-//             }
-//             const randomNumber = Math.random();
-//             let character;
-
-//             if (randomNumber < 0.65) {
-//                 character = ' ';
-//             } else if (randomNumber < 0.8) {
-//                 character = '.';
-//             } else if (randomNumber < 0.95) {
-//                 character = ',';
-//             } else if (randomNumber < 0.99) {
-//                 character = solidCharacter;
-//             } else {
-//                 character = '~';
-//             }
-
-//             line.push(character);
-//         }
-//         lines.push(line);
-//     }
-    
-//     return lines;
-// }
-
 // Full map
 // const arrays = generateArrays(map.width, map.height);
 // TODO: We can probably get rid of this after map obj contains arrays
-// view.arrays = arrays;
-view.arrays = map.lines;
+// view.arrays = map.lines;
 
 // var textUpdateCount = 0;
 
 const player = new Player();
+// TODO: This position should be set differently
 player.position = map.center;
 const remotePlayers = [];
 
