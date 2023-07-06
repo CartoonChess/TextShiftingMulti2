@@ -4,17 +4,15 @@ import { RemotePlayer } from './Character.js';
 export default class GameSocket {
     #socket;
     // #sessionId;
-    // #connectCount = 0;
-    // #disconnectCount = 0;
+    #connectCount = 0;
+    #disconnectCount = 0;
 
     #log;
     #view;
     #player;
     #remotePlayers;
     
-    // constructor(window, log, player, remotePlayers, view) {
     constructor(log, view, player, remotePlayers) {
-        // NEW: refs to other vars
         this.#log = log;
         this.#view = view;
         this.#player = player;
@@ -73,18 +71,17 @@ export default class GameSocket {
         //     this.#log.print(`You're in (ID: ${id}).`);
         // });
         
-        // var socketConnectCount = 0;
-        let connectCount = 0;
+        // let connectCount = 0;
         this.#socket.on('connect', () => {
-            connectCount++;
-            this.#log.print(`Socket connect count: ${connectCount}.`);
+            // connectCount++;
+            this.#connectCount++;
+            this.#log.print(`Socket connect count: ${this.#connectCount}.`);
         });
         
-        // var socketDisonnectCount = 0;
-        let disconnectCount = 0;
+        // let disconnectCount = 0;
         this.#socket.on('disconnect', (reason) => {
-            disconnectCount++;
-            this.#log.print(`Socket disconnect count: ${disconnectCount}. Reason: ${reason}.`);
+            this.#disconnectCount++;
+            this.#log.print(`Socket disconnect count: ${this.#disconnectCount}. Reason: ${reason}.`);
         });
         
         // Get already-connected users when joining
