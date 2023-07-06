@@ -121,14 +121,14 @@ function simulateRemotePlayerMovement(remotePlayer) {
         }
         remotePlayer.position = newPosition;
         if (remotePlayer.wasInView || remotePlayer.isInView) {
-            updateText();
+            updateView();
         }
         setTimeout(loop, randomDelay());
     }
     setTimeout(loop, randomDelay());
 }
 
-function updateText() {
+function updateView() {
     view.update(player, remotePlayers);
 }
 
@@ -157,7 +157,7 @@ function moveIfAble(character, direction) {
     }
     if (canMove) {
         character.move(direction);
-        updateText();
+        updateView();
         socket.broadcastMove();
     }
 }
@@ -176,7 +176,7 @@ document.addEventListener('keydown', function (event) {
 
 // First load
 // simulateRemotePlayers(); // fails as soon as socket connects
-updateText();
+updateView();
 socket.broadcastMove();
 
 // Mobile
