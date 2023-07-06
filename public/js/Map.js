@@ -72,4 +72,35 @@ export class View {
         const isInYView = tile.position.line >= this.top && tile.position.line <= this.bottom;
         return isInXView && isInYView;
     }
+
+    // function updateText() {
+    // TODO: Have this take map arg instead, after map obj has lines
+    update(arrays, player, remotePlayers) {
+        this.mapCenter = player.position;
+        const lines = [];
+        // Generate map lines and local player
+        for (let i = 0; i < this.height; i++) {
+            var lineIndex = this.top + i;
+            lines[i] = arrays[lineIndex].slice(this.left, this.left + this.width).join('');
+            // Show @char at centre of both axes
+            if (i === this.localCenter.line) {
+                lines[i] = lines[i].replaceCharAt(this.localCenter.column, '@');
+            }
+        }
+        // Add in remote players
+        for (const remotePlayer of remotePlayers) {
+            if (this.isVisible(remotePlayer)) {
+                lineIndex = remotePlayer.position.line - this.top;
+                const columnIndex = remotePlayer.position.column - this.left;
+                lines[lineIndex] = lines[lineIndex].replaceCharAt(columnIndex, '%');
+            }
+        }
+        // Print to screen
+        for (let i = 0; i < this.height; i++) {
+            document.getElementById(`line${i}`).textContent = lines[i];
+        }
+        // Used to determine whether player can move again
+        // TODO: We should do this at time of move instead
+        player.surroundings.update(player.position, arrays);
+    }
 }

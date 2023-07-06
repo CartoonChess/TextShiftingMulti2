@@ -249,35 +249,38 @@ function simulateRemotePlayerMovement(remotePlayer) {
 // // Add this as a method on String
 // String.prototype.replaceCharAt = replaceCharAt;
 
-import './String_prototype.js';
+// import './String_prototype.js';
 
+// function updateText() {
+//     view.mapCenter = player.position;
+//     const lines = [];
+//     // Generate map lines and local player
+//     for (let i = 0; i < view.height; i++) {
+//         var lineIndex = view.top + i;
+//         lines[i] = arrays[lineIndex].slice(view.left, view.left + view.width).join('');
+//         // Show @char at centre of both axes
+//         if (i === view.localCenter.line) {
+//             lines[i] = lines[i].replaceCharAt(view.localCenter.column, '@');
+//         }
+//     }
+//     // Add in remote players
+//     for (const remotePlayer of remotePlayers) {
+//         if (view.isVisible(remotePlayer)) {
+//             lineIndex = remotePlayer.position.line - view.top;
+//             const columnIndex = remotePlayer.position.column - view.left;
+//             lines[lineIndex] = lines[lineIndex].replaceCharAt(columnIndex, '%');
+//         }
+//     }
+//     // Print to screen
+//     for (let i = 0; i < view.height; i++) {
+//         document.getElementById(`line${i}`).textContent = lines[i];
+//     }
+//     // Used to determine whether player can move again
+//     // TODO: We should do this at time of move instead
+//     player.surroundings.update(player.position, arrays);
+// }
 function updateText() {
-    view.mapCenter = player.position;
-    const lines = [];
-    // Generate map lines and local player
-    for (let i = 0; i < view.height; i++) {
-        var lineIndex = view.top + i;
-        lines[i] = arrays[lineIndex].slice(view.left, view.left + view.width).join('');
-        // Show @char at centre of both axes
-        if (i === view.localCenter.line) {
-            lines[i] = lines[i].replaceCharAt(view.localCenter.column, '@');
-        }
-    }
-    // Add in remote players
-    for (const remotePlayer of remotePlayers) {
-        if (view.isVisible(remotePlayer)) {
-            lineIndex = remotePlayer.position.line - view.top;
-            const columnIndex = remotePlayer.position.column - view.left;
-            lines[lineIndex] = lines[lineIndex].replaceCharAt(columnIndex, '%');
-        }
-    }
-    // Print to screen
-    for (let i = 0; i < view.height; i++) {
-        document.getElementById(`line${i}`).textContent = lines[i];
-    }
-    // Used to determine whether player can move again
-    // TODO: We should do this at time of move instead
-    player.surroundings.update(player.position, arrays);
+    view.update(arrays, player, remotePlayers);
 }
 
 function moveIfAble(character, direction) {
