@@ -33,6 +33,8 @@ export class Map {
     }
 }
 
+import '/String_prototype.js';
+
 export class View {
     mapCenter;
     localCenter;

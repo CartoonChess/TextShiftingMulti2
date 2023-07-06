@@ -32,6 +32,10 @@ app.get('/randomBytes.js', (req, res) => {
     res.sendFile(__dirname + '/randomBytes.js');
 });
 
+app.get('/String_prototype.js', (req, res) => {
+    res.sendFile(__dirname + '/String_prototype.js');
+});
+
 app.get('/chat.html', (req, res) => {
     res.sendFile(__dirname + '/__old/chat.html');
 });
