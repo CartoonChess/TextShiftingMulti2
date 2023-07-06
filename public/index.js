@@ -304,25 +304,25 @@ function moveIfAble(character, direction) {
     if (canMove) {
         character.move(direction);
         updateText();
-        broadcastMove();
+        socket.broadcastMove();
     }
 }
 
 // TODO: Move these into GameSocket maybe
 
-// Send position to other players
-function broadcastMove() {
-    // // Should this be broadcast/other instead? Can it be?
-    // socket.emit('move', player.position.toJson());
-}
+// // Send position to other players
+// function broadcastMove() {
+//     // Should this be broadcast/other instead? Can it be?
+//     socket.emit('move', player.position.toJson());
+// }
 
-function pingServer() {
-    // const start = Date.now();
-    // socket.emit('latency', () => {
-    //     const duration = Date.now() - start;
-    //     return duration;
-    // });
-}
+// function pingServer() {
+//     const start = Date.now();
+//     socket.emit('latency', () => {
+//         const duration = Date.now() - start;
+//         return duration;
+//     });
+// }
 
 document.addEventListener('keydown', function (event) {
     if (event.key === 'ArrowRight') {
@@ -339,7 +339,7 @@ document.addEventListener('keydown', function (event) {
 // First load
 // simulateRemotePlayers(); // fails as soon as socket connects
 updateText();
-broadcastMove();
+socket.broadcastMove();
 
 // Mobile
 

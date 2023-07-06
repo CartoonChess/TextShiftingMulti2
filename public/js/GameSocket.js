@@ -37,6 +37,19 @@ export default class GameSocket {
         this.socket.connect();
     }
 
+    broadcastMove() {
+        // Should this be broadcast/other instead? Can it be?
+        this.socket.emit('move', this.player.position.toJson());
+    }
+
+    pingServer() {
+        const start = Date.now();
+        this.socket.emit('latency', () => {
+            const duration = Date.now() - start;
+            return duration;
+        });
+    }
+
     listen() {
         // Get session ID, whether new or returning
         this.socket.on('session', ({ sessionId, userId }) => {
