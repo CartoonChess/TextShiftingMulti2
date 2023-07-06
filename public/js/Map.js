@@ -42,7 +42,10 @@ export class View {
     #right;
     #top;
     #bottom;
-    
+
+    arrays;
+
+    // TODO: replace mapCenter and arrays with map object later
     constructor(width, height, mapCenter) {
         this.width = width;
         this.height = height;
@@ -51,6 +54,8 @@ export class View {
             Math.floor(this.width / 2),
             Math.floor(this.height / 2)
         );
+
+        // this.arrays = arrays;
     }
 
     get left() {
@@ -74,14 +79,14 @@ export class View {
     }
 
     // function updateText() {
-    // TODO: Have this take map arg instead, after map obj has lines
-    update(arrays, player, remotePlayers) {
+    // TODO: Have this use map ref var instead, after map obj has lines
+    update(player, remotePlayers) {
         this.mapCenter = player.position;
         const lines = [];
         // Generate map lines and local player
         for (let i = 0; i < this.height; i++) {
             var lineIndex = this.top + i;
-            lines[i] = arrays[lineIndex].slice(this.left, this.left + this.width).join('');
+            lines[i] = this.arrays[lineIndex].slice(this.left, this.left + this.width).join('');
             // Show @char at centre of both axes
             if (i === this.localCenter.line) {
                 lines[i] = lines[i].replaceCharAt(this.localCenter.column, '@');
@@ -101,6 +106,6 @@ export class View {
         }
         // Used to determine whether player can move again
         // TODO: We should do this at time of move instead
-        player.surroundings.update(player.position, arrays);
+        player.surroundings.update(player.position, this.arrays);
     }
 }

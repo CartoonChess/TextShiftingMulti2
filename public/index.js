@@ -131,7 +131,8 @@ const bottomBound = map.height - topBound - 1;
 
 const solidCharacter = '#'; // emojis freak out, prob because not one char
 
-function generateArrays(width, height) {
+// function generateArrays(width, height) {
+function generateArrays(width, height, topBound, bottomBound) {
     // Build walls around player acessible area
     // TODO: Someday we'll provide for when the map is smaller than the view
     const boundCharacter = '#';
@@ -174,6 +175,8 @@ function generateArrays(width, height) {
 
 // Full map
 const arrays = generateArrays(map.width, map.height);
+// TODO: We can probably get rid of this after map obj contains arrays
+view.arrays = arrays;
 
 // var textUpdateCount = 0;
 
@@ -280,7 +283,8 @@ function simulateRemotePlayerMovement(remotePlayer) {
 //     player.surroundings.update(player.position, arrays);
 // }
 function updateText() {
-    view.update(arrays, player, remotePlayers);
+    // view.update(arrays, player, remotePlayers);
+    view.update(player, remotePlayers);
 }
 
 function moveIfAble(character, direction) {
