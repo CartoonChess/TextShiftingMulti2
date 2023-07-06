@@ -43,6 +43,7 @@ export class View {
     #top;
     #bottom;
 
+    // Currently this MUST be set separately for things to work
     arrays;
 
     // TODO: replace mapCenter and arrays with map object later

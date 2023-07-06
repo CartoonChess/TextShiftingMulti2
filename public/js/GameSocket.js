@@ -101,7 +101,7 @@ export default class GameSocket {
                 }
             });
             this.log.print(`number of remote players: ${this.remotePlayers.length}`);
-            updateText();
+            this.#updateView();
         });
         
         // Get new users who join after you
@@ -126,7 +126,7 @@ export default class GameSocket {
                     this.remotePlayers.splice(i, 1);
                 }
             }
-            updateText();
+            this.#updateView();
         });
         
         // socket.on('private message'...
@@ -136,7 +136,7 @@ export default class GameSocket {
             // If you moved in one tab, update all your tabs
             if (userId === this.socket.userId) {
                 this.player.position = position;
-                return updateText();
+                return this.#updateView();
             }
         
             // Otherwise, let's see which remote user moved
@@ -145,11 +145,15 @@ export default class GameSocket {
                     this.remotePlayers[i].position = position;
                     const isInView = this.view.isVisible(this.remotePlayers[i]);
                     if (this.remotePlayers[i].wasInView || isInView) {
-                        updateText();
+                        this.#updateView();
                     }
                     this.remotePlayers[i].wasInView = isInView;
                 }
             }
         });
+    }
+
+    #updateView() {
+        this.view.update(this.player, this.remotePlayers);
     }
 }

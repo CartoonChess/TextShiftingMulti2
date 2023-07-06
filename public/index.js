@@ -282,6 +282,7 @@ function simulateRemotePlayerMovement(remotePlayer) {
 //     // TODO: We should do this at time of move instead
 //     player.surroundings.update(player.position, arrays);
 // }
+
 function updateText() {
     // view.update(arrays, player, remotePlayers);
     view.update(player, remotePlayers);
