@@ -239,7 +239,14 @@ export class View {
     #getLine(lineIndex) {
         const line = [];
         for (let x = this.left; x < this.left + this.width; x++) {
-            line.push(this.map.lines[lineIndex][x]);
+            if (x >= 0 && lineIndex >= 0
+               && x < this.map.width && lineIndex < this.map.height) {
+                // If within map bounds, grab from there
+                line.push(this.map.lines[lineIndex][x]);
+            } else {
+                // If outside map bounds, generate from border
+                line.push('*');
+            }
         }
         return line;
     }
