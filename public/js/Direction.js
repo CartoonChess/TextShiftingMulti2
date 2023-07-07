@@ -36,11 +36,34 @@ export class Surroundings {
     update(coordinate, lines) {
         const x = coordinate.column;
         const y = coordinate.line;
+        // If OOB somehow, don't return anything
+        // if (x < 0 || y < 0
+        //    || y >= lines.length - 1
+        //    || x >= lines[y].length) { return ' ';}
+        
+        // this.here = lines[y][x];
+        // this.up = lines[y - 1][x];
+        // this.down = lines[y + 1][x];
+        // this.left = lines[y][x - 1];
+        // this.right = lines[y][x + 1];
+
+        // If OOB somehow, don't change anything
+        if (x < 0 || y < 0
+           || y >= lines.length
+           || x >= lines[y].length) { return; }
+
+        // If inbounds, update 'here' and any other inbound values
         this.here = lines[y][x];
-        this.up = lines[y - 1][x];
-        this.down = lines[y + 1][x];
-        this.left = lines[y][x - 1];
-        this.right = lines[y][x + 1];
+        console.log('made it');
+        
+        // this.up = lines[y - 1][x];
+        if (y > 0) { this.up = lines[y - 1][x] }
+        // this.down = y < lines[y].length - 1 ? lines[y + 1][x] : ' ';
+        // this.down = lines[y + 1][x];
+        if (y < lines[y].length - 1) { this.down = lines[y + 1][x] }
+        
+        if (lines[y][x - 1]) { this.left = lines[y][x - 1] }
+        if (lines[y][x + 1]) { this.right = lines[y][x + 1] }
     }
 
     // return the tile at a given direction object
