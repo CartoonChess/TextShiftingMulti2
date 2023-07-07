@@ -121,7 +121,7 @@ export class Map {
     }
 }
 
-import '/String_prototype.js';
+// import '/String_prototype.js';
 
 export class View {
     // half the width and height of the view
@@ -237,9 +237,9 @@ export class View {
 
     // Builds line, using border for negative indexes
     #getLine(lineIndex) {
-        const line = '';
-        for (let x = this.left; x < this.width; x++) {
-            
+        const line = [];
+        for (let x = this.left; x < this.left + this.width; x++) {
+            line.push(this.map.lines[lineIndex][x]);
         }
         return line;
     }
@@ -255,9 +255,10 @@ export class View {
         for (let i = 0; i < this.height; i++) {
             // let lineIndex = this.top + i;
             // lines[i] = this.map.lines[lineIndex].slice(this.left, this.left + this.width).join('');
-            lines[i] = this.map.lines[this.top + i].slice(this.left, this.left + this.width);
             
-            // lines[i] = getLine(this.top + i);
+            // lines[i] = this.map.lines[this.top + i].slice(this.left, this.left + this.width);
+            
+            lines[i] = this.#getLine(this.top + i);
             
             // console.log(`this.#mapLines: ${this.#mapLines}`);
             // console.log(`lineIndex: ${lineIndex}`);
