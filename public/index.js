@@ -31,11 +31,42 @@ function updateView() {
     view.update(player, remotePlayers);
 }
 
+// function moveIfAble(character, direction) {
+//     var canMove = false;
+//     switch (direction) {
+//         case Direction.Up: {
+//             // canMove = character.position.line > topBound + 1 > 0 && character.surroundings.up != solidCharacter;
+//             canMove = character.surroundings.up != solidCharacter;
+//             break;
+//         }
+//         case Direction.Down: {
+//             canMove = character.position.line < bottomBound - 1 && character.surroundings.down != solidCharacter;
+//             break;
+//         }
+//         case Direction.Left: {
+//             canMove = character.position.column > leftBound + 1 > 0 && character.surroundings.left != solidCharacter;
+//             break;
+//         }
+//         case Direction.Right: {
+//             canMove = character.position.column < rightBound - 1 && character.surroundings.right != solidCharacter;
+//             break;
+//         }
+//         default: {
+//             // this should never happen
+//         }
+//     }
+//     if (canMove) {
+//         character.move(direction);
+//         updateView();
+//         socket.broadcastMove();
+//     }
+// }
 function moveIfAble(character, direction) {
     var canMove = false;
     switch (direction) {
         case Direction.Up: {
-            canMove = character.position.line > topBound + 1 > 0 && character.surroundings.up != solidCharacter;
+            // canMove = character.position.line > topBound + 1 > 0 && character.surroundings.up != solidCharacter;
+            canMove = character.surroundings.up != solidCharacter;
             break;
         }
         case Direction.Down: {
