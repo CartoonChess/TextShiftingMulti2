@@ -32,7 +32,7 @@ export class Surroundings {
             this.right = ' ';
         }
     }
-    // TODO: getters like `player.surroundings(Direction.Up)`
+    
     update(coordinate, lines) {
         const x = coordinate.column;
         const y = coordinate.line;
@@ -42,6 +42,12 @@ export class Surroundings {
         this.left = lines[y][x - 1];
         this.right = lines[y][x + 1];
     }
+
+    // return the tile at a given direction object
+    at(direction) {
+        return this[direction.toString()];
+    }
+    
     toString() {
         return ` ${this.up} \n${this.left}${this.here}${this.right}\n ${this.down} `;
     }
