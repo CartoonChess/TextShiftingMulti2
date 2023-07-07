@@ -231,8 +231,22 @@ export class View {
     //     }
     // }
 
-    #getTile() {
-        // return tile;
+    #getTileFromBorder(x, y) {
+        // Get position of entire border map block
+        // Get corresponding border tile
+
+        // this.map.width % x
+        // x % this.map.border.width
+
+        let tile = '*';
+
+        if (x >= 0 && y >= 0) {
+            const line = y % this.map.border.height;
+            const column = x % this.map.border.width;
+            tile = this.map.border.lines[line][column];
+        }
+        
+        return tile;
     }
 
     // Builds line, using border for negative indexes
@@ -245,7 +259,8 @@ export class View {
                 line.push(this.map.lines[lineIndex][x]);
             } else {
                 // If outside map bounds, generate from border
-                line.push('*');
+                // line.push('*');
+                line.push(this.#getTileFromBorder(x, lineIndex));
             }
         }
         return line;

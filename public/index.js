@@ -25,7 +25,6 @@ socket.listen();
 
 function updateView() {
     view.update(player, remotePlayers);
-    log.print('\n' + player.surroundings);
 }
 
 function moveIfAble(character, direction) {
