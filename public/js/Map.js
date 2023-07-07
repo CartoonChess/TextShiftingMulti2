@@ -18,7 +18,6 @@ export class Coordinate {
     // possibly provide some func/prop that provides .leftOfMe
 }
 
-// TODO: Work global logic in here
 export class Map {
     #center;
     lines = [];
@@ -27,31 +26,28 @@ export class Map {
         this.width = width;
         this.height = height;
 
-        // this.#generateArrays();
-    }
-    
-    get center() {
-        return new Coordinate(
+        this.#center = new Coordinate(
             Math.floor(this.width / 2),
             Math.floor(this.height / 2)
         );
     }
+    
+    get center() {
+        return this.#center;
+    }
 
-    // #generateArrays(width, height) {
-    generateTestMap() {
-    // function generateArrays(width, height, topBound, bottomBound) {
+    loadFromFile() {
+        //
+    }
+
+    generateTestMap(viewWidth, viewHeight, boundCharacter) {
         // Build walls around player acessible area
         // TODO: Someday we'll provide for when the map is smaller than the view
-        const boundCharacter = '#';
-        
-        // const lines = [];
+        if (!boundCharacter) { boundCharacter = '#'; }
 
-        // TODO: Don't use these
-        // const leftBound = Math.floor(view.width / 2) - 1;
-        const leftBound = Math.floor(9 / 2) - 1;
+        const leftBound = Math.floor(viewWidth / 2) - 1;
         const rightBound = this.width - leftBound - 1;
-        // const topBound = Math.floor(view.height / 2) - 1;
-        const topBound = Math.floor(9 / 2) - 1;
+        const topBound = Math.floor(viewHeight / 2) - 1;
         const bottomBound = this.height - topBound - 1;
     
         for (let y = 0; y < this.height; y++) {
@@ -85,8 +81,6 @@ export class Map {
             }
             this.lines.push(line);
         }
-        
-        // return lines;
     }
 }
 
@@ -95,16 +89,14 @@ import '/String_prototype.js';
 export class View {
     // half the width and height of the view
     staticCenter;
+    map;
     // the current corresponding map coordinate directly under the static center
     mapCoordinateAtViewCenter;
+    // the column/row of map at the bounds of the view
     #left;
     #right;
     #top;
     #bottom;
-
-    // Currently this MUST be set separately for things to work
-    // arrays;
-    map;
 
     constructor(width, height) {
         this.width = width;
