@@ -135,9 +135,8 @@ export class View {
     #top;
     #bottom;
 
-    // #mapLines;
-    #_mapLines;
-    #mapBorderIsVisible;
+    // #_mapLines;
+    // #mapBorderIsVisible;
 
     constructor(width, height) {
         this.width = width;
@@ -188,81 +187,101 @@ export class View {
         return isInXView && isInYView;
     }
 
-    // Return literal map lines, or lines with border if visible
-    get #mapLines() {
-        if (this.#mapBorderIsVisible) {
-            console.log('O - border visible');
-            return this.#_mapLines;
-        } else {
-            console.log('X - border invisible');
-            return this.map.lines;
-        }
+    // // Return literal map lines, or lines with border if visible
+    // get #mapLines() {
+    //     if (this.#mapBorderIsVisible) {
+    //         console.log('O - border visible');
+    //         return this.#_mapLines;
+    //     } else {
+    //         console.log('X - border invisible');
+    //         return this.map.lines;
+    //     }
+    // }
+
+    // set #mapLines(val) {
+    //     console.log('set...');
+    //     this.#_mapLines = val;
+    // }
+
+    // #updateMapBorder() {
+    //     // must check this.top (<0), this.height (>..),
+    //     // this.left (<0), this.width (>..)
+    //     // if (this.top < 0) {
+    //         // const visibleBorderHeight = Math.abs(this.top);
+    //     if (this.bottom > this.map.height - 1) {
+    //         this.#mapBorderIsVisible = true;
+    //         this.#mapLines = this.map.lines;
+    //         const visibleBorderHeight = this.bottom - this.map.height + 1;
+    //         const repetitions = Math.ceil(visibleBorderHeight / this.map.border.height);
+    //         console.log(`repetitions: ${repetitions}`);
+    //         console.log(`this.map.border.height: ${this.map.border.height}`);
+    //         for (let i = 0; i < repetitions; i++) {
+    //             for (let j = 0; j < this.map.border.height; j++) {
+    //                 const lineIndex = this.map.height + i + j + 1;
+    //                 this.#mapLines[lineIndex] = this.map.border.lines[j];
+    //                 console.log(this.map.border.lines[j]);
+    //                 console.log(this.#mapLines[lineIndex]);
+    //                 // console.log(this.#mapLines[lineIndex]);
+    //                 console.log('reps...');
+    //             }
+    //         }
+    //     } else {
+    //         console.log('didnt update border...');
+    //         this.#mapBorderIsVisible = false;
+    //     }
+    // }
+
+    #getTile() {
+        // return tile;
     }
 
-    set #mapLines(val) {
-        console.log('set...');
-        this.#_mapLines = val;
-    }
-
-    #updateMapBorder() {
-        // must check this.top (<0), this.height (>..),
-        // this.left (<0), this.width (>..)
-        // if (this.top < 0) {
-            // const visibleBorderHeight = Math.abs(this.top);
-        if (this.bottom > this.map.height - 1) {
-            this.#mapBorderIsVisible = true;
-            this.#mapLines = this.map.lines;
-            const visibleBorderHeight = this.bottom - this.map.height + 1;
-            const repetitions = Math.ceil(visibleBorderHeight / this.map.border.height);
-            console.log(`repetitions: ${repetitions}`);
-            console.log(`this.map.border.height: ${this.map.border.height}`);
-            for (let i = 0; i < repetitions; i++) {
-                for (let j = 0; j < this.map.border.height; j++) {
-                    const lineIndex = this.map.height + i + j + 1;
-                    this.#mapLines[lineIndex] = this.map.border.lines[j];
-                    console.log(this.map.border.lines[j]);
-                    console.log(this.#mapLines[lineIndex]);
-                    // console.log(this.#mapLines[lineIndex]);
-                    console.log('reps...');
-                }
-            }
-        } else {
-            console.log('didnt update border...');
-            this.#mapBorderIsVisible = false;
+    // Builds line, using border for negative indexes
+    #getLine(lineIndex) {
+        const line = '';
+        for (let x = this.left; x < this.width; x++) {
+            
         }
+        return line;
     }
 
     update(player, remotePlayers) {
         this.mapCoordinateAtViewCenter = player.position;
         const lines = [];
 
-        // Start showing border if view goes out of map bounds
-        this.#updateMapBorder();
+        // // Start showing border if view goes out of map bounds
+        // this.#updateMapBorder();
         
         // Generate map lines and local player
         for (let i = 0; i < this.height; i++) {
-            var lineIndex = this.top + i;
+            // let lineIndex = this.top + i;
             // lines[i] = this.map.lines[lineIndex].slice(this.left, this.left + this.width).join('');
+            lines[i] = this.map.lines[this.top + i].slice(this.left, this.left + this.width);
+            
+            // lines[i] = getLine(this.top + i);
+            
             // console.log(`this.#mapLines: ${this.#mapLines}`);
             // console.log(`lineIndex: ${lineIndex}`);
             // console.log(`this.left: ${this.left}`);
-            lines[i] = this.#mapLines[lineIndex].slice(this.left, this.left + this.width).join('');
+            // lines[i] = this.#mapLines[lineIndex].slice(this.left, this.left + this.width).join('');
             // Show @char at centre of both axes
             if (i === this.staticCenter.line) {
-                lines[i] = lines[i].replaceCharAt(this.staticCenter.column, '@');
+                // lines[i] = lines[i].replaceCharAt(this.staticCenter.column, '@');
+                lines[i][this.staticCenter.column] = '@';
             }
         }
         // Add in remote players
         for (const remotePlayer of remotePlayers) {
             if (this.isVisible(remotePlayer)) {
-                lineIndex = remotePlayer.position.line - this.top;
+                const lineIndex = remotePlayer.position.line - this.top;
                 const columnIndex = remotePlayer.position.column - this.left;
-                lines[lineIndex] = lines[lineIndex].replaceCharAt(columnIndex, '%');
+                // lines[lineIndex] = lines[lineIndex].replaceCharAt(columnIndex, '%');
+                lines[lineIndex][columnIndex] = '%';
             }
         }
         // Print to screen
         for (let i = 0; i < this.height; i++) {
-            document.getElementById(`line${i}`).textContent = lines[i];
+            // document.getElementById(`line${i}`).textContent = lines[i];
+            document.getElementById(`line${i}`).textContent = lines[i].join('');
         }
         // Used to determine whether player can move again
         // TODO: We should do this at time of move instead
