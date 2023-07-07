@@ -9,7 +9,7 @@ import { Coordinate, Map, View } from './js/Map.js';
 const view = new View(9, 9);
 const map = new Map(29, 29);
 // map.generateTestMap(view.width, view.height, solidCharacter);
-await map.loadFromFile();
+await map.loadFromFile('./maps/29x29');
 view.map = map;
 
 import { Player, RemotePlayer } from './js/Character.js';
