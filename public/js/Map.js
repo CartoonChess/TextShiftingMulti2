@@ -22,12 +22,13 @@ class MapBorder {
     // constructor(width, height) {
         
     // }
-    width = 3;
-    height = 3;
+    width = 4;
+    height = 4;
     lines = [
-        ['a', 'b', 'c'],
-        ['b', 'c', 'd'],
-        ['c', 'd', 'e']
+        ['a', 'b', 'c', 'd'],
+        ['b', 'c', 'd', 'e'],
+        ['c', 'd', 'e', 'f'],
+        ['d', 'e', 'f', 'g']
     ];
 }
 
@@ -145,6 +146,20 @@ export class View {
             Math.floor(this.width / 2),
             Math.floor(this.height / 2)
         );
+        this.#updateHTML();
+    }
+
+    // Create lines in HTML
+    #updateHTML() {
+        const gameView = document.getElementById('game-view');
+
+        for (let i = 0; i < this.width; i++) {
+            const line = document.createElement('code');
+            line.id = 'line' + i;
+            gameView.appendChild(line);
+            // Need to add linebreaks now for some reason
+            gameView.appendChild(document.createElement('br'));
+        }
     }
 
     set map(map) {

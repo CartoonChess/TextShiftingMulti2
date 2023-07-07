@@ -6,7 +6,9 @@ const solidCharacter = '#'; // emojis freak out, prob because not one char
 // Map and view
 import { Direction, Surroundings } from './js/Direction.js';
 import { Coordinate, Map, View } from './js/Map.js';
-const view = new View(9, 9);
+
+// const view = new View(9, 9);
+const view = new View(11, 11);
 const map = new Map(29, 29);
 // map.generateTestMap(view.width, view.height, solidCharacter);
 await map.loadFromFile('./maps/29x29');
