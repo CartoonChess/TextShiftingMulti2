@@ -40,14 +40,8 @@ function moveIfAble(character, direction) {
 }
 
 document.addEventListener('keydown', function(event) {
-    if (event.key === 'ArrowRight') {
-        moveIfAble(player, Direction.Right)
-    } else if (event.key === 'ArrowLeft') {
-        moveIfAble(player, Direction.Left);
-    } else if (event.key === 'ArrowUp') {
-        moveIfAble(player, Direction.Up);
-    } else if (event.key === 'ArrowDown') {
-        moveIfAble(player, Direction.Down);
+    if (['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'].includes(event.key)) {
+        moveIfAble(player, Direction[event.key.slice(5)])
     }
 });
 
