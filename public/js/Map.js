@@ -18,6 +18,11 @@ export class Coordinate {
     // possibly provide some func/prop that provides .leftOfMe
 }
 
+// import fs from 'node:fs';
+// fs.readFile('../maps/29x29', 'utf8', function (err, data) {
+//     if (err) { return console.log(err); }
+//     console.log(data);
+// });
 export class Map {
     #center;
     lines = [];
@@ -36,8 +41,28 @@ export class Map {
         return this.#center;
     }
 
-    loadFromFile() {
-        //
+    async loadFromFile() {
+        // try {
+        //     const response = await import('../maps/1x1.js');
+        //     console.log(response.map);
+        // } catch(err) {
+        //     console.log(err);
+        // }
+        let data;
+        try {
+            const response = await fetch('../maps/29x29');
+            data = await response.text();
+        } catch (err) {
+            return console.error(`Map.loadFromFile failed with error: ${err}`);
+        }
+
+        // this.lines = data.split('\n');
+        const lines = data.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            lines[i] = lines[i].split('');
+        }
+        console.log(lines);
+        this.lines = lines;
     }
 
     generateTestMap(viewWidth, viewHeight, boundCharacter) {

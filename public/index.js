@@ -8,14 +8,9 @@ import { Direction, Surroundings } from './js/Direction.js';
 import { Coordinate, Map, View } from './js/Map.js';
 const view = new View(9, 9);
 const map = new Map(29, 29);
-map.generateTestMap(view.width, view.height, solidCharacter);
+// map.generateTestMap(view.width, view.height, solidCharacter);
+await map.loadFromFile();
 view.map = map;
-
-// TODO: Stop using these
-const leftBound = Math.floor(view.width / 2) - 1;
-const rightBound = map.width - leftBound - 1;
-const topBound = Math.floor(view.height / 2) - 1;
-const bottomBound = map.height - topBound - 1;
 
 import { Player, RemotePlayer } from './js/Character.js';
 const player = new Player();
@@ -41,6 +36,7 @@ function moveIfAble(character, direction) {
 
 document.addEventListener('keydown', function(event) {
     if (['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'].includes(event.key)) {
+        // remove 'Arrow' from keypress to get corresponding direction enum
         moveIfAble(player, Direction[event.key.slice(5)])
     }
 });
