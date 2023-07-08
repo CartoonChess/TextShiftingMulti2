@@ -19,20 +19,44 @@ export class Coordinate {
 }
 
 class MapBorder {
-    // constructor(width, height) {
-        
-    // }
-    width = 4;
-    height = 4;
-    lines = [
-        ['a', 'b', 'c', 'd'],
-        ['b', 'c', 'd', 'e'],
-        ['c', 'd', 'e', 'f'],
-        ['d', 'e', 'f', 'g']
-    ];
+    // TODO: Error handling
+    // TODO: creating directly from constructor
+    constructor(lines = [[' ']]) {
+        console.log(lines);
+        this.lines = lines;
+        this.height = lines.length;
+        this.width = lines[0].length;
+    }
 
-    static async loadFromFile(filePath) {
+    static createFromLines(lines) {
+        return new this(lines);
+    }
+
+    // TODO: Make this not redundant from Map method
+    static async createFromFile(filePath) {
+        if (!filePath) { return console.error(`Must provide a file path to use MapBorder.createFromFile.`); }
+
+        const lines = await this.#loadLinesFromFile(filePath);
+        return this.createFromLines(lines);
+    }
+
+    // TODO: Make this not redundant from Map method
+    static async #loadLinesFromFile(filePath) {
+        let data;
+        try {
+            const response = await fetch(filePath);
+            data = await response.text();
+        } catch (err) {
+            return console.error(`MapBorder.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
+        }
+
+        // Split into 2D array of lines and their tiles
+        const lines = data.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            lines[i] = lines[i].split('');
+        }
         
+        return lines;
     }
 }
 
@@ -41,7 +65,7 @@ export class Map {
     #center;
 
     // dimension are overridden if lines is supplied
-    constructor(width = 0, height = 0, lines, border = [[' ']]) {
+    constructor(width = 0, height = 0, lines, border = new MapBorder()) {
         if (lines) {
             this.lines = lines;
             this.height = lines.length;
@@ -69,10 +93,7 @@ export class Map {
         const lines = await this.#loadLinesFromFile(filePath);
 
         if (borderFilePath) {
-            // TODO: Import this from somewhere instead
-            // - func inside MapBorder
-            // this.border = new MapBorder();
-            const border = new MapBorder();
+            const border = await MapBorder.createFromFile(borderFilePath);
             return new this(undefined, undefined, lines, border);
         } else {
             return this.createFromLines(lines);
@@ -102,7 +123,7 @@ export class Map {
             const response = await fetch(filePath);
             data = await response.text();
         } catch (err) {
-            return console.error(`Map.loadFromFile(${`filePath`}) failed with error: ${err}`);
+            return console.error(`Map.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
         }
 
         // Split into 2D array of lines and their tiles
