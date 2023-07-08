@@ -9,8 +9,9 @@ import { Coordinate, Map, View } from './js/Map.js';
 
 // const view = new View(9, 9);
 const view = new View(11, 11);
+// TODO: constructor with file (parent folder) and no dimensions
 const map = new Map(29, 29);
-await map.loadFromFile('./maps/29x29');
+await map.loadFromFile('./maps/test1/map');
 view.map = map;
 
 import { Player, RemotePlayer } from './js/Character.js';
