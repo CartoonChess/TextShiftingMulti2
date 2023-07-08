@@ -72,9 +72,11 @@ export class Map {
             // TODO: Import this from somewhere instead
             // - func inside MapBorder
             // this.border = new MapBorder();
-        }
-        
-        return this.createFromLines(lines);
+            const border = new MapBorder();
+            return new this(undefined, undefined, lines, border);
+        } else {
+            return this.createFromLines(lines);
+        }        
     }
 
     static async createFromPackage(pkgName) {
@@ -108,11 +110,17 @@ export class Map {
         for (let i = 0; i < lines.length; i++) {
             lines[i] = lines[i].split('');
         }
-        // this.lines = lines;
+        
         return lines;
     }
 
     static createTestMap(view, width = view.width * 2, height = view.height * 2, boundCharacter) {
+        if (!view) { return console.warn(`Can't call Map.createTestMap without providing view argument.`); }
+
+        // Map has to be at least size of view for now
+        if (width < view.width) { width = view.width; }
+        if (height < view.height) { height = view.height; }
+        
         const lines = [];
         
         // Build walls around player acessible area

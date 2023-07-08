@@ -9,11 +9,8 @@ import { Coordinate, Map, View } from './js/Map.js';
 
 // const view = new View(9, 9);
 const view = new View(11, 11);
-// const map = new Map(29, 29);
-// await map.loadFromFile('./maps/test1/map');
-// const map = new Map();
-// const map = await Map.createFromPackage('test1');
-const map = Map.createTestMap(view, 30, 11); // 32 ok
+// const map = Map.createTestMap(view, 12, 12);
+const map = await Map.createFromPackage('test1');
 view.map = map;
 
 import { Player, RemotePlayer } from './js/Character.js';
