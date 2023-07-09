@@ -17,14 +17,7 @@ view.map = map;
 
 import { Player } from './js/Character.js';
 const player = new Player();
-// TODO: Map files should provide this
-// player.position = map.center;
-// import { Coordinate } from './js/Map.js';
-// const spawnPoint = new Coordinate(1, 2);
-// // I guess this will be overwritten if session data is found?
-// player.position = spawnPoint;
-console.log(map);
-console.log(map.startPosition);
+// Will be overwritten if session data is found
 player.position = map.startPosition;
 
 const remotePlayers = [];

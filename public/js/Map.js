@@ -18,6 +18,7 @@ export class Coordinate {
     // possibly provide some func/prop that provides .leftOfMe
 }
 
+// TODO: Make child (or sibling) of Map (~fromFile methods redundant)
 class MapBorder {
     // TODO: Error handling
     // TODO: creating directly from constructor
@@ -32,16 +33,13 @@ class MapBorder {
     //     return new this(lines);
     // }
 
-    // TODO: Make this not redundant from Map method
     static async createFromFile(filePath) {
         if (!filePath) { return console.error(`Must provide a file path to use MapBorder.createFromFile.`); }
 
         const lines = await this.#loadLinesFromFile(filePath);
-        // return this.createFromLines(lines);
         return new this(lines);
     }
 
-    // TODO: Make this not redundant from Map method
     static async #loadLinesFromFile(filePath) {
         let data;
         try {
@@ -67,12 +65,11 @@ export class Map {
     startPosition;
 
     // dimension are overridden if lines is supplied
-    // info should be an object
+    // info must be an object
     constructor(width = 0, height = 0, lines, border = new MapBorder(), info) {
         if (lines && lines.length && lines[0].length) {
             this.lines = lines;
             this.height = lines.length;
-            // this.width = lines[0].length ? lines[0].length : 1;
             this.width = lines[0].length;
         } else {
             // If there's no lines data or it seems improperly formatted
@@ -93,24 +90,10 @@ export class Map {
         );
 
         // Can't check info.* immediately, or total failure
-        // console.log('constructor');
-        // if (info) {
-        //     console.log('info');
-        //     // startPosition defaults to center
-        //     if (info.startPosition) {
-        //         console.log('O sP');
-        //         this.startPosition = info.startPosition;
-        //     } else {
-        //         console.log('X sP');
-        //         this.startPosition = this.#center;
-        //     }
-        // }
-        console.log('constructor');
         if (info && info.startPosition) {
-            console.log('O sP');
             this.startPosition = Coordinate.fromObject(info.startPosition);
         } else {
-            console.log('X sP');
+            // startPosition defaults to center
             this.startPosition = this.#center;
         }
     }
@@ -144,27 +127,13 @@ export class Map {
         let info;
         if (infoFilePath) {
             try {
-                // const info = await import(infoFilePath);
-                // // console.log(info.map);
-                // console.log(info.startPosition);
-                // console.log(info);
                 const infoFile = await import(infoFilePath);
-                // console.log(info.data);
-                // console.log(info.data.startPosition);
                 info = infoFile.data;
             } catch(err) {
                 console.error(`Couldn't open file "${infoFilePath}": ${err}`);
             }
         }
 
-        // if (borderFilePath) {
-        //     const border = await MapBorder.createFromFile(borderFilePath);
-        //     return new this(undefined, undefined, lines, border);
-        // } else {
-        //     return this.createFromLines(lines);
-        // }
-        
-        // return new this(undefined, undefined, lines, border, info);
         return this.createFromLines(lines, border, info);
     }
 
