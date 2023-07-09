@@ -13,7 +13,6 @@ export default class GameSocket {
     #remotePlayers;
 
     // To make sure we have enough data from the server to update the view
-    // TODO: Should these have underscores in front due to setters?
     #_didReceiveSession = false;
     #_didReceiveAllPlayers = false;
     #isReadyForView = false;
@@ -26,7 +25,6 @@ export default class GameSocket {
         
         // Get player set up for remote connection
         // Using default URL param
-        // this.#socket = io(window.location.host, { autoConnect: false });
         // query obj will send local player position in case no previous position found on server
         this.#socket = io(window.location.host, {
             autoConnect: false,
@@ -83,7 +81,6 @@ export default class GameSocket {
 
     broadcastMove() {
         // Should this be broadcast/other instead? Can it be?
-        console.log(this.#player.position);
         this.#socket.emit('move', this.#player.position.toJson());
     }
 
@@ -104,20 +101,10 @@ export default class GameSocket {
             localStorage.setItem('sessionId', sessionId);
             // Save (public) userId
             this.#socket.userId = userId;
-            // socket.positionOnMap = positionOnMap;
-            // console.log(positionOnMap);
-            // const foo = Coordinate.fromObject(positionOnMap);
-            // console.log(foo);
-            // this.#player.position = positionOnMap;
-            // console.log('foo');
-            console.log(positionOnMap);
-            // console.log(Coordinate.fromJson(positionOnMap));
-            // console.log('bar');
-            // this.#player.position = Coordinate.fromObject(positionOnMap);
+            
             if (positionOnMap) {
-                console.log('setting position from server session...');
+                this.#log.print('welcome back');
                 this.#player.position = Coordinate.fromJson(positionOnMap);
-                console.log(this.#player.position);
             } else {
                 // TODO: remove this/throw warning
                 // this.#player.position = new Coordinate(2, 0);
@@ -226,10 +213,8 @@ export default class GameSocket {
     }
 
     #updateView() {
-        console.log('ready for view check...');
         // TODO: Make sure all ready-requiring events trigger this, or possible that nothing will ever happen
         if (!this.#isReadyForView) { return; }
-        console.log('update view from socket...');
         this.#view.update(this.#player, this.#remotePlayers);
     }
 }

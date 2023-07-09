@@ -21,10 +21,6 @@ export class Direction {
 }
 
 export class Surroundings {
-    // TODO: Update with 'map' instead of '(map.)lines'
-    // constructor(coordinate, lines) {
-    //     if (coordinate && lines) {
-    //         this.update(coordinate, lines);
     constructor(coordinate, map) {
         if (coordinate && map) {
             this.update(coordinate, map);
@@ -50,7 +46,7 @@ export class Surroundings {
         this.here = map.lines[y][x];
         
         if (y > 0) { this.up = map.lines[y - 1][x] }
-        if (y < map.lines[y].length - 1) { this.down = map.lines[y + 1][x] }
+        if (y < map.lines.length - 1) { this.down = map.lines[y + 1][x] }
         if (map.lines[y][x - 1]) { this.left = map.lines[y][x - 1] }
         if (map.lines[y][x + 1]) { this.right = map.lines[y][x + 1] }
     }

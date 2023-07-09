@@ -10,7 +10,8 @@ import { View } from './js/View.js';
 
 const view = new View(11, 11);
 // const map = Map.createTestMap(view, 0, 0, '~', [['?']]);
-const map = await Map.loadFromPackage('test1');
+// let map = await Map.loadFromPackage('test1');
+let map = Map.createTestMap(view, 17, 11, '~', [['?']]);
 // const map = new Map(5, 5);
 // const map = new Map(7, 7, [], [['?']]);
 view.map = map;
@@ -31,6 +32,18 @@ function updateView() {
     view.update(player, remotePlayers);
 }
 
+import { Surroundings } from './js/Direction.js';
+function changeMap(pkgName) {
+    log.print('WARP ZONE');
+    // map = Map.createTestMap(view, 17, 11, '~', [['?']]);
+    map = Map.createTestMap(view, 17, 17, '~', [['?']]);
+    // Why is this necessary? Thought it was by reference...
+    view.map = map;
+    // Blank out surroundings in case we land OOB
+    player.surroundings = new Surroundings();
+    player.surroundings.update(player.position, map);
+}
+
 function moveIfAble(character, direction) {
     // TODO: Better to have some game-wide "no input" flag
     // Maybe we ought to have a Game object...
@@ -38,9 +51,14 @@ function moveIfAble(character, direction) {
     
     if (character.surroundings.at(direction) != solidCharacter) {
         character.move(direction);
-        updateView();
-        // player.surroundings.update(player.position, map.lines);
         player.surroundings.update(player.position, map);
+
+        // TODO: Specify by coord instead (maps/../info.js); incl. destination
+        if (player.surroundings.here === 'D') {
+            changeMap('pkgname');
+        }
+        
+        updateView();
         socket.broadcastMove();
     }
 }

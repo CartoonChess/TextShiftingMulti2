@@ -121,7 +121,7 @@ export class Map {
 
         let border;
         if (borderFilePath) {
-            const border = await MapBorder.loadFromFile(borderFilePath);
+            border = await MapBorder.loadFromFile(borderFilePath);
         }
 
         let info;
