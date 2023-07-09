@@ -69,18 +69,16 @@ export class Map {
     constructor(width = 0, height = 0, lines, border = new MapBorder()) {
         console.log(lines);
         if (lines && lines.length && lines[0].length) {
-            console.log('O - lines');
             this.lines = lines;
             this.height = lines.length;
             // this.width = lines[0].length ? lines[0].length : 1;
             this.width = lines[0].length;
         } else {
-            console.log('X - lines');
+            // If there's no lines data or it seems improperly formatted
             this.lines = Map.#generateBlankLines(width, height);
             this.width = width;
             this.height = height;
         }
-        console.log(this.width, this.height);
         // If border is a 2D array rather than object, create object first
         if (Array.isArray(border)) {
             this.border = new MapBorder(border);
