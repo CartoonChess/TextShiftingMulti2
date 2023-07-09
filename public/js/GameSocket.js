@@ -37,6 +37,7 @@ export default class GameSocket {
 
     broadcastMove() {
         // Should this be broadcast/other instead? Can it be?
+        console.log(this.#player.position);
         this.#socket.emit('move', this.#player.position.toJson());
     }
 
@@ -50,7 +51,7 @@ export default class GameSocket {
 
     listen() {
         // Get session ID, whether new or returning
-        this.#socket.on('session', ({ sessionId, userId }) => {
+        this.#socket.on('session', ({ sessionId, userId, positionOnMap }) => {
             // 'attach sessionId to next reconnection attempts'
             this.#socket.auth = { sessionId };
             // Store in browser's localStorage
@@ -58,6 +59,22 @@ export default class GameSocket {
             // Save (public) userId
             this.#socket.userId = userId;
             // socket.positionOnMap = positionOnMap;
+            // console.log(positionOnMap);
+            // const foo = Coordinate.fromObject(positionOnMap);
+            // console.log(foo);
+            // this.#player.position = positionOnMap;
+            // console.log('foo');
+            console.log(positionOnMap);
+            // console.log(Coordinate.fromJson(positionOnMap));
+            // console.log('bar');
+            // this.#player.position = Coordinate.fromObject(positionOnMap);
+            if (positionOnMap) {
+                console.log('setting position from server session...');
+                this.#player.position = Coordinate.fromJson(positionOnMap);
+                console.log(this.#player.position);
+            } else {
+                this.#player.position = new Coordinate(2, 0);
+            }
             this.#log.print(`got userId ${this.#socket.userId}.`);
         });
         

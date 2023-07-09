@@ -11,13 +11,13 @@ const view = new View(11, 11);
 // const map = Map.createTestMap(view, 0, 0, '~', [['?']]);
 // const map = await Map.createFromPackage('test1');
 // const map = new Map(5, 5);
-const map = new Map(5, 5, [], [['?']]);
+const map = new Map(7, 7, [], [['?']]);
 view.map = map;
 
 import { Player } from './js/Character.js';
 const player = new Player();
 // TODO: This position should be set differently
-player.position = map.center;
+// player.position = map.center;
 const remotePlayers = [];
 
 import GameSocket from './js/GameSocket.js';
@@ -39,7 +39,7 @@ function moveIfAble(character, direction) {
 // First load
 // simulateRemotePlayers(); // fails as soon as socket connects - see Character.js
 updateView();
-socket.broadcastMove();
+// socket.broadcastMove();
 
 import { Direction } from './js/Direction.js';
 document.addEventListener('keydown', function(event) {

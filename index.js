@@ -65,6 +65,7 @@ io.use((socket, next) => {
             socket.sessionId = sessionId;
             socket.userId = session.userId;
             socket.positionOnMap = session.positionOnMap;
+            // socket.positionOnMap = JSON.parse(session.positionOnMap);
             return next();
         }
     }
@@ -74,10 +75,10 @@ io.use((socket, next) => {
     socket.userId = randomId();
     // TODO: Client should be providing this... or we warp them somehow
     // We should be able to warp players anyone for multiple tabs open...
-    socket.positionOnMap = {
-        column: 14,
-        line: 14
-    }
+    // socket.positionOnMap = {
+    //     column: 1,
+    //     line: 1
+    // };
     // When we're done
     next();
 });
@@ -106,7 +107,7 @@ io.on('connection', (socket) => {
     socket.emit('session', {
         sessionId: socket.sessionId,
         userId: socket.userId,
-        positionOnMap: socket.positionOnMap // TODO: may cause obj/json errors
+        positionOnMap: socket.positionOnMap
     });
 
     // Have all sockets in the same browser join a "room" together
@@ -175,8 +176,14 @@ io.on('connection', (socket) => {
         });
         // Update session store as well so new players will see this
         // TODO: sockets of the same sessionId should sync to this
+        // sessionStore.updateSession(socket.sessionId, {
+        //     positionOnMap: JSON.parse(positionOnMap)
+        // });
+        // sessionStore.updateSession(socket.sessionId, {
+        //     positionOnMap: JSON.stringify(positionOnMap)
+        // });
         sessionStore.updateSession(socket.sessionId, {
-            positionOnMap: JSON.parse(positionOnMap)
+            positionOnMap: positionOnMap
         });
     });
 });

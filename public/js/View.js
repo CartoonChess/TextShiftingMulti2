@@ -3,7 +3,7 @@ import { Coordinate } from './Map.js';
 export class View {
     // half the width and height of the view
     staticCenter;
-    map;
+    #map;
     // the current corresponding map coordinate directly under the static center
     mapCoordinateAtViewCenter;
     // the column/row of map at the bounds of the view
@@ -35,9 +35,15 @@ export class View {
         }
     }
 
+    // TODO: definition throws a typescript warning
+    // TODO: redundant if we no longer set mapCoord.. here; can also make prop public
     set map(map) {
-        this.map = map;
-        this.mapCoordinateAtViewCenter = map.center;
+        this.#map = map;
+        // this.mapCoordinateAtViewCenter = map.center;
+    }
+
+    get map() {
+        return this.#map;
     }
 
     // TODO: rename these ... mapColumnAtViewLeft?
@@ -63,8 +69,8 @@ export class View {
 
     #getTileFromBorder(x, y) {
         // Width and height of the repeating border block
-        const width = this.map.border.width;
-        const height = this.map.border.height;
+        const width = this.#map.border.width;
+        const height = this.#map.border.height;
 
         // The indexes within the border block
         let column = x % width;
@@ -78,7 +84,7 @@ export class View {
             line = (line + height) % height;
         }
 
-        return this.map.border.lines[line][column];
+        return this.#map.border.lines[line][column];
     }
 
     // Builds line, using border for negative indexes
@@ -86,9 +92,9 @@ export class View {
         const line = [];
         for (let x = this.left; x < this.left + this.width; x++) {
             if (x >= 0 && lineIndex >= 0
-               && x < this.map.width && lineIndex < this.map.height) {
+               && x < this.#map.width && lineIndex < this.#map.height) {
                 // If within map bounds, grab from there
-                line.push(this.map.lines[lineIndex][x]);
+                line.push(this.#map.lines[lineIndex][x]);
             } else {
                 // If outside map bounds, generate from border
                 line.push(this.#getTileFromBorder(x, lineIndex));
@@ -98,6 +104,10 @@ export class View {
     }
 
     update(player, remotePlayers) {
+        // TODO: remove this when rest is working
+        console.log(player.position);
+        if (!player.position) { return; }
+        
         this.mapCoordinateAtViewCenter = player.position;
         const lines = [];
         
@@ -124,6 +134,6 @@ export class View {
         }
         // Used to determine whether player can move again
         // TODO: We should do this at time of move instead
-        player.surroundings.update(player.position, this.map.lines);
+        player.surroundings.update(player.position, this.#map.lines);
     }
 }

@@ -67,7 +67,6 @@ export class Map {
 
     // dimension are overridden if lines is supplied
     constructor(width = 0, height = 0, lines, border = new MapBorder()) {
-        console.log(lines);
         if (lines && lines.length && lines[0].length) {
             this.lines = lines;
             this.height = lines.length;
@@ -187,7 +186,6 @@ export class Map {
                 } else if (randomNumber < 0.95) {
                     character = ',';
                 } else if (randomNumber < 0.99) {
-                    // character = solidCharacter;
                     character = boundCharacter;
                 } else {
                     character = '~';
