@@ -53,10 +53,10 @@ app.use('/', express.static(publicDir));
 // `.use` ("middleware"?) perhaps executed only once per socket when first connecting
 io.use((socket, next) => {
     // Note we can attach any custom property we want here
-    // socket.playerPosition = playerPosition;
     console.log("to.use (middleware)");
 
     const sessionId = socket.handshake.auth.sessionId;
+    const defaultPositionOnMap = socket.handshake.query.defaultPositionOnMap;
     if (sessionId) {
         // User's got a session locally in browser
         const session = sessionStore.findSession(sessionId);
@@ -73,6 +73,7 @@ io.use((socket, next) => {
     // User had no sessionId or the server wasn't aware (maybe restarted)
     socket.sessionId = randomId();
     socket.userId = randomId();
+    socket.positionOnMap = defaultPositionOnMap;
     // TODO: Client should be providing this... or we warp them somehow
     // We should be able to warp players anyone for multiple tabs open...
     // socket.positionOnMap = {
@@ -92,7 +93,7 @@ io.on('connection', (socket) => {
     // socket.to(...).emit -> send to a room, possibly to socket.id
 
     console.log(`A user has connected (userId ${socket.userId}, sessionId ${socket.sessionId}, socket.id ${socket.id}).`);
-    socket.emit('self connected', socket.id);
+    // socket.emit('self connected', socket.id);
     
 
     // Save sessions so they persist across refreshes
@@ -124,6 +125,7 @@ io.on('connection', (socket) => {
             });
         }
     });
+    console.log(allPlayers);
     socket.emit('all players', allPlayers);
 
     // Tell other players about yourself
@@ -156,7 +158,7 @@ io.on('connection', (socket) => {
 
     // Just for debugging basically
     socket.onAny((event, ...args) => {
-        console.log(event, args);
+        console.log('[[socket]]', event, args);
     });
     
     // for (let [id] of io.of('/').sockets) {

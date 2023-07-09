@@ -1,5 +1,6 @@
 import MessageLog from './js/MessageLog.js';
 const log = new MessageLog(document.getElementById('message-log'), true);
+log.print('Loading...');
 
 const solidCharacter = '#'; // emojis freak out, prob because not one char
 
@@ -16,8 +17,13 @@ view.map = map;
 
 import { Player } from './js/Character.js';
 const player = new Player();
-// TODO: This position should be set differently
+// TODO: Map files should provide this
 // player.position = map.center;
+import { Coordinate } from './js/Map.js';
+const spawnPoint = new Coordinate(1, 2);
+// I guess this will be overwritten if session data is found?
+player.position = spawnPoint;
+
 const remotePlayers = [];
 
 import GameSocket from './js/GameSocket.js';
@@ -25,20 +31,27 @@ const socket = new GameSocket(log, view, player, remotePlayers);
 socket.listen();
 
 function updateView() {
+    // TODO: Maybe this should take an { object } instead, so we can pass whatever comes up
     view.update(player, remotePlayers);
 }
 
 function moveIfAble(character, direction) {
+    // TODO: Better to have some game-wide "no input" flag
+    // Maybe we ought to have a Game object...
+    if (!socket.isReadyForView) { return; }
+    
     if (character.surroundings.at(direction) != solidCharacter) {
         character.move(direction);
         updateView();
+        // player.surroundings.update(player.position, map.lines);
+        player.surroundings.update(player.position, map);
         socket.broadcastMove();
     }
 }
 
 // First load
 // simulateRemotePlayers(); // fails as soon as socket connects - see Character.js
-updateView();
+// updateView();
 // socket.broadcastMove();
 
 import { Direction } from './js/Direction.js';

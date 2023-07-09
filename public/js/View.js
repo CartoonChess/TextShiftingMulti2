@@ -134,6 +134,6 @@ export class View {
         }
         // Used to determine whether player can move again
         // TODO: We should do this at time of move instead
-        player.surroundings.update(player.position, this.#map.lines);
+        // player.surroundings.update(player.position, this.#map.lines);
     }
 }

@@ -21,9 +21,13 @@ export class Direction {
 }
 
 export class Surroundings {
-    constructor(coordinate, lines) {
-        if (coordinate && lines) {
-            this.update(coordinate, lines);
+    // TODO: Update with 'map' instead of '(map.)lines'
+    // constructor(coordinate, lines) {
+    //     if (coordinate && lines) {
+    //         this.update(coordinate, lines);
+    constructor(coordinate, map) {
+        if (coordinate && map) {
+            this.update(coordinate, map);
         } else {
             this.here = ' ';
             this.up = ' ';
@@ -33,22 +37,22 @@ export class Surroundings {
         }
     }
     
-    update(coordinate, lines) {
+    update(coordinate, map) {
         const x = coordinate.column;
         const y = coordinate.line;
 
         // If OOB somehow, don't change anything
         if (x < 0 || y < 0
-           || y >= lines.length
-           || x >= lines[y].length) { return; }
+           || y >= map.lines.length
+           || x >= map.lines[y].length) { return; }
 
         // If inbounds, update 'here' and any other inbound values
-        this.here = lines[y][x];
+        this.here = map.lines[y][x];
         
-        if (y > 0) { this.up = lines[y - 1][x] }
-        if (y < lines[y].length - 1) { this.down = lines[y + 1][x] }
-        if (lines[y][x - 1]) { this.left = lines[y][x - 1] }
-        if (lines[y][x + 1]) { this.right = lines[y][x + 1] }
+        if (y > 0) { this.up = map.lines[y - 1][x] }
+        if (y < map.lines[y].length - 1) { this.down = map.lines[y + 1][x] }
+        if (map.lines[y][x - 1]) { this.left = map.lines[y][x - 1] }
+        if (map.lines[y][x + 1]) { this.right = map.lines[y][x + 1] }
     }
 
     // return the tile at a given direction object

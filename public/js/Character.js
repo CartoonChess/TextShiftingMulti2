@@ -40,12 +40,15 @@ export class RemotePlayer extends Player {
         super();
         this.id = id;
         if (!position) {
+            // TODO: Won't this actually show up in the border now?
             position = new Coordinate(-1, -1);
         }
         this.position = position;
     }
     static fromJson(json) {
-        const position = Coordinate.fromObject(json.positionOnMap);
+        console.log(json.positionOnMap);
+        // const position = Coordinate.fromObject(json.positionOnMap);
+        const position = Coordinate.fromJson(json.positionOnMap);
         return new this(
             json.userId,
             position
