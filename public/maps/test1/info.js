@@ -1,11 +1,6 @@
 export const data = {
     'startPosition': {
-        'column': 0,
-        'line': 6,
+        'column': 10,
+        'line': 10,
     }
 }
-
-// export const startPosition = {
-//     'column': 0,
-//     'line': 6
-// }

@@ -33,8 +33,8 @@ class MapBorder {
     //     return new this(lines);
     // }
 
-    static async createFromFile(filePath) {
-        if (!filePath) { return console.error(`Must provide a file path to use MapBorder.createFromFile.`); }
+    static async loadFromFile(filePath) {
+        if (!filePath) { return console.error(`Must provide a file path to use MapBorder.loadFromFile.`); }
 
         const lines = await this.#loadLinesFromFile(filePath);
         return new this(lines);
@@ -114,14 +114,14 @@ export class Map {
         return new this(undefined, undefined, lines, border, info);
     }
 
-    static async createFromFile(filePath, borderFilePath, infoFilePath) {
-        if (!filePath) { return console.error(`Must provide a file path to use Map.createFromFile.`); }
+    static async loadFromFile(filePath, borderFilePath, infoFilePath) {
+        if (!filePath) { return console.error(`Must provide a file path to use Map.loadFromFile.`); }
 
         const lines = await this.#loadLinesFromFile(filePath);
 
         let border;
         if (borderFilePath) {
-            const border = await MapBorder.createFromFile(borderFilePath);
+            const border = await MapBorder.loadFromFile(borderFilePath);
         }
 
         let info;
@@ -137,8 +137,8 @@ export class Map {
         return this.createFromLines(lines, border, info);
     }
 
-    static async createFromPackage(pkgName) {
-        if (!pkgName) { return console.error(`Must provide a package name to use Map.createFromPackage.`); }
+    static async loadFromPackage(pkgName) {
+        if (!pkgName) { return console.error(`Must provide a package name to use Map.loadFromPackage.`); }
 
         // "advised to access private static props thru class NAME"
         const prefix = Map.#packagePath + pkgName + '/';
@@ -146,7 +146,7 @@ export class Map {
         const borderFilePath = prefix + 'border';
         const infoFilePath = prefix + 'info.js'
         
-        return this.createFromFile(filePath, borderFilePath, infoFilePath);
+        return this.loadFromFile(filePath, borderFilePath, infoFilePath);
     }
 
     static async #loadLinesFromFile(filePath) {

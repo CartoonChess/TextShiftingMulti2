@@ -104,21 +104,15 @@ export class View {
     }
 
     update(player, remotePlayers) {
-        // TODO: remove this when rest is working
-        console.log(player.position);
+        // Sanity check
         if (!player.position) { return; }
         
         this.mapCoordinateAtViewCenter = player.position;
         const lines = [];
         
-        // Generate map lines and local player
+        // Generate map tiles
         for (let i = 0; i < this.height; i++) {
             lines[i] = this.#getLine(this.top + i);
-            
-            // Show @char at centre of both axes
-            if (i === this.staticCenter.line) {
-                lines[i][this.staticCenter.column] = '@';
-            }
         }
         // Add in remote players
         for (const remotePlayer of remotePlayers) {
@@ -128,12 +122,12 @@ export class View {
                 lines[lineIndex][columnIndex] = '%';
             }
         }
+        // Show player at centre of both axes
+        lines[this.staticCenter.line][this.staticCenter.column] = '@';
+        
         // Print to screen
         for (let i = 0; i < this.height; i++) {
             document.getElementById(`line${i}`).textContent = lines[i].join('');
         }
-        // Used to determine whether player can move again
-        // TODO: We should do this at time of move instead
-        // player.surroundings.update(player.position, this.#map.lines);
     }
 }

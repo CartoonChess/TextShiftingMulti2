@@ -10,7 +10,7 @@ import { View } from './js/View.js';
 
 const view = new View(11, 11);
 // const map = Map.createTestMap(view, 0, 0, '~', [['?']]);
-const map = await Map.createFromPackage('test1');
+const map = await Map.loadFromPackage('test1');
 // const map = new Map(5, 5);
 // const map = new Map(7, 7, [], [['?']]);
 view.map = map;
