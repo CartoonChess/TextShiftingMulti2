@@ -13,8 +13,8 @@ export class View {
     #bottom;
 
     constructor(width, height) {
-        this.width = width;
-        this.height = height;
+        this.width = width > 0 ? width : 1;
+        this.height = height > 0 ? height : 1;
         this.staticCenter = new Coordinate(
             Math.floor(this.width / 2),
             Math.floor(this.height / 2)

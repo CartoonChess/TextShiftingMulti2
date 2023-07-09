@@ -4,17 +4,16 @@ const log = new MessageLog(document.getElementById('message-log'), true);
 const solidCharacter = '#'; // emojis freak out, prob because not one char
 
 // Map and view
-// import { Coordinate, Map, View } from './js/Map.js';
 import { Map } from './js/Map.js';
 import { View } from './js/View.js';
 
 const view = new View(11, 11);
+// const map = Map.createTestMap(view, 0, 0, '~', [['?']]);
 // const map = await Map.createFromPackage('test1');
-// TODO: no errors when map is smaller than view
-const map = Map.createTestMap(view, 10, 10);
+// const map = new Map(5, 5);
+const map = new Map(5, 5, [], [['?']]);
 view.map = map;
 
-// import { Player, RemotePlayer } from './js/Character.js';
 import { Player } from './js/Character.js';
 const player = new Player();
 // TODO: This position should be set differently
@@ -42,7 +41,6 @@ function moveIfAble(character, direction) {
 updateView();
 socket.broadcastMove();
 
-// import { Direction, Surroundings } from './js/Direction.js';
 import { Direction } from './js/Direction.js';
 document.addEventListener('keydown', function(event) {
     if (['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'].includes(event.key)) {

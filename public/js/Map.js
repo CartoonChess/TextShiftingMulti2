@@ -22,22 +22,23 @@ class MapBorder {
     // TODO: Error handling
     // TODO: creating directly from constructor
     constructor(lines = [[' ']]) {
-        console.log(lines);
         this.lines = lines;
         this.height = lines.length;
         this.width = lines[0].length;
     }
 
-    static createFromLines(lines) {
-        return new this(lines);
-    }
+    // currently redundant
+    // static createFromLines(lines) {
+    //     return new this(lines);
+    // }
 
     // TODO: Make this not redundant from Map method
     static async createFromFile(filePath) {
         if (!filePath) { return console.error(`Must provide a file path to use MapBorder.createFromFile.`); }
 
         const lines = await this.#loadLinesFromFile(filePath);
-        return this.createFromLines(lines);
+        // return this.createFromLines(lines);
+        return new this(lines);
     }
 
     // TODO: Make this not redundant from Map method
@@ -66,16 +67,26 @@ export class Map {
 
     // dimension are overridden if lines is supplied
     constructor(width = 0, height = 0, lines, border = new MapBorder()) {
-        if (lines) {
+        console.log(lines);
+        if (lines && lines.length && lines[0].length) {
+            console.log('O - lines');
             this.lines = lines;
             this.height = lines.length;
-            this.width = lines[0].length ? lines[0].length : 0;
+            // this.width = lines[0].length ? lines[0].length : 1;
+            this.width = lines[0].length;
         } else {
-            this.lines = [];
+            console.log('X - lines');
+            this.lines = Map.#generateBlankLines(width, height);
             this.width = width;
             this.height = height;
         }
-        this.border = border;
+        console.log(this.width, this.height);
+        // If border is a 2D array rather than object, create object first
+        if (Array.isArray(border)) {
+            this.border = new MapBorder(border);
+        } else {
+            this.border = border;
+        }
 
         this.#center = new Coordinate(
             Math.floor(this.width / 2),
@@ -83,8 +94,20 @@ export class Map {
         );
     }
 
-    static createFromLines(lines) {
-        return new this(undefined, undefined, lines);
+    static #generateBlankLines(width, height) {
+        const lines = new Array(height);
+        for (let y = 0; y < height; y++) {
+            lines[y] = new Array(width).fill(' ');
+        }
+        return lines;
+    }
+
+    static createBlank(width, height) {
+        return new this(width, height, Map.#generateBlankLines(width, height));
+    }
+
+    static createFromLines(lines, border) {
+        return new this(undefined, undefined, lines, border);
     }
 
     static async createFromFile(filePath, borderFilePath) {
@@ -103,11 +126,10 @@ export class Map {
     static async createFromPackage(pkgName) {
         if (!pkgName) { return console.error(`Must provide a package name to use Map.createFromPackage.`); }
 
-        // return Object.assign(new this, {...});
         // "advised to access private static props thru class NAME"
         const filePath = Map.#packagePath + pkgName + '/map';
         const borderFilePath = Map.#packagePath + pkgName + '/border';
-        // return await this.createFromFile(filePath, borderFilePath);
+        
         return this.createFromFile(filePath, borderFilePath);
     }
 
@@ -135,19 +157,12 @@ export class Map {
         return lines;
     }
 
-    static createTestMap(view, width = view.width * 2, height = view.height * 2, boundCharacter) {
+    static createTestMap(view, width = view.width * 2, height = view.height * 2, boundCharacter = '#', border) {
         if (!view) { return console.warn(`Can't call Map.createTestMap without providing view argument.`); }
-
-        // Map has to be at least size of view for now
-        if (width < view.width) { width = view.width; }
-        if (height < view.height) { height = view.height; }
         
         const lines = [];
         
-        // Build walls around player acessible area
-        // TODO: Someday we'll provide for when the map is smaller than the view
-        if (!boundCharacter) { boundCharacter = '#'; }
-
+        // Build walls around map edge
         const leftBound = Math.floor(view.width / 2) - 1;
         const rightBound = width - leftBound - 1;
         const topBound = Math.floor(view.height / 2) - 1;
@@ -184,7 +199,7 @@ export class Map {
             }
             lines.push(line);
         }
-        return this.createFromLines(lines);
+        return this.createFromLines(lines, border);
     }
 
     get center() {
