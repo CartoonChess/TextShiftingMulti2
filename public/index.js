@@ -4,16 +4,18 @@ const log = new MessageLog(document.getElementById('message-log'), true);
 const solidCharacter = '#'; // emojis freak out, prob because not one char
 
 // Map and view
-import { Direction, Surroundings } from './js/Direction.js';
-import { Coordinate, Map, View } from './js/Map.js';
+// import { Coordinate, Map, View } from './js/Map.js';
+import { Map } from './js/Map.js';
+import { View } from './js/View.js';
 
-// const view = new View(9, 9);
 const view = new View(11, 11);
-// const map = Map.createTestMap(view, 12, 12);
-const map = await Map.createFromPackage('test1');
+// const map = await Map.createFromPackage('test1');
+// TODO: no errors when map is smaller than view
+const map = Map.createTestMap(view, 10, 10);
 view.map = map;
 
-import { Player, RemotePlayer } from './js/Character.js';
+// import { Player, RemotePlayer } from './js/Character.js';
+import { Player } from './js/Character.js';
 const player = new Player();
 // TODO: This position should be set differently
 player.position = map.center;
@@ -35,17 +37,19 @@ function moveIfAble(character, direction) {
     }
 }
 
+// First load
+// simulateRemotePlayers(); // fails as soon as socket connects - see Character.js
+updateView();
+socket.broadcastMove();
+
+// import { Direction, Surroundings } from './js/Direction.js';
+import { Direction } from './js/Direction.js';
 document.addEventListener('keydown', function(event) {
     if (['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'].includes(event.key)) {
         // remove 'Arrow' from keypress to get corresponding direction enum
         moveIfAble(player, Direction[event.key.slice(5)])
     }
 });
-
-// First load
-// simulateRemotePlayers(); // fails as soon as socket connects - see Character.js
-updateView();
-socket.broadcastMove();
 
 // Mobile - currently disabled
 // import './mobile.js';
