@@ -10,19 +10,22 @@ import { View } from './js/View.js';
 
 const view = new View(11, 11);
 // const map = Map.createTestMap(view, 0, 0, '~', [['?']]);
-// const map = await Map.createFromPackage('test1');
+const map = await Map.createFromPackage('test1');
 // const map = new Map(5, 5);
-const map = new Map(7, 7, [], [['?']]);
+// const map = new Map(7, 7, [], [['?']]);
 view.map = map;
 
 import { Player } from './js/Character.js';
 const player = new Player();
 // TODO: Map files should provide this
 // player.position = map.center;
-import { Coordinate } from './js/Map.js';
-const spawnPoint = new Coordinate(1, 2);
-// I guess this will be overwritten if session data is found?
-player.position = spawnPoint;
+// import { Coordinate } from './js/Map.js';
+// const spawnPoint = new Coordinate(1, 2);
+// // I guess this will be overwritten if session data is found?
+// player.position = spawnPoint;
+console.log(map);
+console.log(map.startPosition);
+player.position = map.startPosition;
 
 const remotePlayers = [];
 

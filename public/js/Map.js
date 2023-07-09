@@ -64,9 +64,11 @@ class MapBorder {
 export class Map {
     static #packagePath = '../maps/';
     #center;
+    startPosition;
 
     // dimension are overridden if lines is supplied
-    constructor(width = 0, height = 0, lines, border = new MapBorder()) {
+    // info should be an object
+    constructor(width = 0, height = 0, lines, border = new MapBorder(), info) {
         if (lines && lines.length && lines[0].length) {
             this.lines = lines;
             this.height = lines.length;
@@ -89,6 +91,28 @@ export class Map {
             Math.floor(this.width / 2),
             Math.floor(this.height / 2)
         );
+
+        // Can't check info.* immediately, or total failure
+        // console.log('constructor');
+        // if (info) {
+        //     console.log('info');
+        //     // startPosition defaults to center
+        //     if (info.startPosition) {
+        //         console.log('O sP');
+        //         this.startPosition = info.startPosition;
+        //     } else {
+        //         console.log('X sP');
+        //         this.startPosition = this.#center;
+        //     }
+        // }
+        console.log('constructor');
+        if (info && info.startPosition) {
+            console.log('O sP');
+            this.startPosition = Coordinate.fromObject(info.startPosition);
+        } else {
+            console.log('X sP');
+            this.startPosition = this.#center;
+        }
     }
 
     static #generateBlankLines(width, height) {
@@ -103,40 +127,60 @@ export class Map {
         return new this(width, height, Map.#generateBlankLines(width, height));
     }
 
-    static createFromLines(lines, border) {
-        return new this(undefined, undefined, lines, border);
+    static createFromLines(lines, border, info) {
+        return new this(undefined, undefined, lines, border, info);
     }
 
-    static async createFromFile(filePath, borderFilePath) {
+    static async createFromFile(filePath, borderFilePath, infoFilePath) {
         if (!filePath) { return console.error(`Must provide a file path to use Map.createFromFile.`); }
 
         const lines = await this.#loadLinesFromFile(filePath);
 
+        let border;
         if (borderFilePath) {
             const border = await MapBorder.createFromFile(borderFilePath);
-            return new this(undefined, undefined, lines, border);
-        } else {
-            return this.createFromLines(lines);
-        }        
+        }
+
+        let info;
+        if (infoFilePath) {
+            try {
+                // const info = await import(infoFilePath);
+                // // console.log(info.map);
+                // console.log(info.startPosition);
+                // console.log(info);
+                const infoFile = await import(infoFilePath);
+                // console.log(info.data);
+                // console.log(info.data.startPosition);
+                info = infoFile.data;
+            } catch(err) {
+                console.error(`Couldn't open file "${infoFilePath}": ${err}`);
+            }
+        }
+
+        // if (borderFilePath) {
+        //     const border = await MapBorder.createFromFile(borderFilePath);
+        //     return new this(undefined, undefined, lines, border);
+        // } else {
+        //     return this.createFromLines(lines);
+        // }
+        
+        // return new this(undefined, undefined, lines, border, info);
+        return this.createFromLines(lines, border, info);
     }
 
     static async createFromPackage(pkgName) {
         if (!pkgName) { return console.error(`Must provide a package name to use Map.createFromPackage.`); }
 
         // "advised to access private static props thru class NAME"
-        const filePath = Map.#packagePath + pkgName + '/map';
-        const borderFilePath = Map.#packagePath + pkgName + '/border';
+        const prefix = Map.#packagePath + pkgName + '/';
+        const filePath = prefix + 'map';
+        const borderFilePath = prefix + 'border';
+        const infoFilePath = prefix + 'info.js'
         
-        return this.createFromFile(filePath, borderFilePath);
+        return this.createFromFile(filePath, borderFilePath, infoFilePath);
     }
 
     static async #loadLinesFromFile(filePath) {
-        // try {
-        //     const response = await import('../maps/1x1.js');
-        //     console.log(response.map);
-        // } catch(err) {
-        //     console.log(err);
-        // }
         let data;
         try {
             const response = await fetch(filePath);
