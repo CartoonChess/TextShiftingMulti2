@@ -25,22 +25,32 @@ export class Surroundings {
         if (coordinate && map) {
             this.update(coordinate, map);
         } else {
-            this.here = ' ';
-            this.up = ' ';
-            this.down = ' ';
-            this.left = ' ';
-            this.right = ' ';
+            this.clear();
         }
+    }
+
+    clear() {
+        this.here = ' ';
+        this.up = ' ';
+        this.down = ' ';
+        this.left = ' ';
+        this.right = ' ';
     }
     
     update(coordinate, map) {
         const x = coordinate.column;
         const y = coordinate.line;
 
-        // If OOB somehow, don't change anything
+        // // If OOB somehow, don't change anything
+        // if (x < 0 || y < 0
+        //    || y >= map.lines.length
+        //    || x >= map.lines[y].length) { return; }
+        // If OOB somehow, blank everything
         if (x < 0 || y < 0
            || y >= map.lines.length
-           || x >= map.lines[y].length) { return; }
+           || x >= map.lines[y].length) {
+            return this.clear();
+        }
 
         // If inbounds, update 'here' and any other inbound values
         this.here = map.lines[y][x];

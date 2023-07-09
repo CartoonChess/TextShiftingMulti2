@@ -9,11 +9,10 @@ import { Map } from './js/Map.js';
 import { View } from './js/View.js';
 
 const view = new View(11, 11);
-// const map = Map.createTestMap(view, 0, 0, '~', [['?']]);
-// let map = await Map.loadFromPackage('test1');
-let map = Map.createTestMap(view, 17, 11, '~', [['?']]);
-// const map = new Map(5, 5);
-// const map = new Map(7, 7, [], [['?']]);
+let map = await Map.loadFromPackage('test1');
+// let map = Map.createTestMap(view, 17, 11, '~', [['?']]);
+// let map = new Map(5, 5);
+// let map = new Map(7, 7, [], [['?']]);
 view.map = map;
 
 import { Player } from './js/Character.js';
@@ -36,11 +35,12 @@ import { Surroundings } from './js/Direction.js';
 function changeMap(pkgName) {
     log.print('WARP ZONE');
     // map = Map.createTestMap(view, 17, 11, '~', [['?']]);
-    map = Map.createTestMap(view, 17, 17, '~', [['?']]);
+    map = Map.createTestMap(view, 18, 12, '#', [['?']]);
     // Why is this necessary? Thought it was by reference...
     view.map = map;
     // Blank out surroundings in case we land OOB
-    player.surroundings = new Surroundings();
+    // player.surroundings = new Surroundings();
+    player.surroundings.clear();
     player.surroundings.update(player.position, map);
 }
 
