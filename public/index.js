@@ -9,10 +9,10 @@ import { GameMap } from './js/GameMap.js';
 import { View } from './js/View.js';
 
 const view = new View(11, 11);
-// let map = await GameMap.loadFromPackage('test1');
-// let map = GameMap.createTestMap(view, 17, 11, '~', [['?']]);
-// let map = new GameMap(5, 5);
-// let map = new GameMap(7, 7, [], [['?']]);
+// view.map = await GameMap.loadFromPackage('test1');
+// view.map = GameMap.createTestMap(view, 17, 11, '~', [['?']]);
+// view.map = new GameMap(5, 5);
+// view.map = new GameMap(7, 7, [], [['?']]);
 // view.map = map;
 view.map = await GameMap.loadFromPackage('test1');
 
@@ -32,11 +32,8 @@ function updateView() {
     view.update(player, remotePlayers);
 }
 
-// import { Surroundings } from './js/Direction.js';
 function changeMap(pkgName) {
     log.print('WARP ZONE');
-    // map = GameMap.createTestMap(view, 18, 12, '#', [['?']]);
-    // view.map = map;
     view.map = GameMap.createTestMap(view, 18, 12, '#', [['?']]);
     // Blank out surroundings in case we land OOB
     player.surroundings.clear();
