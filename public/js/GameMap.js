@@ -91,6 +91,7 @@ export class GameMap {
         // Can't check info.* immediately, or total failure
         if (info) {
             if (info.startPosition) {
+                // TODO: Should be able to check for, and take, Coordinate object proper
                 this.startPosition = Coordinate.fromObject(info.startPosition);
             } else {
                 // startPosition defaults to center
@@ -110,8 +111,8 @@ export class GameMap {
         return lines;
     }
 
-    static createBlank(width, height) {
-        return new this(width, height, GameMap.#generateBlankLines(width, height));
+    static createBlank(width, height, border, info) {
+        return new this(width, height, GameMap.#generateBlankLines(width, height), border, info);
     }
 
     static createFromLines(lines, border, info) {

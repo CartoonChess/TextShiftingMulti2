@@ -31,9 +31,21 @@ function updateView() {
     view.update(player, remotePlayers);
 }
 
-function changeMap(pkgName) {
-    log.print('WARP ZONE');
-    view.map = GameMap.createTestMap(view, 18, 12, '#', [['?']]);
+async function changeMap(map) {
+    if (!map) {
+        return console.error(`Can't call changeMap() without providing a package name or Map object.`);
+    }
+    if (typeof map === 'object') {
+        // Assume it's a Map object
+        view.map = map;
+    } else {
+        // Assume it's a map name (string)
+        view.map = await GameMap.loadFromPackage(map);
+    }
+    log.print(`Moved to map '${view.map.name}'`);
+    // TODO: This should be derived from info.js or something
+    console.log(view.map.startPosition);
+    player.position = view.map.startPosition;
     // Blank out surroundings in case we land OOB
     player.surroundings.clear();
     player.surroundings.update(player.position, view.map);
@@ -50,7 +62,9 @@ function moveIfAble(character, direction) {
 
         // TODO: Specify by coord instead (maps/../info.js); incl. destination
         if (player.surroundings.here === 'D') {
-            changeMap('pkgname');
+            // const testMap = GameMap.createTestMap(view, 18, 12, '#', [['?']]);
+            const testMap = GameMap.createBlank(10, 5, [['.']], { name: 'blank', startPosition: { column: 1, line: 1 } });
+            changeMap(testMap);
         }
         
         updateView();

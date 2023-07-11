@@ -119,7 +119,7 @@ io.on('connection', (socket) => {
         if (session.isOnline) {
             allPlayers.push({
                 userId: session.userId,
-                gameMap: socket.gameMap,
+                gameMap: session.gameMap,
                 positionOnMap: session.positionOnMap
             });
         }
