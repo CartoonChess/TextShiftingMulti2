@@ -31,7 +31,7 @@ function updateView() {
     view.update(player, remotePlayers);
 }
 
-import { Surroundings } from './js/Direction.js';
+// import { Surroundings } from './js/Direction.js';
 function changeMap(pkgName) {
     log.print('WARP ZONE');
     // map = GameMap.createTestMap(view, 17, 11, '~', [['?']]);

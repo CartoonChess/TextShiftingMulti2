@@ -20,24 +20,22 @@ export class Coordinate {
 
 // TODO: Make child (or sibling) of Map (~fromFile methods redundant)
 class MapBorder {
-    // TODO: Error handling
-    // TODO: creating directly from constructor
-    constructor(lines = [[' ']]) {
+    constructor(width = 1, height = 1, lines = [[' ']]) {
         this.lines = lines;
-        this.height = lines.length;
-        this.width = lines[0].length;
+        this.height = lines && lines.length ? lines.length : height;
+        this.width = lines && lines.length && lines[0].length ? lines[0].length: width;
     }
 
     // currently redundant
-    // static createFromLines(lines) {
-    //     return new this(lines);
-    // }
+    static createFromLines(lines) {
+        return new this(undefined, undefined, lines);
+    }
 
     static async loadFromFile(filePath) {
         if (!filePath) { return console.error(`Must provide a file path to use MapBorder.loadFromFile.`); }
 
         const lines = await this.#loadLinesFromFile(filePath);
-        return new this(lines);
+        return this.createFromLines(lines);
     }
 
     static async #loadLinesFromFile(filePath) {
@@ -79,7 +77,7 @@ export class GameMap {
         }
         // If border is a 2D array rather than object, create object first
         if (Array.isArray(border)) {
-            this.border = new MapBorder(border);
+            this.border = MapBorder.createFromLines(border);
         } else {
             this.border = border;
         }
