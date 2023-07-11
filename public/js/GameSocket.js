@@ -1,4 +1,4 @@
-import { Coordinate } from './Map.js';
+import { Coordinate } from './GameMap.js';
 import { RemotePlayer } from './Character.js';
 
 export default class GameSocket {

@@ -59,7 +59,7 @@ class MapBorder {
     }
 }
 
-export class Map {
+export class GameMap {
     static #packagePath = '../maps/';
     #center;
     startPosition;
@@ -73,7 +73,7 @@ export class Map {
             this.width = lines[0].length;
         } else {
             // If there's no lines data or it seems improperly formatted
-            this.lines = Map.#generateBlankLines(width, height);
+            this.lines = GameMap.#generateBlankLines(width, height);
             this.width = width;
             this.height = height;
         }
@@ -107,7 +107,7 @@ export class Map {
     }
 
     static createBlank(width, height) {
-        return new this(width, height, Map.#generateBlankLines(width, height));
+        return new this(width, height, GameMap.#generateBlankLines(width, height));
     }
 
     static createFromLines(lines, border, info) {
@@ -115,7 +115,7 @@ export class Map {
     }
 
     static async loadFromFile(filePath, borderFilePath, infoFilePath) {
-        if (!filePath) { return console.error(`Must provide a file path to use Map.loadFromFile.`); }
+        if (!filePath) { return console.error(`Must provide a file path to use GameMap.loadFromFile.`); }
 
         const lines = await this.#loadLinesFromFile(filePath);
 
@@ -138,10 +138,10 @@ export class Map {
     }
 
     static async loadFromPackage(pkgName) {
-        if (!pkgName) { return console.error(`Must provide a package name to use Map.loadFromPackage.`); }
+        if (!pkgName) { return console.error(`Must provide a package name to use GameMap.loadFromPackage.`); }
 
         // "advised to access private static props thru class NAME"
-        const prefix = Map.#packagePath + pkgName + '/';
+        const prefix = GameMap.#packagePath + pkgName + '/';
         const filePath = prefix + 'map';
         const borderFilePath = prefix + 'border';
         const infoFilePath = prefix + 'info.js'
@@ -155,7 +155,7 @@ export class Map {
             const response = await fetch(filePath);
             data = await response.text();
         } catch (err) {
-            return console.error(`Map.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
+            return console.error(`GameMap.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
         }
 
         // Split into 2D array of lines and their tiles
@@ -168,7 +168,7 @@ export class Map {
     }
 
     static createTestMap(view, width = view.width * 2, height = view.height * 2, boundCharacter = '#', border) {
-        if (!view) { return console.warn(`Can't call Map.createTestMap without providing view argument.`); }
+        if (!view) { return console.warn(`Can't call GameMap.createTestMap without providing view argument.`); }
         
         const lines = [];
         

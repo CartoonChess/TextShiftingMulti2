@@ -1,4 +1,4 @@
-import { Coordinate } from './Map.js';
+import { Coordinate } from './GameMap.js';
 
 export class View {
     // half the width and height of the view

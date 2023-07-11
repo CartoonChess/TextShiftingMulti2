@@ -5,14 +5,14 @@ log.print('Loading...');
 const solidCharacter = '#'; // emojis freak out, prob because not one char
 
 // Map and view
-import { Map } from './js/Map.js';
+import { GameMap } from './js/GameMap.js';
 import { View } from './js/View.js';
 
 const view = new View(11, 11);
-let map = await Map.loadFromPackage('test1');
-// let map = Map.createTestMap(view, 17, 11, '~', [['?']]);
-// let map = new Map(5, 5);
-// let map = new Map(7, 7, [], [['?']]);
+let map = await GameMap.loadFromPackage('test1');
+// let map = GameMap.createTestMap(view, 17, 11, '~', [['?']]);
+// let map = new GameMap(5, 5);
+// let map = new GameMap(7, 7, [], [['?']]);
 view.map = map;
 
 import { Player } from './js/Character.js';
@@ -34,8 +34,8 @@ function updateView() {
 import { Surroundings } from './js/Direction.js';
 function changeMap(pkgName) {
     log.print('WARP ZONE');
-    // map = Map.createTestMap(view, 17, 11, '~', [['?']]);
-    map = Map.createTestMap(view, 18, 12, '#', [['?']]);
+    // map = GameMap.createTestMap(view, 17, 11, '~', [['?']]);
+    map = GameMap.createTestMap(view, 18, 12, '#', [['?']]);
     // Why is this necessary? Thought it was by reference...
     view.map = map;
     // Blank out surroundings in case we land OOB

@@ -29,7 +29,7 @@ export class Player extends Character {
     }
 }
 
-import { Coordinate } from './Map.js';
+import { Coordinate } from './GameMap.js';
 export class RemotePlayer extends Player {
     // Private properties aren't inherited
     // (but we got rid of them all)

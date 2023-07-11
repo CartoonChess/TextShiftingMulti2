@@ -157,9 +157,9 @@ io.on('connection', (socket) => {
     });
 
     // Just for debugging basically
-    socket.onAny((event, ...args) => {
-        console.log('[[socket]]', event, args);
-    });
+    // socket.onAny((event, ...args) => {
+    //     console.log('[[socket]]', event, args);
+    // });
     
     // for (let [id] of io.of('/').sockets) {
     //     console.log(id);
