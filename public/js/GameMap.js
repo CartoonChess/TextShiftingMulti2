@@ -60,6 +60,7 @@ class MapBorder {
 export class GameMap {
     static #packagePath = '../maps/';
     #center;
+    name;
     startPosition;
 
     // dimension are overridden if lines is supplied
@@ -88,11 +89,16 @@ export class GameMap {
         );
 
         // Can't check info.* immediately, or total failure
-        if (info && info.startPosition) {
-            this.startPosition = Coordinate.fromObject(info.startPosition);
-        } else {
-            // startPosition defaults to center
-            this.startPosition = this.#center;
+        if (info) {
+            if (info.startPosition) {
+                this.startPosition = Coordinate.fromObject(info.startPosition);
+            } else {
+                // startPosition defaults to center
+                this.startPosition = this.#center;
+            }
+            if (info.name) {
+                this.name = info.name;
+            }
         }
     }
 
@@ -206,7 +212,7 @@ export class GameMap {
             }
             lines.push(line);
         }
-        return this.createFromLines(lines, border);
+        return this.createFromLines(lines, border, { name: 'testMap' });
     }
 
     get center() {

@@ -33,16 +33,19 @@ import { Coordinate } from './GameMap.js';
 export class RemotePlayer extends Player {
     // Private properties aren't inherited
     // (but we got rid of them all)
+    mapName;
     wasInView = true;
     
-    constructor(id, position) {
+    constructor(id, mapName, position) {
         // super must be called
         super();
         this.id = id;
-        if (!position) {
-            // TODO: Won't this actually show up in the border now?
-            position = new Coordinate(-1, -1);
-        }
+
+        this.mapName = mapName;
+        // if (!position) {
+        //     // TODO: Won't this actually show up in the border now?
+        //     position = new Coordinate(-1, -1);
+        // }
         this.position = position;
     }
     static fromJson(json) {
@@ -50,6 +53,7 @@ export class RemotePlayer extends Player {
         const position = Coordinate.fromJson(json.positionOnMap);
         return new this(
             json.userId,
+            json.mapName,
             position
         )
     }

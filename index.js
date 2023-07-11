@@ -61,6 +61,7 @@ io.use((socket, next) => {
             // And the server remembers it
             socket.sessionId = sessionId;
             socket.userId = session.userId;
+            socket.gameMap = session.gameMap;
             socket.positionOnMap = session.positionOnMap;
             return next();
         }
@@ -71,6 +72,7 @@ io.use((socket, next) => {
     // User had no sessionId or the server wasn't aware (maybe restarted)
     socket.sessionId = randomId();
     socket.userId = randomId();
+    socket.gameMap = socket.handshake.auth.gameMap;
     socket.positionOnMap = socket.handshake.auth.defaultPositionOnMap;
     
     // When we're done
@@ -94,6 +96,7 @@ io.on('connection', (socket) => {
     sessionStore.saveSession(socket.sessionId, {
         userId: socket.userId,
         isOnline: true,
+        gameMap: socket.gameMap,
         positionOnMap: socket.positionOnMap
     });
 
@@ -101,6 +104,7 @@ io.on('connection', (socket) => {
     socket.emit('session', {
         sessionId: socket.sessionId,
         userId: socket.userId,
+        gameMap: socket.gameMap,
         positionOnMap: socket.positionOnMap
     });
 
@@ -109,11 +113,13 @@ io.on('connection', (socket) => {
     socket.join(socket.userId);
 
     // Get data on all other users
+    // TODO: Limit data we send if we're not on the same map
     const allPlayers = [];
     sessionStore.findAllSessions().forEach((session) => {
         if (session.isOnline) {
             allPlayers.push({
                 userId: session.userId,
+                gameMap: socket.gameMap,
                 positionOnMap: session.positionOnMap
             });
         }
@@ -124,6 +130,7 @@ io.on('connection', (socket) => {
     // Tell other players about yourself
     socket.broadcast.emit('other connected', {
         userId: socket.userId,
+        gameMap: socket.gameMap,
         positionOnMap: socket.positionOnMap
     });
     
@@ -137,7 +144,7 @@ io.on('connection', (socket) => {
             sessionStore.saveSession(socket.sessionId, {
                 userId: socket.userId,
                 isOnline: false,
-                // positionOnMap: JSON.parse(socket.positionOnMap) // TODO: no parse?
+                gameMap: socket.gameMap,
                 positionOnMap: socket.positionOnMap
             });
         } else {
@@ -150,9 +157,9 @@ io.on('connection', (socket) => {
     });
 
     // Just for debugging basically
-    // socket.onAny((event, ...args) => {
-    //     console.log('[[socket]]', event, args);
-    // });
+    socket.onAny((event, ...args) => {
+        console.log('[[socket]]', event, args);
+    });
     
     // for (let [id] of io.of('/').sockets) {
     //     console.log(id);
@@ -163,21 +170,17 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('chat message', ({msg: msg, username: user}));
     });
 
-    socket.on('move', (positionOnMap) => {
+    socket.on('move', (gameMap, positionOnMap) => {
+        socket.gameMap = gameMap;
         socket.positionOnMap = positionOnMap;
         socket.broadcast.emit('move', {
             userId: socket.userId,
+            gameMap: gameMap,
             positionOnMap: positionOnMap
         });
         // Update session store as well so new players will see this
-        // TODO: sockets of the same sessionId should sync to this
-        // sessionStore.updateSession(socket.sessionId, {
-        //     positionOnMap: JSON.parse(positionOnMap)
-        // });
-        // sessionStore.updateSession(socket.sessionId, {
-        //     positionOnMap: JSON.stringify(positionOnMap)
-        // });
         sessionStore.updateSession(socket.sessionId, {
+            gameMap: gameMap,
             positionOnMap: positionOnMap
         });
     });

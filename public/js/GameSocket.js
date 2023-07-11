@@ -36,8 +36,12 @@ export default class GameSocket {
 
         // auth obj will also send local player position/map in case no previous data found on server
         // - which is fine for connecting player, but sends undefined to remote players
+        const defaultMap = this.#view.map.name;
         const defaultPositionOnMap = this.#player.position.toJson();
-        this.#socket.auth = { defaultPositionOnMap };
+        this.#socket.auth = {
+            defaultMap,
+            defaultPositionOnMap
+        };
         
         // `localStorage` is a property of browser `window`
         const sessionId = localStorage.getItem('sessionId');
@@ -91,7 +95,11 @@ export default class GameSocket {
 
     broadcastMove() {
         // Should this be broadcast/other instead? Can it be?
-        this.#socket.emit('move', this.#player.position.toJson());
+        this.#socket.emit(
+            'move',
+            this.#view.map.name,
+            this.#player.position.toJson()
+        );
     }
 
     pingServer() {
@@ -154,13 +162,13 @@ export default class GameSocket {
         this.#socket.on('all players', (allPlayers) => {
             // Let's just replace the old data and get in sync w/ server
             // TODO: Is this line necessary? This should only happen once, when first joining
-            this.#remotePlayers.length = 0;
+            // this.#remotePlayers.length = 0;
             allPlayers.forEach((json) => {
                 // Skip any players who don't provide a position
                 if (!json.positionOnMap) { return; } // forEach's 'continue'
                 
                 const remotePlayer = RemotePlayer.fromJson(json);
-                this.#log.print(`found player (id ${remotePlayer.id}, position ${remotePlayer.position}`);
+                this.#log.print(`found player (id ${remotePlayer.id}, map '${remotePlayer.mapName}', position ${remotePlayer.position}`);
                 // Only add if it's not ourself
                 if (remotePlayer.id !== this.#socket.userId) {
                     this.#remotePlayers.push(remotePlayer);
@@ -199,11 +207,12 @@ export default class GameSocket {
         });
         
         // socket.on('private message'...
-        this.#socket.on('move', ({ userId, positionOnMap }) => {
+        this.#socket.on('move', ({ userId, mapName, positionOnMap }) => {
             const position = Coordinate.fromJson(positionOnMap);
             
             // If you moved in one tab, update all your tabs
             if (userId === this.#socket.userId) {
+                // TODO: How do we update the map across tabs???
                 this.#player.position = position;
                 return this.#updateView();
             }
