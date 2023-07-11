@@ -65,7 +65,9 @@ io.use((socket, next) => {
             return next();
         }
     }
-    
+
+    console.log(socket.handshake.auth);
+
     // User had no sessionId or the server wasn't aware (maybe restarted)
     socket.sessionId = randomId();
     socket.userId = randomId();
