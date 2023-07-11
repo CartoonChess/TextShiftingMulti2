@@ -46,7 +46,6 @@ export class RemotePlayer extends Player {
         this.position = position;
     }
     static fromJson(json) {
-        console.log(json.positionOnMap);
         // const position = Coordinate.fromObject(json.positionOnMap);
         const position = Coordinate.fromJson(json.positionOnMap);
         return new this(

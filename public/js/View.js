@@ -26,9 +26,9 @@ export class View {
     #updateHTML() {
         const gameView = document.getElementById('game-view');
 
-        for (let i = 0; i < this.width; i++) {
+        for (let y = 0; y < this.height; y++) {
             const line = document.createElement('code');
-            line.id = 'line' + i;
+            line.id = 'line' + y;
             gameView.appendChild(line);
             // Need to add linebreaks now for some reason
             gameView.appendChild(document.createElement('br'));

@@ -8,7 +8,9 @@ const solidCharacter = '#'; // emojis freak out, prob because not one char
 import { GameMap } from './js/GameMap.js';
 import { View } from './js/View.js';
 
-const view = new View(11, 11);
+// const view = new View(11, 11);
+// const view = new View(40, 9);
+const view = new View(41, 12);
 // view.map = await GameMap.loadFromPackage('test1');
 // view.map = GameMap.createTestMap(view, 17, 11, '~', [['?']]);
 // view.map = new GameMap(5, 5);
