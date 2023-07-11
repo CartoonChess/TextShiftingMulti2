@@ -4,19 +4,16 @@ log.print('Loading...');
 
 const solidCharacter = '#'; // emojis freak out, prob because not one char
 
+// Game controller
+// Will hopefully do more some day
+import Game from '../js/Game.js';
+const game = new Game();
+
 // Map and view
 import { GameMap } from './js/GameMap.js';
 import { View } from './js/View.js';
-
-// const view = new View(11, 11);
-// const view = new View(45, 23);
-const view = new View(4, 4);
-// view.map = await GameMap.loadFromPackage('test1');
-// view.map = GameMap.createTestMap(view, 17, 11, '~', [['?']]);
-// view.map = new GameMap(5, 5);
-// view.map = new GameMap(7, 7, [], [['?']]);
-// view.map = map;
-view.map = await GameMap.loadFromPackage('test1');
+const view = new View(45, 23);
+view.map = await GameMap.loadFromPackage(game.defaultMapPackage);
 
 import { Player } from './js/Character.js';
 const player = new Player();

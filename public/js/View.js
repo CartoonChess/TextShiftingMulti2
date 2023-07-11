@@ -18,9 +18,14 @@ export class View {
 
         // View should always be an odd number
         // If not, staticCenter will cause OBOE
-        console.warn('View dimensions must be an odd number; shrinking view.');
-        if (this.width % 2 === 0) { this.width--; }
-        if (this.height % 2 === 0) { this.height--; }
+        if (this.width % 2 === 0) {
+            console.warn('View dimensions must be an odd number; shrinking width.');
+            this.width--;
+        }
+        if (this.height % 2 === 0) {
+            console.warn('View dimensions must be an odd number; shrinking height.');
+            this.height--;
+        }
         
         this.staticCenter = new Coordinate(
             Math.floor(this.width / 2),

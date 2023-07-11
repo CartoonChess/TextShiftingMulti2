@@ -25,19 +25,26 @@ export default class GameSocket {
         
         // Get player set up for remote connection
         // Using default URL param
-        // query obj will send local player position in case no previous position found on server
-        this.#socket = io(window.location.host, {
-            autoConnect: false,
-            query: {
-                defaultPositionOnMap: this.#player.position.toJson()
-            }
-        });
+        // this.#socket = io(window.location.host, {
+        //     autoConnect: false,
+        //     query: {
+        //         defaultPositionOnMap: this.#player.position.toJson()
+        //     }
+        // });
+        this.#socket = io(window.location.host, { autoConnect: false });
         //socket.auth = { username: "joe" };
         
         // `localStorage` is a property of browser `window`
         const sessionId = localStorage.getItem('sessionId');
+        // auth obj will also send local player position/map in case no previous data found on server
+        // - which is fine for connecting player, but sends undefined to remote players
+        const defaultPositionOnMap = this.#player.position.toJson();
         if (sessionId) {
-            this.#socket.auth = { sessionId };
+            // this.#socket.auth = { sessionId };
+            this.#socket.auth = {
+                sessionId,
+                defaultPositionOnMap
+            };
             this.#log.print(`had seshId ${sessionId}.`)
         }
         

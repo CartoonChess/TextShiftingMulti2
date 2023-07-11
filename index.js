@@ -53,10 +53,7 @@ app.use('/', express.static(publicDir));
 // `.use` ("middleware"?) perhaps executed only once per socket when first connecting
 io.use((socket, next) => {
     // Note we can attach any custom property we want here
-    console.log("to.use (middleware)");
-
     const sessionId = socket.handshake.auth.sessionId;
-    const defaultPositionOnMap = socket.handshake.query.defaultPositionOnMap;
     if (sessionId) {
         // User's got a session locally in browser
         const session = sessionStore.findSession(sessionId);
@@ -65,7 +62,6 @@ io.use((socket, next) => {
             socket.sessionId = sessionId;
             socket.userId = session.userId;
             socket.positionOnMap = session.positionOnMap;
-            // socket.positionOnMap = JSON.parse(session.positionOnMap);
             return next();
         }
     }
@@ -73,13 +69,8 @@ io.use((socket, next) => {
     // User had no sessionId or the server wasn't aware (maybe restarted)
     socket.sessionId = randomId();
     socket.userId = randomId();
-    socket.positionOnMap = defaultPositionOnMap;
-    // TODO: Client should be providing this... or we warp them somehow
-    // We should be able to warp players anyone for multiple tabs open...
-    // socket.positionOnMap = {
-    //     column: 1,
-    //     line: 1
-    // };
+    socket.positionOnMap = socket.handshake.auth.defaultPositionOnMap;
+    
     // When we're done
     next();
 });
