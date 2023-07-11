@@ -40,31 +40,39 @@ async function changeMap(map) {
         view.map = map;
     } else {
         // Assume it's a map name (string)
+        // Disable movement until await is finished
+        toggleInput(false);
         view.map = await GameMap.loadFromPackage(map);
+        toggleInput(true);
     }
     log.print(`Moved to map '${view.map.name}'`);
     // TODO: This should be derived from info.js or something
-    console.log(view.map.startPosition);
     player.position = view.map.startPosition;
     // Blank out surroundings in case we land OOB
     player.surroundings.clear();
     player.surroundings.update(player.position, view.map);
 }
 
-function moveIfAble(character, direction) {
-    // TODO: Better to have some game-wide "no input" flag
-    // Maybe we ought to have a Game object...
+async function moveIfAble(character, direction) {
+    // Maybe this should be handled by the Game object...
     if (!socket.isReadyForView) { return; }
+
+    // TODO: Get inputController.moveDirection? null/undefined when done?
     
     if (character.surroundings.at(direction) != solidCharacter) {
         character.move(direction);
         player.surroundings.update(player.position, view.map);
 
         // TODO: Specify by coord instead (maps/../info.js); incl. destination
-        if (player.surroundings.here === 'D') {
-            // const testMap = GameMap.createTestMap(view, 18, 12, '#', [['?']]);
-            const testMap = GameMap.createBlank(10, 5, [['.']], { name: 'blank', startPosition: { column: 1, line: 1 } });
-            changeMap(testMap);
+        if (player.surroundings.here === 'B') {
+            const blankMap = GameMap.createBlank(10, 5, [['.']], { name: 'blank', startPosition: { column: 1, line: 1 } });
+            await changeMap(blankMap);
+        } else if (player.surroundings.here === 'T') {
+            const testMap = GameMap.createTestMap(view, 18, 12, 'F', [['?']]);
+            await changeMap(testMap);
+        } else if (player.surroundings.here === 'F') {
+            const firstMap = 'test1';
+            await changeMap(firstMap);
         }
         
         updateView();
@@ -72,18 +80,23 @@ function moveIfAble(character, direction) {
     }
 }
 
-// First load
-// simulateRemotePlayers(); // fails as soon as socket connects - see Character.js
-// updateView();
-// socket.broadcastMove();
+import InputController from './js/InputController.js';
+const inputController = new InputController();
+inputController.move = (direction) => {
+    moveIfAble(player, direction);
+};
 
-import { Direction } from './js/Direction.js';
-document.addEventListener('keydown', function(event) {
-    if (['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'].includes(event.key)) {
-        // remove 'Arrow' from keypress to get corresponding direction enum
-        moveIfAble(player, Direction[event.key.slice(5)])
+function toggleInput(isEnabled) {
+    if (isEnabled) {
+        document.addEventListener('keydown', inputController);
+        log.print('Keyboard input enabled.');
+    } else {
+        document.removeEventListener('keydown', inputController);
+        log.print('Keyboard input disabled.');
     }
-});
+}
+
+toggleInput(true);
 
 // Mobile - currently disabled
 // import './mobile.js';
