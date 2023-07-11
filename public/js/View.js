@@ -15,6 +15,13 @@ export class View {
     constructor(width, height) {
         this.width = width > 0 ? width : 1;
         this.height = height > 0 ? height : 1;
+
+        // View should always be an odd number
+        // If not, staticCenter will cause OBOE
+        console.warn('View dimensions must be an odd number; shrinking view.');
+        if (this.width % 2 === 0) { this.width--; }
+        if (this.height % 2 === 0) { this.height--; }
+        
         this.staticCenter = new Coordinate(
             Math.floor(this.width / 2),
             Math.floor(this.height / 2)
@@ -59,7 +66,8 @@ export class View {
     get bottom() {
         return this.mapCoordinateAtViewCenter.line + Math.floor(this.height / 2);
     }
-    
+
+    // TODO: Why do we have the option to provide mapCenter directly? Deprecated?
     isVisible(tile, mapCenter) {
         if (mapCenter) { this.mapCoordinateAtViewCenter = mapCenter; }
         const isInXView = tile.position.column >= this.left && tile.position.column <= this.right;
