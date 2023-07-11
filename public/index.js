@@ -2,7 +2,7 @@ import MessageLog from './js/MessageLog.js';
 const log = new MessageLog(document.getElementById('message-log'), true);
 log.print('Loading...');
 
-const solidCharacter = '#'; // emojis freak out, prob because not one char
+const solidCharacter = '#';
 
 // Game controller
 // Will hopefully do more some day
@@ -57,8 +57,6 @@ async function moveIfAble(character, direction) {
     // Maybe this should be handled by the Game object...
     if (!socket.isReadyForView) { return; }
 
-    // TODO: Get inputController.moveDirection? null/undefined when done?
-    
     if (character.surroundings.at(direction) != solidCharacter) {
         character.move(direction);
         player.surroundings.update(player.position, view.map);
@@ -68,11 +66,14 @@ async function moveIfAble(character, direction) {
             const blankMap = GameMap.createBlank(10, 5, [['.']], { name: 'blank', startPosition: { column: 1, line: 1 } });
             await changeMap(blankMap);
         } else if (player.surroundings.here === 'T') {
-            const testMap = GameMap.createTestMap(view, 18, 12, 'F', [['?']]);
+            const testMap = GameMap.createTestMap(view, 18, 12, 'F', [['★']]);
             await changeMap(testMap);
         } else if (player.surroundings.here === 'F') {
             const firstMap = 'test1';
             await changeMap(firstMap);
+        } else if (player.surroundings.here === 'Z') {
+            const secondMap = 'test2';
+            await changeMap(secondMap);
         }
         
         updateView();
