@@ -9,16 +9,17 @@ import { GameMap } from './js/GameMap.js';
 import { View } from './js/View.js';
 
 const view = new View(11, 11);
-let map = await GameMap.loadFromPackage('test1');
+// let map = await GameMap.loadFromPackage('test1');
 // let map = GameMap.createTestMap(view, 17, 11, '~', [['?']]);
 // let map = new GameMap(5, 5);
 // let map = new GameMap(7, 7, [], [['?']]);
-view.map = map;
+// view.map = map;
+view.map = await GameMap.loadFromPackage('test1');
 
 import { Player } from './js/Character.js';
 const player = new Player();
 // Will be overwritten if session data is found
-player.position = map.startPosition;
+player.position = view.map.startPosition;
 
 const remotePlayers = [];
 
@@ -34,14 +35,12 @@ function updateView() {
 // import { Surroundings } from './js/Direction.js';
 function changeMap(pkgName) {
     log.print('WARP ZONE');
-    // map = GameMap.createTestMap(view, 17, 11, '~', [['?']]);
-    map = GameMap.createTestMap(view, 18, 12, '#', [['?']]);
-    // Why is this necessary? Thought it was by reference...
-    view.map = map;
+    // map = GameMap.createTestMap(view, 18, 12, '#', [['?']]);
+    // view.map = map;
+    view.map = GameMap.createTestMap(view, 18, 12, '#', [['?']]);
     // Blank out surroundings in case we land OOB
-    // player.surroundings = new Surroundings();
     player.surroundings.clear();
-    player.surroundings.update(player.position, map);
+    player.surroundings.update(player.position, view.map);
 }
 
 function moveIfAble(character, direction) {
@@ -51,7 +50,7 @@ function moveIfAble(character, direction) {
     
     if (character.surroundings.at(direction) != solidCharacter) {
         character.move(direction);
-        player.surroundings.update(player.position, map);
+        player.surroundings.update(player.position, view.map);
 
         // TODO: Specify by coord instead (maps/../info.js); incl. destination
         if (player.surroundings.here === 'D') {
