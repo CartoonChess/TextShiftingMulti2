@@ -171,38 +171,43 @@ export default class GameSocket {
                 this.#log.print(`found player (id ${remotePlayer.id}, map '${remotePlayer.mapName}', position ${remotePlayer.position}`);
                 // Only add if it's not ourself
                 if (remotePlayer.id !== this.#socket.userId) {
-                    this.#remotePlayers.push(remotePlayer);
+                    // this.#remotePlayers.push(remotePlayer);
+                    this.#remotePlayers.set(remotePlayer.id, remotePlayer);
                 }
             });
-            this.#log.print(`number of remote players: ${this.#remotePlayers.length}`);
+            // this.#log.print(`number of remote players: ${this.#remotePlayers.length}`);
+            this.#log.print(`number of remote players: ${this.#remotePlayers.size}`);
             this.#didReceiveAllPlayers = true;
             this.#updateView();
         });
         
         // Get new users who join after you
-        // socket.on('user connected'...
         // socket.on('other connected', ({ userId, positionOnMap }) => {
         this.#socket.on('other connected', (remotePlayerJson) => {
             const remotePlayer = RemotePlayer.fromJson(remotePlayerJson);
             this.#log.print(`Friend's in (ID: ${remotePlayer.id}).`);
             if (remotePlayer.id === this.#socket.userId) { return; }
             // Only add if it's a new player, not a second session
-            for (const existingPlayer of this.#remotePlayers) {
-                if (remotePlayer.id === existingPlayer.id) { return; }
-            }
-            this.#remotePlayers.push(remotePlayer);
+            // for (const existingPlayer of this.#remotePlayers) {
+            //     if (remotePlayer.id === existingPlayer.id) { return; }
+            // }
+            // Using a map rather than array, so we can just overwrite if necessary
+            // this.#remotePlayers.push(remotePlayer);
+            this.#remotePlayers.set(remotePlayer.id, remotePlayer);
             // TODO: Did we not need this before? This is new...
+            // -should we do a map check first? maybe "updateViewIfNeeded," can recycle
             this.#updateView();
         });
         
         // Only happens when remote user ends all sessions
         this.#socket.on('other disconnected', (userId) => {
             this.#log.print(`userId ${userId} left.`);
-            for (let i = 0; i < this.#remotePlayers.length; i++) {
-                if (this.#remotePlayers[i].id === userId) {
-                    this.#remotePlayers.splice(i, 1);
-                }
-            }
+            // for (let i = 0; i < this.#remotePlayers.length; i++) {
+            //     if (this.#remotePlayers[i].id === userId) {
+            //         this.#remotePlayers.splice(i, 1);
+            //     }
+            // }
+            this.#remotePlayers.delete(userId);
             this.#updateView();
         });
         
@@ -219,17 +224,30 @@ export default class GameSocket {
             }
         
             // Otherwise, let's see which remote user moved
-            for (let i = 0; i < this.#remotePlayers.length; i++) {
-                if (this.#remotePlayers[i].id === userId) {
-                    this.#remotePlayers[i].mapName = gameMap;
-                    this.#remotePlayers[i].position = position;
-                    const isInView = this.#view.isVisible(this.#remotePlayers[i]);
-                    if (this.#remotePlayers[i].wasInView || isInView) {
-                        this.#updateView();
-                    }
-                    this.#remotePlayers[i].wasInView = isInView;
-                }
+            // for (let i = 0; i < this.#remotePlayers.length; i++) {
+            //     if (this.#remotePlayers[i].id === userId) {
+            //         this.#remotePlayers[i].mapName = gameMap;
+            //         this.#remotePlayers[i].position = position;
+            //         const isInView = this.#view.isVisible(this.#remotePlayers[i]);
+            //         if (this.#remotePlayers[i].wasInView || isInView) {
+            //             this.#updateView();
+            //         }
+            //         this.#remotePlayers[i].wasInView = isInView;
+            //     }
+            // }
+            
+            // Reference, not value
+            const remotePlayer = this.#remotePlayers.get(userId);
+            
+            if (!remotePlayer) { return console.error(`Received move from player with ID#${userId}, but GameSocket.#remotePlayers has no element with this ID.`); }
+            
+            remotePlayer.mapName = gameMap;
+            remotePlayer.position = position;
+            const isInView = this.#view.isVisible(remotePlayer);
+            if (remotePlayer.wasInView || isInView) {
+                this.#updateView();
             }
+            remotePlayer.wasInView = isInView;
         });
     }
 

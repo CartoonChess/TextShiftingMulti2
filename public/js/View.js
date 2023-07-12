@@ -132,7 +132,8 @@ export class View {
             lines[i] = this.#getLine(this.top + i);
         }
         // Add in remote players
-        for (const remotePlayer of remotePlayers) {
+        // for (const remotePlayer of remotePlayers) {
+        for (const remotePlayer of remotePlayers.values()) {
             if (this.isVisible(remotePlayer)) {
                 const lineIndex = remotePlayer.position.line - this.top;
                 const columnIndex = remotePlayer.position.column - this.left;

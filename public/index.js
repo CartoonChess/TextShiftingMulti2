@@ -22,10 +22,10 @@ const player = new Player();
 // Will be overwritten if session data is found
 player.position = view.map.startPosition;
 game.player = player;
-game.remotePlayers = [];
+// game.remotePlayers = [];
+game.remotePlayers = new Map();
 
 import GameSocket from './js/GameSocket.js';
-// TODO: Pass socket Game controller + remotePlayers, lose everything else
 // const socket = new GameSocket(log, view, player, remotePlayers);
 const socket = new GameSocket(game);
 socket.listen();
