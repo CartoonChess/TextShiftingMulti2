@@ -27,7 +27,8 @@ const remotePlayers = [];
 
 import GameSocket from './js/GameSocket.js';
 // TODO: Pass socket Game controller + remotePlayers, lose everything else
-const socket = new GameSocket(log, view, player, remotePlayers);
+// const socket = new GameSocket(log, view, player, remotePlayers);
+const socket = new GameSocket(game, remotePlayers);
 socket.listen();
 
 function updateView() {

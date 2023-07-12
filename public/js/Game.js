@@ -25,7 +25,7 @@ export default class Game {
         }
         this.log.print(`Moved to map '${this.view.map.name}'`);
         // TODO: This should be derived from info.js or something
-        position = this.view.map.startPosition;
+        if (!position) { position = this.view.map.startPosition; }
         this.player.position = position;
         // Blank out surroundings in case we land OOB
         this.player.surroundings.clear();

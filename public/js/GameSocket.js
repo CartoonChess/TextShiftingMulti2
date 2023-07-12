@@ -7,6 +7,7 @@ export default class GameSocket {
     #connectCount = 0;
     #disconnectCount = 0;
 
+    game;
     #log;
     #view;
     #player;
@@ -17,10 +18,15 @@ export default class GameSocket {
     #_didReceiveAllPlayers = false;
     #isReadyForView = false;
     
-    constructor(log, view, player, remotePlayers) {
-        this.#log = log;
-        this.#view = view;
-        this.#player = player;
+    // constructor(log, view, player, remotePlayers) {
+    //     this.#log = log;
+    //     this.#view = view;
+    //     this.#player = player;
+    constructor(game, remotePlayers) {
+        this.game = game;
+        this.#log = game.log;
+        this.#view = game.view;
+        this.#player = game.player;
         this.#remotePlayers = remotePlayers;
         
         // Get player set up for remote connection
@@ -112,7 +118,7 @@ export default class GameSocket {
 
     listen() {
         // Get session ID, whether new or returning
-        this.#socket.on('session', ({ sessionId, userId, gameMap, positionOnMap }) => {
+        this.#socket.on('session', async ({ sessionId, userId, gameMap, positionOnMap }) => {
             // 'attach sessionId to next reconnection attempts'
             this.#socket.auth = { sessionId };
             // Store in browser's localStorage
@@ -122,9 +128,7 @@ export default class GameSocket {
             
             if (gameMap && positionOnMap) {
                 this.#log.print('welcome back');
-                // TODO: How do we change the game map? Move index.js func to View..?
-                // ...
-                this.#player.position = Coordinate.fromJson(positionOnMap);
+                await this.game.changeMap(gameMap, Coordinate.fromJson(positionOnMap));
             }
             this.#log.print(`got userId ${this.#socket.userId}.`);
             
