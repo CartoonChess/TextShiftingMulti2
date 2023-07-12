@@ -27,7 +27,7 @@ export default class GameSocket {
         this.#log = game.log;
         this.#view = game.view;
         this.#player = game.player;
-        this.#remotePlayers = remotePlayers;
+        this.#remotePlayers = game.remotePlayers;
         
         // Get player set up for remote connection
         // Using default URL param
@@ -166,8 +166,8 @@ export default class GameSocket {
             // Let's just replace the old data and get in sync w/ server
             // this.#remotePlayers.length = 0;
             allPlayers.forEach((json) => {
-                // Skip any players who don't provide a position
-                if (!json.positionOnMap) { return; } // forEach's 'continue'
+                // Skip any players who don't provide a map and position
+                if (!json.gameMap || !json.positionOnMap) { return; } // forEach's 'continue'
                 
                 const remotePlayer = RemotePlayer.fromJson(json);
                 this.#log.print(`found player (id ${remotePlayer.id}, map '${remotePlayer.mapName}', position ${remotePlayer.position}`);
@@ -209,12 +209,13 @@ export default class GameSocket {
         });
         
         // socket.on('private message'...
-        this.#socket.on('move', ({ userId, mapName, positionOnMap }) => {
+        this.#socket.on('move', ({ userId, gameMap, positionOnMap }) => {
             const position = Coordinate.fromJson(positionOnMap);
             
             // If you moved in one tab, update all your tabs
             if (userId === this.#socket.userId) {
-                // TODO: How do we update the map across tabs???
+                // TODO: Update map
+                // this.game.changeMap(...)
                 this.#player.position = position;
                 return this.#updateView();
             }
@@ -222,6 +223,7 @@ export default class GameSocket {
             // Otherwise, let's see which remote user moved
             for (let i = 0; i < this.#remotePlayers.length; i++) {
                 if (this.#remotePlayers[i].id === userId) {
+                    this.#remotePlayers[i].mapName = gameMap;
                     this.#remotePlayers[i].position = position;
                     const isInView = this.#view.isVisible(this.#remotePlayers[i]);
                     if (this.#remotePlayers[i].wasInView || isInView) {

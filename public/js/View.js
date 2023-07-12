@@ -72,9 +72,12 @@ export class View {
         return this.mapCoordinateAtViewCenter.line + Math.floor(this.height / 2);
     }
 
-    // TODO: Why do we have the option to provide mapCenter directly? Deprecated?
     isVisible(tile, mapCenter) {
+        // This isn't currently in use
         if (mapCenter) { this.mapCoordinateAtViewCenter = mapCenter; }
+        
+        if (tile.mapName !== this.#map.name) { return false; }
+        
         const isInXView = tile.position.column >= this.left && tile.position.column <= this.right;
         const isInYView = tile.position.line >= this.top && tile.position.line <= this.bottom;
         return isInXView && isInYView;

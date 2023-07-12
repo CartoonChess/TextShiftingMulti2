@@ -5,6 +5,7 @@ export default class Game {
     log;
     view;
     player;
+    remotePlayers;
     inputController;
     
     defaultMapPackage = 'test1';

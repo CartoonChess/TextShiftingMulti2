@@ -22,18 +22,17 @@ const player = new Player();
 // Will be overwritten if session data is found
 player.position = view.map.startPosition;
 game.player = player;
-
-const remotePlayers = [];
+game.remotePlayers = [];
 
 import GameSocket from './js/GameSocket.js';
 // TODO: Pass socket Game controller + remotePlayers, lose everything else
 // const socket = new GameSocket(log, view, player, remotePlayers);
-const socket = new GameSocket(game, remotePlayers);
+const socket = new GameSocket(game);
 socket.listen();
 
 function updateView() {
     // TODO: Maybe this should take an { object } instead, so we can pass whatever comes up
-    view.update(player, remotePlayers);
+    view.update(player, game.remotePlayers);
 }
 
 // // TODO: Should this be part of View? Feels too unrelated though...

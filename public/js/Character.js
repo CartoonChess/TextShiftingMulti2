@@ -35,6 +35,7 @@ export class RemotePlayer extends Player {
     // (but we got rid of them all)
     mapName;
     wasInView = true;
+    // symbol = '%';
     
     constructor(id, mapName, position) {
         // super must be called
@@ -49,11 +50,10 @@ export class RemotePlayer extends Player {
         this.position = position;
     }
     static fromJson(json) {
-        // const position = Coordinate.fromObject(json.positionOnMap);
         const position = Coordinate.fromJson(json.positionOnMap);
         return new this(
             json.userId,
-            json.mapName,
+            json.gameMap,
             position
         )
     }
