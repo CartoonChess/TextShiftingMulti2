@@ -69,8 +69,8 @@ export default class GameSocket {
     #checkIfReadyForView() {
         if (this.#didReceiveSession
            && this.#didReceiveAllPlayers) {
+            if (!this.#isReadyForView) { this.#log.print('Ready!'); }
             this.#isReadyForView = true;
-            this.#log.print('Ready!');
         } else {
             this.#isReadyForView = false;
         }
@@ -212,14 +212,17 @@ export default class GameSocket {
         });
         
         // socket.on('private message'...
-        this.#socket.on('move', ({ userId, gameMap, positionOnMap }) => {
+        this.#socket.on('move', async ({ userId, gameMap, positionOnMap }) => {
             const position = Coordinate.fromJson(positionOnMap);
             
             // If you moved in one tab, update all your tabs
             if (userId === this.#socket.userId) {
-                // TODO: Update map
-                // this.game.changeMap(...)
-                this.#player.position = position;
+                // Update map if you moved
+                if (gameMap !== this.game.view.map.name) {
+                    await this.game.changeMap(gameMap, Coordinate.fromJson(positionOnMap));
+                } else {
+                    this.#player.position = position;
+                }
                 return this.#updateView();
             }
         

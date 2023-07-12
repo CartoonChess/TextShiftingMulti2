@@ -23,7 +23,8 @@ const randomBytes = new RandomBytes();
 // Generates new whenever referenced
 const randomId = () => randomBytes.hex(16);
 
-// Return map room name
+// Return formatted room names
+const userRoom = (userId) => 'user:' + userId;
 const mapRoom = (mapName) => 'map:' + mapName;
 
 // app.get('/', (req, res) => {
@@ -59,7 +60,6 @@ app.use('/', express.static(publicDir));
 function emitAllPlayers(socket) {
     const allPlayers = [];
     sessionStore.findAllSessions().forEach((session) => {
-        console.log(session);
         if (session.isOnline) {
         // TODO: Fix ghosting when we only send users on current map
         // A, B on map 1
@@ -75,14 +75,12 @@ function emitAllPlayers(socket) {
             });
         }
     });
-    console.log(allPlayers);
     socket.emit('all players', allPlayers);
 }
 
 // `.use` ("middleware"?) perhaps executed only once per socket when first connecting
 io.use((socket, next) => {
     // Note we can attach any custom property we want here
-    console.log(socket.handshake.auth);
     const sessionId = socket.handshake.auth.sessionId;
     if (sessionId) {
         // User's got a session locally in browser
@@ -136,8 +134,8 @@ io.on('connection', (socket) => {
     });
 
     // Have all sockets in the same browser join a "room" together
-    // (pretty sure we're not taking advantage of this yet though)
-    // socket.join(socket.userId);
+    // They'll be told when they should all switch map rooms
+    socket.join(userRoom(socket.userId));
     
     // Use rooms to group together users on the same map
     // (sockets can join multiple rooms, i.e. userId and gameMap)
@@ -191,6 +189,17 @@ io.on('connection', (socket) => {
     //     socket.broadcast.emit('chat message', ({msg: msg, username: user}));
     // });
 
+    // Tell your other tabs to change rooms, e.g. when map changes
+    // socket.on('update rooms', (oldRoom, currentRoom) => {
+    //     console.log(`Inside 'update rooms'...`);
+    //     socket.leave(oldRoom);
+    //     socket.join(currentRoom);
+    //     console.log(`Left room "${oldRoom}" and joined "${currentRoom}".`);
+    // });
+    socket.on('abc', (gameMap, positionOnMap) => {
+        console.log('...abc...');
+    });
+
     socket.on('move', (gameMap, positionOnMap) => {
         // If changing maps, leave map room and join new one
         let currentRoom = mapRoom(gameMap);
@@ -198,9 +207,34 @@ io.on('connection', (socket) => {
         // Changing maps
         if (socket.gameMap !== gameMap) {
             oldRoom = mapRoom(socket.gameMap);
-            socket.leave(oldRoom);
-            socket.join(currentRoom);
-            console.log(`Left room "${oldRoom}" and joined "${currentRoom}".`);
+            // socket.leave(oldRoom);
+            // socket.join(currentRoom);
+            const foo = {a: socket.userId};
+            console.log('Entering room change...');
+            // io.to(userRoom(socket.userId)).emit('update rooms', { oldRoom, currentRoom });
+            // socket.to(userRoom(socket.userId)).emit('update rooms', { oldRoom, currentRoom });
+            // socket.to(userRoom(socket.userId)).emit('update rooms', foo);
+            
+            // const moveInfo = {};
+            // socket.to(oldRoom).to(currentRoom).emit('abc', moveInfo);
+
+            
+            const rooms = io.of("/").adapter.rooms;
+            console.log(rooms);
+            const socketIds = rooms.get(userRoom(socket.userId));
+            console.log(socketIds);
+            let sockets;
+            for (const socketId of socketIds) {
+                const theSocket = io.sockets.sockets.get(socketId);
+                theSocket.leave(oldRoom);
+                theSocket.join(currentRoom);
+            }
+            console.log(rooms);
+            
+            // const rooms = io.of("/").adapter.sids;
+            
+            // console.log(`Left room "${oldRoom}" and joined "${currentRoom}".`);
+            console.log('...returned.');
         }
         
         socket.gameMap = gameMap;

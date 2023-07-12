@@ -12,16 +12,22 @@ export default class Game {
 
     async changeMap(map, position) {
         if (!map) {
-            return console.error(`Can't call Game.changeMap() without providing a package name or Map object.`);
+            return console.error(`Can't call Game.changeMap() without providing a package name or GameMap object.`);
         }
         if (typeof map === 'object') {
-            // Assume it's a Map object
+            // Assume it's a GameMap object
             this.view.map = map;
         } else {
-            // Assume it's a map name (string)
+            // Assume it's a map package name (string)
             // Disable movement until await is finished
             this.toggleInput(false);
-            this.view.map = await GameMap.loadFromPackage(map);
+            let newMap;
+            try {
+                newMap = await GameMap.loadFromPackage(map);
+            } catch(err) {
+                return console.error(`Couldn't load map package "${map}".`);
+            }
+            this.view.map = newMap;
             this.toggleInput(true);
         }
         this.log.print(`Moved to map '${this.view.map.name}'`);
@@ -31,7 +37,6 @@ export default class Game {
         // Blank out surroundings in case we land OOB
         this.player.surroundings.clear();
         this.player.surroundings.update(this.player.position, this.view.map);
-        // TODO: Update data for all remote players here?
     }
     
     toggleInput(isEnabled) {
