@@ -36,10 +36,10 @@ export default class GameSocket {
 
         // auth obj will also send local player position/map in case no previous data found on server
         // - which is fine for connecting player, but sends undefined to remote players
-        const defaultMap = this.#view.map.name;
+        const defaultGameMap = this.#view.map.name;
         const defaultPositionOnMap = this.#player.position.toJson();
         this.#socket.auth = {
-            defaultMap,
+            defaultGameMap,
             defaultPositionOnMap
         };
         
@@ -112,7 +112,7 @@ export default class GameSocket {
 
     listen() {
         // Get session ID, whether new or returning
-        this.#socket.on('session', ({ sessionId, userId, positionOnMap }) => {
+        this.#socket.on('session', ({ sessionId, userId, gameMap, positionOnMap }) => {
             // 'attach sessionId to next reconnection attempts'
             this.#socket.auth = { sessionId };
             // Store in browser's localStorage
@@ -120,12 +120,11 @@ export default class GameSocket {
             // Save (public) userId
             this.#socket.userId = userId;
             
-            if (positionOnMap) {
+            if (gameMap && positionOnMap) {
                 this.#log.print('welcome back');
+                // TODO: How do we change the game map? Move index.js func to View..?
+                // ...
                 this.#player.position = Coordinate.fromJson(positionOnMap);
-            } else {
-                // TODO: remove this/throw warning
-                // this.#player.position = new Coordinate(2, 0);
             }
             this.#log.print(`got userId ${this.#socket.userId}.`);
             

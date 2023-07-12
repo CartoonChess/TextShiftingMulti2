@@ -47,12 +47,13 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const publicDir = path.join(__dirname, 'public');
+const publicDir = path.join(__dirname, 'public');https://textshiftingmulti4.cartoonchess.repl.co
 app.use('/', express.static(publicDir));
 
 // `.use` ("middleware"?) perhaps executed only once per socket when first connecting
 io.use((socket, next) => {
     // Note we can attach any custom property we want here
+    console.log(socket.handshake.auth);
     const sessionId = socket.handshake.auth.sessionId;
     if (sessionId) {
         // User's got a session locally in browser
@@ -67,12 +68,10 @@ io.use((socket, next) => {
         }
     }
 
-    console.log(socket.handshake.auth);
-
     // User had no sessionId or the server wasn't aware (maybe restarted)
     socket.sessionId = randomId();
     socket.userId = randomId();
-    socket.gameMap = socket.handshake.auth.gameMap;
+    socket.gameMap = socket.handshake.auth.defaultGameMap;
     socket.positionOnMap = socket.handshake.auth.defaultPositionOnMap;
     
     // When we're done
