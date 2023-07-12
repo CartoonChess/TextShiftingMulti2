@@ -125,7 +125,9 @@ export default class GameSocket {
             localStorage.setItem('sessionId', sessionId);
             // Save (public) userId
             this.#socket.userId = userId;
-            
+
+            // TODO: Seems this triggers even with hiccup reconnects
+            // - Will this be a problem? Will it cause warping?
             if (gameMap && positionOnMap) {
                 this.#log.print('welcome back');
                 await this.game.changeMap(gameMap, Coordinate.fromJson(positionOnMap));
@@ -147,14 +149,11 @@ export default class GameSocket {
         //     this.#log.print(`You're in (ID: ${id}).`);
         // });
         
-        // let connectCount = 0;
         this.#socket.on('connect', () => {
-            // connectCount++;
             this.#connectCount++;
             this.#log.print(`Socket connect count: ${this.#connectCount}.`);
         });
         
-        // let disconnectCount = 0;
         this.#socket.on('disconnect', (reason) => {
             this.#disconnectCount++;
             this.#log.print(`Socket disconnect count: ${this.#disconnectCount}. Reason: ${reason}.`);
@@ -163,8 +162,8 @@ export default class GameSocket {
         // Get already-connected users when joining
         // socket.on('users'...
         this.#socket.on('all players', (allPlayers) => {
-            // Let's just replace the old data and get in sync w/ server
             // TODO: Is this line necessary? This should only happen once, when first joining
+            // Let's just replace the old data and get in sync w/ server
             // this.#remotePlayers.length = 0;
             allPlayers.forEach((json) => {
                 // Skip any players who don't provide a position

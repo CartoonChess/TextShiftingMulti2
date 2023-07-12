@@ -23,6 +23,9 @@ const randomBytes = new RandomBytes();
 // Generates new whenever referenced
 const randomId = () => randomBytes.hex(16);
 
+// Return map room name
+const mapRoom = (mapName) => 'map:' + mapName;
+
 // app.get('/', (req, res) => {
 //     res.sendFile(__dirname + '/index.html');
 // });
@@ -78,13 +81,12 @@ io.use((socket, next) => {
     next();
 });
 
-// io.on('connection', (socket) => {
 io.on('connection', (socket) => {
     // io.emit -> send to all
-    // io.to(...).emit -> send to socket.id '...'
+    // io.to(...).emit -> send to socket.id/room '...'
     // socket.emit -> return to sender
     // socket.broadcast.emit -> send to all but sender
-    // socket.to(...).emit -> send to a room, possibly to socket.id
+    // socket.to(...).emit -> send to a room (excluding sender)
 
     console.log(`A user has connected (userId ${socket.userId}, sessionId ${socket.sessionId}, socket.id ${socket.id}).`);
     // socket.emit('self connected', socket.id);
@@ -109,7 +111,13 @@ io.on('connection', (socket) => {
 
     // Have all sockets in the same browser join a "room" together
     // (pretty sure we're not taking advantage of this yet though)
-    socket.join(socket.userId);
+    // socket.join(socket.userId);
+    
+    // Use rooms to group together users on the same map
+    // (sockets can join multiple rooms, i.e. userId and gameMap)
+    socket.join(mapRoom(socket.gameMap));
+    console.log(`Joined room "${mapRoom(socket.gameMap)}".`);
+    // socket.leave(...);
 
     // Get data on all other users
     // TODO: Limit data we send if we're not on the same map
@@ -170,6 +178,14 @@ io.on('connection', (socket) => {
     });
 
     socket.on('move', (gameMap, positionOnMap) => {
+        // If changing maps, leave map room and join new one
+        if (socket.gameMap !== gameMap) {
+            socket.leave(mapRoom(socket.gameMap));
+            console.log(`Left room "${mapRoom(socket.gameMap)}".`);
+            socket.join(mapRoom(gameMap));
+            console.log(`Joined room "${mapRoom(gameMap)}".`);
+        }
+        
         socket.gameMap = gameMap;
         socket.positionOnMap = positionOnMap;
         socket.broadcast.emit('move', {
