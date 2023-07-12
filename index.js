@@ -196,9 +196,6 @@ io.on('connection', (socket) => {
     //     socket.join(currentRoom);
     //     console.log(`Left room "${oldRoom}" and joined "${currentRoom}".`);
     // });
-    socket.on('abc', (gameMap, positionOnMap) => {
-        console.log('...abc...');
-    });
 
     socket.on('move', (gameMap, positionOnMap) => {
         // If changing maps, leave map room and join new one
@@ -209,32 +206,26 @@ io.on('connection', (socket) => {
             oldRoom = mapRoom(socket.gameMap);
             // socket.leave(oldRoom);
             // socket.join(currentRoom);
-            const foo = {a: socket.userId};
-            console.log('Entering room change...');
+            
             // io.to(userRoom(socket.userId)).emit('update rooms', { oldRoom, currentRoom });
             // socket.to(userRoom(socket.userId)).emit('update rooms', { oldRoom, currentRoom });
-            // socket.to(userRoom(socket.userId)).emit('update rooms', foo);
             
-            // const moveInfo = {};
-            // socket.to(oldRoom).to(currentRoom).emit('abc', moveInfo);
-
-            
-            const rooms = io.of("/").adapter.rooms;
-            console.log(rooms);
-            const socketIds = rooms.get(userRoom(socket.userId));
-            console.log(socketIds);
-            let sockets;
-            for (const socketId of socketIds) {
-                const theSocket = io.sockets.sockets.get(socketId);
-                theSocket.leave(oldRoom);
-                theSocket.join(currentRoom);
-            }
-            console.log(rooms);
+            // const socketIds = io.of("/").adapter.rooms.get(userRoom(socket.userId));
+            // for (const socketId of socketIds) {
+            //     // const theSocket = io.sockets.sockets.get(socketId);
+            //     // theSocket.leave(oldRoom);
+            //     // theSocket.join(currentRoom);
+            //     io.sockets.sockets.get(socketId)
+            //         .leave(oldRoom);
+            //         .join(currentRoom);
+            // }
+            io.in(userRoom(socket.userId)).socketsLeave(oldRoom);
+            io.in(userRoom(socket.userId)).socketsJoin(currentRoom);
+            // console.log(rooms);
             
             // const rooms = io.of("/").adapter.sids;
             
-            // console.log(`Left room "${oldRoom}" and joined "${currentRoom}".`);
-            console.log('...returned.');
+            console.log(`Left room "${oldRoom}" and joined "${currentRoom}".`);
         }
         
         socket.gameMap = gameMap;
