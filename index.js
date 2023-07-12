@@ -173,27 +173,43 @@ io.on('connection', (socket) => {
     // }
     // console.log(`I am ${socket.id}.`);
     
-    socket.on('chat message', ({msg, user}) => {
-        socket.broadcast.emit('chat message', ({msg: msg, username: user}));
-    });
+    // socket.on('chat message', ({msg, user}) => {
+    //     socket.broadcast.emit('chat message', ({msg: msg, username: user}));
+    // });
 
     socket.on('move', (gameMap, positionOnMap) => {
         // If changing maps, leave map room and join new one
+        let currentRoom = mapRoom(gameMap);
+        let oldRoom;
         if (socket.gameMap !== gameMap) {
-            socket.leave(mapRoom(socket.gameMap));
-            console.log(`Left room "${mapRoom(socket.gameMap)}".`);
-            socket.join(mapRoom(gameMap));
-            console.log(`Joined room "${mapRoom(gameMap)}".`);
+            oldRoom = mapRoom(socket.gameMap);
+            socket.leave(oldRoom);
+            socket.join(currentRoom);
+            console.log(`Left room "${oldRoom}".`);
+            console.log(`Joined room "${currentRoom}".`);
         }
         
         socket.gameMap = gameMap;
         socket.positionOnMap = positionOnMap;
-        socket.broadcast.emit('move', {
+        // TODO: Broadcast only to room (and previous if changed map)
+        // socket.broadcast.emit('move', {
+        //     userId: socket.userId,
+        //     gameMap: gameMap,
+        //     positionOnMap: positionOnMap
+        // });
+        const moveInfo = {
             userId: socket.userId,
             gameMap: gameMap,
             positionOnMap: positionOnMap
-        });
-        // Update session store as well so new players will see this
+        };
+        // TODO: Can we set .to(currentRoom), conditionally add oldRoom, then .emit after?
+        if (oldRoom) {
+            socket.to(oldRoom).to(currentRoom).emit('move', moveInfo);
+        } else {
+            socket.to(currentRoom).emit('move', moveInfo);
+        }
+        
+        // Update session store as well so players connecting later can see this
         sessionStore.updateSession(socket.sessionId, {
             gameMap: gameMap,
             positionOnMap: positionOnMap
