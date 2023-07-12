@@ -53,12 +53,15 @@ const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, 'public');https://textshiftingmulti4.cartoonchess.repl.co
 app.use('/', express.static(publicDir));
 
-// Get data on all other users
-// TODO: Limit data we send if we're not on the same map
+// Send data on all other users back to caller
+// TODO: Can we make 'move' await this, so players don't flash into view?
 function emitAllPlayers(socket) {
     const allPlayers = [];
     sessionStore.findAllSessions().forEach((session) => {
-        if (session.isOnline) {
+        console.log(session);
+        // if (session.isOnline) {
+        if (session.isOnline
+           && session.gameMap === socket.gameMap) {
             allPlayers.push({
                 userId: session.userId,
                 gameMap: session.gameMap,
@@ -192,22 +195,17 @@ io.on('connection', (socket) => {
             socket.leave(oldRoom);
             socket.join(currentRoom);
             console.log(`Left room "${oldRoom}" and joined "${currentRoom}".`);
-            emitAllPlayers(socket);
         }
         
         socket.gameMap = gameMap;
         socket.positionOnMap = positionOnMap;
-        // TODO: Broadcast only to room (and previous if changed map)
-        // socket.broadcast.emit('move', {
-        //     userId: socket.userId,
-        //     gameMap: gameMap,
-        //     positionOnMap: positionOnMap
-        // });
         const moveInfo = {
             userId: socket.userId,
             gameMap: gameMap,
             positionOnMap: positionOnMap
         };
+        
+        // Broadcast only to room (and previous if changed map)
         // TODO: Can we set .to(currentRoom), conditionally add oldRoom, then .emit after?
         if (oldRoom) {
             socket.to(oldRoom).to(currentRoom).emit('move', moveInfo);
@@ -220,6 +218,9 @@ io.on('connection', (socket) => {
             gameMap: gameMap,
             positionOnMap: positionOnMap
         });
+
+        // Get updated players and coords for the map if moving
+        if (oldRoom) { emitAllPlayers(socket); }
     });
 });
 

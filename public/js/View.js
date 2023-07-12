@@ -120,6 +120,7 @@ export class View {
     }
 
     update(player, remotePlayers) {
+        console.log(remotePlayers);
         // Sanity check
         if (!player.position) { return; }
         

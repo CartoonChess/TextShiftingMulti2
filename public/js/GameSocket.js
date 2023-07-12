@@ -100,7 +100,6 @@ export default class GameSocket {
     }
 
     broadcastMove() {
-        // Should this be broadcast/other instead? Can it be?
         this.#socket.emit(
             'move',
             this.#view.map.name,
@@ -160,7 +159,6 @@ export default class GameSocket {
         });
         
         // Get already-connected users when joining
-        // socket.on('users'...
         this.#socket.on('all players', (allPlayers) => {
             // TODO: Is this line necessary? This should only happen once, when first joining
             // Let's just replace the old data and get in sync w/ server
