@@ -31,13 +31,10 @@ export default class Game {
         // Blank out surroundings in case we land OOB
         this.player.surroundings.clear();
         this.player.surroundings.update(this.player.position, this.view.map);
+        // Update data for all remote players
+        // We may want to limit this to previous and current room(map) only later
+        // this.remotePlayers...
     }
-
-    
-    // const inputController = new InputController();
-    // inputController.move = (direction) => {
-    //     moveIfAble(player, direction);
-    // };
     
     toggleInput(isEnabled) {
         if (isEnabled) {

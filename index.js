@@ -53,6 +53,21 @@ const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, 'public');https://textshiftingmulti4.cartoonchess.repl.co
 app.use('/', express.static(publicDir));
 
+function emitAllPlayers(socket) {
+    const allPlayers = [];
+    sessionStore.findAllSessions().forEach((session) => {
+        if (session.isOnline) {
+            allPlayers.push({
+                userId: session.userId,
+                gameMap: session.gameMap,
+                positionOnMap: session.positionOnMap
+            });
+        }
+    });
+    console.log(allPlayers);
+    socket.emit('all players', allPlayers);
+}
+
 // `.use` ("middleware"?) perhaps executed only once per socket when first connecting
 io.use((socket, next) => {
     // Note we can attach any custom property we want here
@@ -121,18 +136,19 @@ io.on('connection', (socket) => {
 
     // Get data on all other users
     // TODO: Limit data we send if we're not on the same map
-    const allPlayers = [];
-    sessionStore.findAllSessions().forEach((session) => {
-        if (session.isOnline) {
-            allPlayers.push({
-                userId: session.userId,
-                gameMap: session.gameMap,
-                positionOnMap: session.positionOnMap
-            });
-        }
-    });
-    console.log(allPlayers);
-    socket.emit('all players', allPlayers);
+    emitAllPlayers(socket);
+    // const allPlayers = [];
+    // sessionStore.findAllSessions().forEach((session) => {
+    //     if (session.isOnline) {
+    //         allPlayers.push({
+    //             userId: session.userId,
+    //             gameMap: session.gameMap,
+    //             positionOnMap: session.positionOnMap
+    //         });
+    //     }
+    // });
+    // console.log(allPlayers);
+    // socket.emit('all players', allPlayers);
 
     // Tell other players about yourself
     socket.broadcast.emit('other connected', {
@@ -185,8 +201,7 @@ io.on('connection', (socket) => {
             oldRoom = mapRoom(socket.gameMap);
             socket.leave(oldRoom);
             socket.join(currentRoom);
-            console.log(`Left room "${oldRoom}".`);
-            console.log(`Joined room "${currentRoom}".`);
+            console.log(`Left room "${oldRoom}" and joined "${currentRoom}".`);
         }
         
         socket.gameMap = gameMap;
