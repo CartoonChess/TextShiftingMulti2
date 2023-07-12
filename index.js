@@ -53,6 +53,8 @@ const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, 'public');https://textshiftingmulti4.cartoonchess.repl.co
 app.use('/', express.static(publicDir));
 
+// Get data on all other users
+// TODO: Limit data we send if we're not on the same map
 function emitAllPlayers(socket) {
     const allPlayers = [];
     sessionStore.findAllSessions().forEach((session) => {
@@ -135,20 +137,7 @@ io.on('connection', (socket) => {
     // socket.leave(...);
 
     // Get data on all other users
-    // TODO: Limit data we send if we're not on the same map
     emitAllPlayers(socket);
-    // const allPlayers = [];
-    // sessionStore.findAllSessions().forEach((session) => {
-    //     if (session.isOnline) {
-    //         allPlayers.push({
-    //             userId: session.userId,
-    //             gameMap: session.gameMap,
-    //             positionOnMap: session.positionOnMap
-    //         });
-    //     }
-    // });
-    // console.log(allPlayers);
-    // socket.emit('all players', allPlayers);
 
     // Tell other players about yourself
     socket.broadcast.emit('other connected', {
@@ -197,11 +186,13 @@ io.on('connection', (socket) => {
         // If changing maps, leave map room and join new one
         let currentRoom = mapRoom(gameMap);
         let oldRoom;
+        // Changing maps
         if (socket.gameMap !== gameMap) {
             oldRoom = mapRoom(socket.gameMap);
             socket.leave(oldRoom);
             socket.join(currentRoom);
             console.log(`Left room "${oldRoom}" and joined "${currentRoom}".`);
+            emitAllPlayers(socket);
         }
         
         socket.gameMap = gameMap;
