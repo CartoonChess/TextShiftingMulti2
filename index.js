@@ -50,18 +50,24 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const publicDir = path.join(__dirname, 'public');https://textshiftingmulti4.cartoonchess.repl.co
+const publicDir = path.join(__dirname, 'public');
 app.use('/', express.static(publicDir));
 
 // Send data on all other users back to caller
 // TODO: Can we make 'move' await this, so players don't flash into view?
+// function emitAllPlayers(socket, sameMapOnly) {
 function emitAllPlayers(socket) {
     const allPlayers = [];
     sessionStore.findAllSessions().forEach((session) => {
         console.log(session);
-        // if (session.isOnline) {
-        if (session.isOnline
-           && session.gameMap === socket.gameMap) {
+        if (session.isOnline) {
+        // TODO: Fix ghosting when we only send users on current map
+        // A, B on map 1
+        // A, B -> 2
+        // B -> 1 -> 3
+        // A -> 1 => ghost of B where they came in
+        // if (session.isOnline
+        //    && session.gameMap === socket.gameMap) {
             allPlayers.push({
                 userId: session.userId,
                 gameMap: session.gameMap,
@@ -220,6 +226,7 @@ io.on('connection', (socket) => {
         });
 
         // Get updated players and coords for the map if moving
+        // if (oldRoom) { emitAllPlayers(socket, true); }
         if (oldRoom) { emitAllPlayers(socket); }
     });
 });
