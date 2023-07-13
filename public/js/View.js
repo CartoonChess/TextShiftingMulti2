@@ -48,10 +48,10 @@ export class View {
     }
 
     // TODO: definition throws a typescript warning
-    // TODO: redundant if we no longer set mapCoord.. here; can also make prop public
     set map(map) {
         this.#map = map;
-        // this.mapCoordinateAtViewCenter = map.center;
+        // Must set this here for e.g. asking about isVisible before updateView has ever been called
+        this.mapCoordinateAtViewCenter = map.center;
     }
 
     get map() {
