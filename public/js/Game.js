@@ -1,4 +1,4 @@
-import { GameMap } from './GameMap.js';
+import { Coordinate, GameMap } from './GameMap.js';
 // import InputController from './js/InputController.js';
 
 export default class Game {
@@ -8,9 +8,30 @@ export default class Game {
     remotePlayers;
     inputController;
 
-    // TODO: make static
-    // - but how do we get starting position?
-    defaultMapPackage = 'test1';
+    static defaultMapPackage = 'test1';
+
+    static async #getMapPackageInfo(pkgName) {
+        if (!pkgName || typeof pkgName === 'object') {
+            return console.error(`Can't call Game.#getMapPackageInfo() without providing a package name as string.`);
+        }
+        
+        try {
+            return await GameMap.loadInfoFromPackage(pkgName);
+        } catch(err) {
+            return console.error(`Couldn't load map package "${pkgMap}".`);
+        }
+    }
+
+    // Returns [Object], NOT json string
+    static async getDefaultStartPositionJson() {
+        const info = await this.#getMapPackageInfo(Game.defaultMapPackage);
+        return info.startPosition;
+    }
+
+    static async getDefaultStartPosition() {
+        const startPositionJson = await this.getDefaultStartPositionJson();
+        return Coordinate.fromObject(startPositionJson);
+    }
 
     async changeMap(map, position) {
         if (!map) {

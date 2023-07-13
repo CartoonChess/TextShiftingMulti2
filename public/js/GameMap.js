@@ -119,6 +119,15 @@ export class GameMap {
         return new this(undefined, undefined, lines, border, info);
     }
 
+    static async #loadInfoFromFile(filePath) {
+        try {
+            const file = await import(filePath);
+            return file.data;
+        } catch(err) {
+            console.error(`Couldn't open file "${filePath}": ${err}`);
+        }
+    }
+
     static async loadFromFile(filePath, borderFilePath, infoFilePath) {
         if (!filePath) { return console.error(`Must provide a file path to use GameMap.loadFromFile.`); }
 
@@ -129,29 +138,41 @@ export class GameMap {
             border = await MapBorder.loadFromFile(borderFilePath);
         }
 
-        let info;
-        if (infoFilePath) {
-            try {
-                const infoFile = await import(infoFilePath);
-                info = infoFile.data;
-            } catch(err) {
-                console.error(`Couldn't open file "${infoFilePath}": ${err}`);
-            }
-        }
+        // let info;
+        // if (infoFilePath) {
+        //     try {
+        //         const infoFile = await import(infoFilePath);
+        //         info = infoFile.data;
+        //     } catch(err) {
+        //         console.error(`Couldn't open file "${infoFilePath}": ${err}`);
+        //     }
+        // }
+        const info = await this.#loadInfoFromFile(infoFilePath);
 
         return this.createFromLines(lines, border, info);
     }
 
-    static async loadFromPackage(pkgName) {
+    // static async loadFromPackage(pkgName, infoOnly) {
+    static loadFromPackage(pkgName, infoOnly) {
         if (!pkgName) { return console.error(`Must provide a package name to use GameMap.loadFromPackage.`); }
 
         // "advised to access private static props thru class NAME"
         const prefix = GameMap.#packagePath + pkgName + '/';
-        const filePath = prefix + 'map';
-        const borderFilePath = prefix + 'border';
         const infoFilePath = prefix + 'info.js'
-        
-        return this.loadFromFile(filePath, borderFilePath, infoFilePath);
+        if (infoOnly) {
+            return this.#loadInfoFromFile(infoFilePath);
+        } else {
+            const filePath = prefix + 'map';
+            const borderFilePath = prefix + 'border';
+            // return this.loadFromFile(filePath, borderFilePath, infoFilePath);
+            return this.loadFromFile(filePath, borderFilePath, infoFilePath);
+        }
+    }
+
+    // static async loadInfoFromPackage(pkgName) {
+    static loadInfoFromPackage(pkgName) {
+        if (!pkgName) { return console.error(`Must provide a package name to use GameMap.loadInfoFromPackage.`); }
+        return this.loadFromPackage(pkgName, true);
     }
 
     static async #loadLinesFromFile(filePath) {

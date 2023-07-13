@@ -54,6 +54,11 @@ const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, 'public');
 app.use('/', express.static(publicDir));
 
+import Game from './public/js/Game.js';
+const defaultGameMap = Game.defaultMapPackage;
+const defaultPositionOnMapJson = await Game.getDefaultStartPositionJson();
+const defaultPositionOnMap = JSON.stringify(defaultPositionOnMapJson);
+
 // Send data on all other users back to caller
 // TODO: Can we make 'move' await this, so players don't flash into view?
 // function emitAllPlayers(socket, sameMapOnly) {
@@ -82,6 +87,9 @@ function emitAllPlayers(socket) {
 // Actually seems to run each time, even after ping hiccups...
 io.use((socket, next) => {
     console.log(`Running middleware for socket.id ${socket.id}...`);
+
+    // TODO: Load in Game and get default map + coords, set from there?
+    // - and maybe do permastorage later (i.e. just reset all players when server resets)
     
     // Note we can attach any custom property we want here
     const sessionId = socket.handshake.auth.sessionId;
@@ -105,9 +113,12 @@ io.use((socket, next) => {
     // TODO: This should be permanent maybe? Or do we need separate backend ("id") and frontfacing ("username") props?
     socket.userId = randomId();
     // TODO: When server restarts, session doesn't exist, but client doesn't pass one either, so these don't exist
-    console.log(`[${socket.id}] defaultGameMap (client) = ${socket.handshake.auth.defaultGameMap}`);
-    socket.gameMap = socket.handshake.auth.defaultGameMap;
-    socket.positionOnMap = socket.handshake.auth.defaultPositionOnMap;
+    // console.log(`[${socket.id}] defaultGameMap (client) = ${socket.handshake.auth.defaultGameMap}`);
+    // socket.gameMap = socket.handshake.auth.defaultGameMap;
+    // socket.positionOnMap = socket.handshake.auth.defaultPositionOnMap;
+    // console.log(`[${socket.id}] defaultPositionOnMap (client) = ${socket.handshake.auth.defaultPositionOnMap}`);
+    socket.gameMap = defaultGameMap;
+    socket.positionOnMap = defaultPositionOnMap;
     
     // When we're done
     next();

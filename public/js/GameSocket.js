@@ -109,6 +109,8 @@ export default class GameSocket {
             // 'attach sessionId to next reconnection attempts'
             // this.#socket.auth = { sessionId };
             // TODO: map/position should keep being updated...
+            // TODO: REMOVE THIS WHEN WE HAVE SERVER PERMANENT STORAGE
+            // THEN LOAD FROM THERE!!
             // gameMap = 'test1';
             const defaultGameMap = gameMap;
             const defaultPositionOnMap = positionOnMap;
