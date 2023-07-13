@@ -18,10 +18,6 @@ export default class GameSocket {
     #_didReceiveAllPlayers = false;
     #isReadyForView = false;
     
-    // constructor(log, view, player, remotePlayers) {
-    //     this.#log = log;
-    //     this.#view = view;
-    //     this.#player = player;
     constructor(game, remotePlayers) {
         this.game = game;
         this.#log = game.log;
@@ -31,14 +27,7 @@ export default class GameSocket {
         
         // Get player set up for remote connection
         // Using default URL param
-        // this.#socket = io(window.location.host, {
-        //     autoConnect: false,
-        //     query: {
-        //         defaultPositionOnMap: this.#player.position.toJson()
-        //     }
-        // });
         this.#socket = io(window.location.host, { autoConnect: false });
-        //socket.auth = { username: "joe" };
 
         // auth obj will also send local player position/map in case no previous data found on server
         // - which is fine for connecting player, but sends undefined to remote players
@@ -52,6 +41,7 @@ export default class GameSocket {
         // `localStorage` is a property of browser `window`
         const sessionId = localStorage.getItem('sessionId');
         if (sessionId) {
+            // TODO: Should we be getting map/coords from localStorage?
             // this.#socket.auth = { sessionId };
             // this.#socket.auth = {
             //     sessionId,
@@ -61,8 +51,6 @@ export default class GameSocket {
             this.#log.print(`had seshId ${sessionId}.`)
         }
         
-        // Not in the tutorial but
-        // let's just try connecting down here instead
         this.#socket.connect();
     }
 
@@ -119,7 +107,17 @@ export default class GameSocket {
         // Get session ID, whether new or returning
         this.#socket.on('session', async ({ sessionId, userId, gameMap, positionOnMap }) => {
             // 'attach sessionId to next reconnection attempts'
-            this.#socket.auth = { sessionId };
+            // this.#socket.auth = { sessionId };
+            // TODO: map/position should keep being updated...
+            // gameMap = 'test1';
+            const defaultGameMap = gameMap;
+            const defaultPositionOnMap = positionOnMap;
+            this.#socket.auth = {
+                sessionId,
+                defaultGameMap,
+                defaultPositionOnMap
+            };
+            
             // Store in browser's localStorage
             localStorage.setItem('sessionId', sessionId);
             // Save (public) userId
@@ -127,6 +125,7 @@ export default class GameSocket {
 
             // TODO: Seems this triggers even with hiccup reconnects
             // - Will this be a problem? Will it cause warping?
+            // - Actually, will this ALWAYS be true?
             if (gameMap && positionOnMap) {
                 this.#log.print('welcome back');
                 await this.game.changeMap(gameMap, Coordinate.fromJson(positionOnMap));
@@ -159,10 +158,12 @@ export default class GameSocket {
         });
         
         // Get already-connected users when joining
+        // Also get updates whenever changing map
         this.#socket.on('all players', (allPlayers) => {
-            // TODO: Is this line necessary? This should only happen once, when first joining
-            // Let's just replace the old data and get in sync w/ server
-            // this.#remotePlayers.length = 0;
+            // Let's flush old data when refreshing so we don't see ghosts
+            // (optimize someeday by e.g. just removing players in same room/map)
+            this.#remotePlayers.clear();
+            
             allPlayers.forEach((json) => {
                 // Skip any players who don't provide a map and position
                 if (!json.gameMap || !json.positionOnMap) { return; } // forEach's 'continue'
@@ -171,11 +172,9 @@ export default class GameSocket {
                 this.#log.print(`found player (id ${remotePlayer.id}, map '${remotePlayer.mapName}', position ${remotePlayer.position}`);
                 // Only add if it's not ourself
                 if (remotePlayer.id !== this.#socket.userId) {
-                    // this.#remotePlayers.push(remotePlayer);
                     this.#remotePlayers.set(remotePlayer.id, remotePlayer);
                 }
             });
-            // this.#log.print(`number of remote players: ${this.#remotePlayers.length}`);
             this.#log.print(`number of remote players: ${this.#remotePlayers.size}`);
             this.#didReceiveAllPlayers = true;
             this.#updateView();
@@ -187,12 +186,6 @@ export default class GameSocket {
             const remotePlayer = RemotePlayer.fromJson(remotePlayerJson);
             this.#log.print(`Friend's in (ID: ${remotePlayer.id}).`);
             if (remotePlayer.id === this.#socket.userId) { return; }
-            // Only add if it's a new player, not a second session
-            // for (const existingPlayer of this.#remotePlayers) {
-            //     if (remotePlayer.id === existingPlayer.id) { return; }
-            // }
-            // Using a map rather than array, so we can just overwrite if necessary
-            // this.#remotePlayers.push(remotePlayer);
             this.#remotePlayers.set(remotePlayer.id, remotePlayer);
             // TODO: Did we not need this before? This is new...
             // -should we do a map check first? maybe "updateViewIfNeeded," can recycle
@@ -202,11 +195,6 @@ export default class GameSocket {
         // Only happens when remote user ends all sessions
         this.#socket.on('other disconnected', (userId) => {
             this.#log.print(`userId ${userId} left.`);
-            // for (let i = 0; i < this.#remotePlayers.length; i++) {
-            //     if (this.#remotePlayers[i].id === userId) {
-            //         this.#remotePlayers.splice(i, 1);
-            //     }
-            // }
             this.#remotePlayers.delete(userId);
             this.#updateView();
         });
@@ -225,19 +213,6 @@ export default class GameSocket {
                 }
                 return this.#updateView();
             }
-        
-            // Otherwise, let's see which remote user moved
-            // for (let i = 0; i < this.#remotePlayers.length; i++) {
-            //     if (this.#remotePlayers[i].id === userId) {
-            //         this.#remotePlayers[i].mapName = gameMap;
-            //         this.#remotePlayers[i].position = position;
-            //         const isInView = this.#view.isVisible(this.#remotePlayers[i]);
-            //         if (this.#remotePlayers[i].wasInView || isInView) {
-            //             this.#updateView();
-            //         }
-            //         this.#remotePlayers[i].wasInView = isInView;
-            //     }
-            // }
             
             // Reference, not value
             const remotePlayer = this.#remotePlayers.get(userId);

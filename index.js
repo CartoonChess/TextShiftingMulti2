@@ -79,13 +79,18 @@ function emitAllPlayers(socket) {
 }
 
 // `.use` ("middleware"?) perhaps executed only once per socket when first connecting
+// Actually seems to run each time, even after ping hiccups...
 io.use((socket, next) => {
+    console.log(`Running middleware for socket.id ${socket.id}...`);
+    
     // Note we can attach any custom property we want here
     const sessionId = socket.handshake.auth.sessionId;
     if (sessionId) {
+        console.log(`[${socket.id}] sessionId (client) = true`);
         // User's got a session locally in browser
         const session = sessionStore.findSession(sessionId);
         if (session) {
+            console.log(`[${socket.id}] session (server) = true`);
             // And the server remembers it
             socket.sessionId = sessionId;
             socket.userId = session.userId;
@@ -97,7 +102,10 @@ io.use((socket, next) => {
 
     // User had no sessionId or the server wasn't aware (maybe restarted)
     socket.sessionId = randomId();
+    // TODO: This should be permanent maybe? Or do we need separate backend ("id") and frontfacing ("username") props?
     socket.userId = randomId();
+    // TODO: When server restarts, session doesn't exist, but client doesn't pass one either, so these don't exist
+    console.log(`[${socket.id}] defaultGameMap (client) = ${socket.handshake.auth.defaultGameMap}`);
     socket.gameMap = socket.handshake.auth.defaultGameMap;
     socket.positionOnMap = socket.handshake.auth.defaultPositionOnMap;
     
@@ -110,7 +118,7 @@ io.on('connection', (socket) => {
     // io.to(...).emit -> send to socket.id/room '...'
     // socket.emit -> return to sender
     // socket.broadcast.emit -> send to all but sender
-    // socket.to(...).emit -> send to a room (excluding sender)
+    // socket.to(...).emit -> send to a room (excluding sender)m
 
     console.log(`A user has connected (userId ${socket.userId}, sessionId ${socket.sessionId}, socket.id ${socket.id}).`);
     // socket.emit('self connected', socket.id);
@@ -140,8 +148,7 @@ io.on('connection', (socket) => {
     // Use rooms to group together users on the same map
     // (sockets can join multiple rooms, i.e. userId and gameMap)
     socket.join(mapRoom(socket.gameMap));
-    console.log(`Joined room "${mapRoom(socket.gameMap)}".`);
-    // socket.leave(...);
+    console.log(`User ${socket.userId} joined rooms "${userRoom(socket.userId)}" and "${mapRoom(socket.gameMap)}".`);
 
     // Get data on all other users
     emitAllPlayers(socket);
@@ -189,43 +196,15 @@ io.on('connection', (socket) => {
     //     socket.broadcast.emit('chat message', ({msg: msg, username: user}));
     // });
 
-    // Tell your other tabs to change rooms, e.g. when map changes
-    // socket.on('update rooms', (oldRoom, currentRoom) => {
-    //     console.log(`Inside 'update rooms'...`);
-    //     socket.leave(oldRoom);
-    //     socket.join(currentRoom);
-    //     console.log(`Left room "${oldRoom}" and joined "${currentRoom}".`);
-    // });
-
     socket.on('move', (gameMap, positionOnMap) => {
-        // If changing maps, leave map room and join new one
+        // If changing maps, leave map room and join new one in all tabs
         let currentRoom = mapRoom(gameMap);
         let oldRoom;
-        // Changing maps
         if (socket.gameMap !== gameMap) {
             oldRoom = mapRoom(socket.gameMap);
-            // socket.leave(oldRoom);
-            // socket.join(currentRoom);
-            
-            // io.to(userRoom(socket.userId)).emit('update rooms', { oldRoom, currentRoom });
-            // socket.to(userRoom(socket.userId)).emit('update rooms', { oldRoom, currentRoom });
-            
-            // const socketIds = io.of("/").adapter.rooms.get(userRoom(socket.userId));
-            // for (const socketId of socketIds) {
-            //     // const theSocket = io.sockets.sockets.get(socketId);
-            //     // theSocket.leave(oldRoom);
-            //     // theSocket.join(currentRoom);
-            //     io.sockets.sockets.get(socketId)
-            //         .leave(oldRoom);
-            //         .join(currentRoom);
-            // }
             io.in(userRoom(socket.userId)).socketsLeave(oldRoom);
             io.in(userRoom(socket.userId)).socketsJoin(currentRoom);
-            // console.log(rooms);
-            
-            // const rooms = io.of("/").adapter.sids;
-            
-            console.log(`Left room "${oldRoom}" and joined "${currentRoom}".`);
+            console.log(`User ${socket.userId} left room "${oldRoom}" and joined "${currentRoom}".`);
         }
         
         socket.gameMap = gameMap;

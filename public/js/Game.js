@@ -7,7 +7,9 @@ export default class Game {
     player;
     remotePlayers;
     inputController;
-    
+
+    // TODO: make static
+    // - but how do we get starting position?
     defaultMapPackage = 'test1';
 
     async changeMap(map, position) {
