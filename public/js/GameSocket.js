@@ -31,23 +31,19 @@ export default class GameSocket {
 
         // auth obj will also send local player position/map in case no previous data found on server
         // - which is fine for connecting player, but sends undefined to remote players
-        const defaultGameMap = this.#view.map.name;
-        const defaultPositionOnMap = this.#player.position.toJson();
-        this.#socket.auth = {
-            defaultGameMap,
-            defaultPositionOnMap
-        };
+        // const defaultGameMap = this.#view.map.name;
+        // const defaultPositionOnMap = this.#player.position.toJson();
+        // this.#socket.auth = {
+        //     defaultGameMap,
+        //     defaultPositionOnMap
+        // };
         
         // `localStorage` is a property of browser `window`
         const sessionId = localStorage.getItem('sessionId');
         if (sessionId) {
             // TODO: Should we be getting map/coords from localStorage?
-            // this.#socket.auth = { sessionId };
-            // this.#socket.auth = {
-            //     sessionId,
-            //     defaultPositionOnMap
-            // };
-            this.#socket.auth.sessionId = sessionId;
+            this.#socket.auth = { sessionId };
+            // this.#socket.auth.sessionId = sessionId;
             this.#log.print(`had seshId ${sessionId}.`)
         }
         
@@ -107,18 +103,18 @@ export default class GameSocket {
         // Get session ID, whether new or returning
         this.#socket.on('session', async ({ sessionId, userId, gameMap, positionOnMap }) => {
             // 'attach sessionId to next reconnection attempts'
-            // this.#socket.auth = { sessionId };
+            this.#socket.auth = { sessionId };
             // TODO: map/position should keep being updated...
             // TODO: REMOVE THIS WHEN WE HAVE SERVER PERMANENT STORAGE
             // THEN LOAD FROM THERE!!
             // gameMap = 'test1';
-            const defaultGameMap = gameMap;
-            const defaultPositionOnMap = positionOnMap;
-            this.#socket.auth = {
-                sessionId,
-                defaultGameMap,
-                defaultPositionOnMap
-            };
+            // const defaultGameMap = gameMap;
+            // const defaultPositionOnMap = positionOnMap;
+            // this.#socket.auth = {
+            //     sessionId,
+            //     defaultGameMap,
+            //     defaultPositionOnMap
+            // };
             
             // Store in browser's localStorage
             localStorage.setItem('sessionId', sessionId);
@@ -129,7 +125,7 @@ export default class GameSocket {
             // - Will this be a problem? Will it cause warping?
             // - Actually, will this ALWAYS be true?
             if (gameMap && positionOnMap) {
-                this.#log.print('welcome back');
+                this.#log.print('Welcome back.');
                 await this.game.changeMap(gameMap, Coordinate.fromJson(positionOnMap));
             }
             this.#log.print(`got userId ${this.#socket.userId}.`);

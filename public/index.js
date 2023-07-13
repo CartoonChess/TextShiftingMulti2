@@ -18,8 +18,9 @@ game.view = view;
 
 import { Player } from './js/Character.js';
 const player = new Player();
+// EDIT: I think this is always assigned by the server regardless now
 // Will be overwritten if session data is found
-player.position = view.map.startPosition;
+// player.position = view.map.startPosition;
 game.player = player;
 game.remotePlayers = new Map();
 

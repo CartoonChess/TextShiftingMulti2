@@ -35,6 +35,7 @@ export class RemotePlayer extends Player {
     // (but we got rid of them all)
     mapName;
     wasInView = true;
+    // WARN: JS already has a Symbol type
     // symbol = '%';
     
     constructor(id, mapName, position) {
