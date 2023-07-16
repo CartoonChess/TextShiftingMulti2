@@ -5,6 +5,10 @@ body {
     /* Disable touch events */
 }
 
+#game-view pre {
+    margin: 0;
+}
+
 #message-log {
     /* keep multiplace spaces but still wrap */
     white-space: pre-wrap;

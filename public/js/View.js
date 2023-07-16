@@ -41,11 +41,19 @@ export class View {
         const gameView = document.getElementById('game-view');
 
         for (let y = 0; y < this.height; y++) {
-            const line = document.createElement('code');
-            line.id = 'line' + y;
+            // const line = document.createElement('code');
+            const line = document.createElement('pre');
+            // line.id = 'line' + y;
             gameView.appendChild(line);
+
+            for (let x = 0; x < this.width; x++) {
+                const tile = document.createElement('span');
+                tile.textContent = ' ';
+                line.appendChild(tile);
+            }
+            
             // Need to add linebreaks now for some reason
-            gameView.appendChild(document.createElement('br'));
+            // gameView.appendChild(document.createElement('br'));
         }
         // TODO: remove
         console.warn('!!! REMOVE DEBUG CODE FROM View.#updateHtml');
@@ -155,9 +163,20 @@ export class View {
         lines[this.staticCenter.line][this.staticCenter.column] = '@';
         
         // Print to screen
-        for (let i = 0; i < this.height; i++) {
-            document.getElementById(`line${i}`).textContent = lines[i].join('');
+        const allLinesHtml = document.getElementById('game-view').children;
+        console.log(allLinesHtml);
+        for (let y = 0; y < this.height; y++) {
+        // for (let line of lines) {
+            // document.getElementById(`line${i}`).textContent = lines[i].join('');
+            // const html = document.getElementById(`line${y}`);
+            const allTilesHtml = allLinesHtml.item(y).children;
+            // html.textContent = lines[i].join(' '); // corrects aspect ratio!
+            for (let x = 0; x < this.width; x++) {
+                // html.appendChild();
+                allTilesHtml.item(x).textContent = lines[y][x];
+            }
         }
+        
         // TODO: remove
         console.warn('!!! REMOVE DEBUG CODE FROM View.update');
         const i = 23;
