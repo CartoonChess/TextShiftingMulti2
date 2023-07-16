@@ -9,6 +9,13 @@ body {
     margin: 0;
 }
 
+#game-view pre span {
+    /* roughly emulates a square for now */
+    display: inline-block;
+    width: 0.925rem;
+    /* height: 1rem; */
+}
+
 #message-log {
     /* keep multiplace spaces but still wrap */
     white-space: pre-wrap;

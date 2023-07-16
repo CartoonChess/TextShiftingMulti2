@@ -41,9 +41,7 @@ export class View {
         const gameView = document.getElementById('game-view');
 
         for (let y = 0; y < this.height; y++) {
-            // const line = document.createElement('code');
             const line = document.createElement('pre');
-            // line.id = 'line' + y;
             gameView.appendChild(line);
 
             for (let x = 0; x < this.width; x++) {
@@ -51,20 +49,7 @@ export class View {
                 tile.textContent = ' ';
                 line.appendChild(tile);
             }
-            
-            // Need to add linebreaks now for some reason
-            // gameView.appendChild(document.createElement('br'));
         }
-        // TODO: remove
-        console.warn('!!! REMOVE DEBUG CODE FROM View.#updateHtml');
-        const line = document.createElement('code');
-        line.id = 'line' + 23;
-        gameView.appendChild(line);
-        gameView.appendChild(document.createElement('br'));
-        const line2 = document.createElement('code');
-        line2.id = 'line' + 24;
-        gameView.appendChild(line2);
-        gameView.appendChild(document.createElement('br'));
     }
 
     // TODO: definition throws a typescript warning
@@ -166,41 +151,11 @@ export class View {
         const allLinesHtml = document.getElementById('game-view').children;
         console.log(allLinesHtml);
         for (let y = 0; y < this.height; y++) {
-        // for (let line of lines) {
-            // document.getElementById(`line${i}`).textContent = lines[i].join('');
-            // const html = document.getElementById(`line${y}`);
             const allTilesHtml = allLinesHtml.item(y).children;
             // html.textContent = lines[i].join(' '); // corrects aspect ratio!
             for (let x = 0; x < this.width; x++) {
-                // html.appendChild();
                 allTilesHtml.item(x).textContent = lines[y][x];
             }
         }
-        
-        // TODO: remove
-        console.warn('!!! REMOVE DEBUG CODE FROM View.update');
-        const i = 23;
-        const tile = new Tile();
-        tile.symbol = '&';
-        const debugLine = document.getElementById(`line${i}`);
-
-        // for (let y)
-        const span = document.createElement('span'); // 'code'?
-        const span2 = document.createElement('span'); // 'code'?
-        span.textContent = tile.symbol;
-        span2.textContent = '*';
-        // span.id = 'span' + y;
-        debugLine.appendChild(span);
-        debugLine.appendChild(span2);
-
-        const debugLine2 = document.getElementById(`line${i+1}`);
-        // for (let y)
-        const span3 = document.createElement('span'); // 'code'?
-        const span4 = document.createElement('span'); // 'code'?
-        span3.textContent = tile.symbol;
-        span4.textContent = '*';
-        // span.id = 'span' + y;
-        debugLine2.appendChild(span3);
-        debugLine2.appendChild(span4);
     }
 }

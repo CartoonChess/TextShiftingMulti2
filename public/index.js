@@ -12,7 +12,7 @@ const solidCharacter = '#';
 // Map and view
 import { GameMap } from './js/GameMap.js';
 import { View } from './js/View.js';
-const view = new View(45, 23);
+const view = new View(25, 25);
 view.map = await GameMap.loadFromPackage(Game.defaultMapPackage);
 game.view = view;
 
