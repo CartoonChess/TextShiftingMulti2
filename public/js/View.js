@@ -1,4 +1,5 @@
 import { Coordinate } from './GameMap.js';
+import Tile from './Tile.js';
 
 export class View {
     // half the width and height of the view
@@ -18,6 +19,7 @@ export class View {
 
         // View should always be an odd number
         // If not, staticCenter will cause OBOE
+        // TODO: Minimum 2?
         if (this.width % 2 === 0) {
             console.warn('View dimensions must be an odd number; shrinking width.');
             this.width--;
@@ -31,11 +33,11 @@ export class View {
             Math.floor(this.width / 2),
             Math.floor(this.height / 2)
         );
-        this.#updateHTML();
+        this.#updateHtml();
     }
 
     // Create lines in HTML
-    #updateHTML() {
+    #updateHtml() {
         const gameView = document.getElementById('game-view');
 
         for (let y = 0; y < this.height; y++) {
@@ -45,6 +47,16 @@ export class View {
             // Need to add linebreaks now for some reason
             gameView.appendChild(document.createElement('br'));
         }
+        // TODO: remove
+        console.warn('!!! REMOVE DEBUG CODE FROM View.#updateHtml');
+        const line = document.createElement('code');
+        line.id = 'line' + 23;
+        gameView.appendChild(line);
+        gameView.appendChild(document.createElement('br'));
+        const line2 = document.createElement('code');
+        line2.id = 'line' + 24;
+        gameView.appendChild(line2);
+        gameView.appendChild(document.createElement('br'));
     }
 
     // TODO: definition throws a typescript warning
@@ -58,7 +70,7 @@ export class View {
         return this.#map;
     }
 
-    // TODO: rename these ... mapColumnAtViewLeft?
+    // TODO: rename these ... mapColumnAtViewLeft? leftmostVisibleMapColumn?
     get left() {
         return this.mapCoordinateAtViewCenter.column - Math.floor(this.width / 2);
     }
@@ -146,5 +158,30 @@ export class View {
         for (let i = 0; i < this.height; i++) {
             document.getElementById(`line${i}`).textContent = lines[i].join('');
         }
+        // TODO: remove
+        console.warn('!!! REMOVE DEBUG CODE FROM View.update');
+        const i = 23;
+        const tile = new Tile();
+        tile.symbol = '&';
+        const debugLine = document.getElementById(`line${i}`);
+
+        // for (let y)
+        const span = document.createElement('span'); // 'code'?
+        const span2 = document.createElement('span'); // 'code'?
+        span.textContent = tile.symbol;
+        span2.textContent = '*';
+        // span.id = 'span' + y;
+        debugLine.appendChild(span);
+        debugLine.appendChild(span2);
+
+        const debugLine2 = document.getElementById(`line${i+1}`);
+        // for (let y)
+        const span3 = document.createElement('span'); // 'code'?
+        const span4 = document.createElement('span'); // 'code'?
+        span3.textContent = tile.symbol;
+        span4.textContent = '*';
+        // span.id = 'span' + y;
+        debugLine2.appendChild(span3);
+        debugLine2.appendChild(span4);
     }
 }
