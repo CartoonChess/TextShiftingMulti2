@@ -12,8 +12,9 @@ body {
 #game-view pre span {
     /* roughly emulates a square for now */
     display: inline-block;
-    width: 0.925rem;
+    width: 0.93rem;
     /* height: 1rem; */
+    text-align: center;
 }
 
 #message-log {
@@ -23,14 +24,16 @@ body {
     --border: 5px;
     --bgcolor: #1e1e1e;
     border: var(--border) solid var(--bgcolor);
-    /* this would only work if each line were its own span */
-    /* padding: 5 5 5 10px;
-    text-indent: -5px; */
     background: var(--bgcolor);
     color: #ffffff;
     /* rem is basically "one text line height" */
     height: calc(5rem + var(--border) * 2);
     overflow-y: scroll;
+}
+
+#message-log div {
+    padding-left: 1.25rem;
+    text-indent: -1rem;
 }
 
 @media (prefers-color-scheme: dark) {

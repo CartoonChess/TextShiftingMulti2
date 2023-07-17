@@ -1,21 +1,24 @@
 export default class MessageLog {
     // A reference(?) to `document.getElementById(...)`
     #element;
-    #debug; // bool
+    #isAppending; // bool
     
-    constructor(element, debug) {
+    constructor(element, isAppending) {
         this.#element = element;
         // Below also works...
         // this.element = document.getElementById('message-log');
-        this.#debug = debug;
+        this.#isAppending = isAppending;
     }
     
     print(msg) {
-        if (this.#debug) {
-            msg = this.#element.textContent + `• ${msg}\n`;
+        if (this.#isAppending) {
+            const msgHtml = document.createElement('div');
+            msgHtml.textContent = `• ${msg}\n`;
+            this.#element.appendChild(msgHtml);
+            // Scroll to bottom automatically
+            this.#element.scrollTop = this.#element.scrollHeight;
+        } else {
+            this.#element.textContent = msg;
         }
-        this.#element.textContent = msg;
-        // Scroll to bottom automatically
-        this.#element.scrollTop = this.#element.scrollHeight;
     }
 }
