@@ -221,7 +221,8 @@ export class GameMap {
                 if (randomNumber < 0.65) {
                     character = ' ';
                 } else if (randomNumber < 0.8) {
-                    character = '.';
+                    // character = '.';
+                    character = '🌲';
                 } else if (randomNumber < 0.95) {
                     character = ',';
                 } else if (randomNumber < 0.99) {

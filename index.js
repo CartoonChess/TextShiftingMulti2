@@ -86,11 +86,7 @@ function emitAllPlayers(socket) {
 // `.use` ("middleware"?) perhaps executed only once per socket when first connecting
 // Actually seems to run each time, even after ping hiccups...
 io.use((socket, next) => {
-    console.log(`Running middleware for socket.id ${socket.id}...`);
-
-    // TODO: Load in Game and get default map + coords, set from there?
-    // - and maybe do permastorage later (i.e. just reset all players when server resets)
-    
+    console.log(`Running middleware for socket.id ${socket.id}...`);    
     // Note we can attach any custom property we want here
     const sessionId = socket.handshake.auth.sessionId;
     if (sessionId) {
@@ -112,11 +108,6 @@ io.use((socket, next) => {
     socket.sessionId = randomId();
     // TODO: This should be permanent maybe? Or do we need separate backend ("id") and frontfacing ("username") props?
     socket.userId = randomId();
-    // TODO: When server restarts, session doesn't exist, but client doesn't pass one either, so these don't exist
-    // console.log(`[${socket.id}] defaultGameMap (client) = ${socket.handshake.auth.defaultGameMap}`);
-    // socket.gameMap = socket.handshake.auth.defaultGameMap;
-    // socket.positionOnMap = socket.handshake.auth.defaultPositionOnMap;
-    // console.log(`[${socket.id}] defaultPositionOnMap (client) = ${socket.handshake.auth.defaultPositionOnMap}`);
     socket.gameMap = defaultGameMap;
     socket.positionOnMap = defaultPositionOnMap;
     
@@ -174,7 +165,6 @@ io.on('connection', (socket) => {
     socket.on('disconnect', async (reason) => {
         console.log(`User with ID ${socket.userId} closed a session. Reason: ${reason}.`);
         const matchingSockets = await io.in(userRoom(socket.userId)).fetchSockets();
-        console.log(`Matching sockets: ${matchingSockets}`);
         const isDisconnected = matchingSockets.length === 0;
         if (isDisconnected) {
             socket.broadcast.emit('other disconnected', socket.userId);
@@ -203,10 +193,6 @@ io.on('connection', (socket) => {
     //     console.log(id);
     // }
     // console.log(`I am ${socket.id}.`);
-    
-    // socket.on('chat message', ({msg, user}) => {
-    //     socket.broadcast.emit('chat message', ({msg: msg, username: user}));
-    // });
 
     socket.on('move', (gameMap, positionOnMap) => {
         // If changing maps, leave map room and join new one in all tabs
@@ -242,7 +228,6 @@ io.on('connection', (socket) => {
         });
 
         // Get updated players and coords for the map if moving
-        // if (oldRoom) { emitAllPlayers(socket, true); }
         if (oldRoom) { emitAllPlayers(socket); }
     });
 });

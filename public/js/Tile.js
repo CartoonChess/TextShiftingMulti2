@@ -10,6 +10,7 @@ export default class Tile {
     image;
     symbol; //if type needed: GameSymbol
     //position = new Coordinate(0, 0);
+    // [facing]Direction = Direction.Down;
     layer = 0; //or add Z to Coordinate
     // "action/trigger/script" -> for example, as an NPC, or a warp point
 }
