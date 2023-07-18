@@ -36,6 +36,10 @@ async function moveIfAble(character, direction) {
     // Maybe this should be handled by the Game object...
     if (!socket.isReadyForView) { return; }
 
+    if (character.surroundings.at(direction).isSolid) {
+        return log.print(`The ${character.surroundings.at(direction).symbol} goes bonk.`);
+    }
+
     if (character.surroundings.at(direction) != solidCharacter) {
         character.move(direction);
         player.surroundings.update(player.position, view.map);

@@ -8,7 +8,7 @@ export default class Game {
     inputController;
 
     // static defaultMapPackage = 'test1';
-    static defaultMapPackage = 'test3';
+    static defaultMapPackage = 'test4';
 
     static async #getMapPackageInfo(pkgName) {
         if (!pkgName || typeof pkgName === 'object') {

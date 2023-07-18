@@ -59,6 +59,9 @@ class MapBorder {
 
 export class GameMap {
     static #packagePath = '../maps/';
+    // TODO: Potential for bug with #center
+    // If map has even dimensions, then View.isVisible could have OBOE error...
+    // esp. for remotePlayers prior to first loading the view
     #center;
     name;
     startPosition;
