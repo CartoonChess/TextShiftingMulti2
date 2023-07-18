@@ -1,5 +1,4 @@
 import { Coordinate, GameMap } from './GameMap.js';
-// import InputController from './js/InputController.js';
 
 export default class Game {
     log;
@@ -8,7 +7,8 @@ export default class Game {
     remotePlayers;
     inputController;
 
-    static defaultMapPackage = 'test1';
+    // static defaultMapPackage = 'test1';
+    static defaultMapPackage = 'test3';
 
     static async #getMapPackageInfo(pkgName) {
         if (!pkgName || typeof pkgName === 'object') {

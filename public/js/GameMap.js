@@ -76,6 +76,7 @@ export class GameMap {
             this.width = width;
             this.height = height;
         }
+
         // If border is a 2D array rather than object, create object first
         if (Array.isArray(border)) {
             this.border = MapBorder.createFromLines(border);
@@ -138,17 +139,7 @@ export class GameMap {
             border = await MapBorder.loadFromFile(borderFilePath);
         }
 
-        // let info;
-        // if (infoFilePath) {
-        //     try {
-        //         const infoFile = await import(infoFilePath);
-        //         info = infoFile.data;
-        //     } catch(err) {
-        //         console.error(`Couldn't open file "${infoFilePath}": ${err}`);
-        //     }
-        // }
         const info = await this.#loadInfoFromFile(infoFilePath);
-
         return this.createFromLines(lines, border, info);
     }
 
@@ -162,9 +153,9 @@ export class GameMap {
         if (infoOnly) {
             return this.#loadInfoFromFile(infoFilePath);
         } else {
-            const filePath = prefix + 'map';
+            // const filePath = prefix + 'map';
+            const filePath = prefix + 'map.js';
             const borderFilePath = prefix + 'border';
-            // return this.loadFromFile(filePath, borderFilePath, infoFilePath);
             return this.loadFromFile(filePath, borderFilePath, infoFilePath);
         }
     }
@@ -178,19 +169,21 @@ export class GameMap {
     static async #loadLinesFromFile(filePath) {
         let data;
         try {
-            const response = await fetch(filePath);
-            data = await response.text();
+            // const response = await fetch(filePath);
+            // data = await response.text();
+            const file = await import(filePath);
+            return file.tiles;
         } catch (err) {
             return console.error(`GameMap.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
         }
 
         // Split into 2D array of lines and their tiles
-        const lines = data.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-            lines[i] = lines[i].split('');
-        }
+        // const lines = data.split('\n');
+        // for (let i = 0; i < lines.length; i++) {
+        //     lines[i] = lines[i].split('');
+        // }
         
-        return lines;
+        // return lines;
     }
 
     static createTestMap(view, width = view.width * 2, height = view.height * 2, boundCharacter = '#', border) {

@@ -141,20 +141,23 @@ export class View {
             if (this.isVisible(remotePlayer)) {
                 const lineIndex = remotePlayer.position.line - this.top;
                 const columnIndex = remotePlayer.position.column - this.left;
-                lines[lineIndex][columnIndex] = '%';
+                // lines[lineIndex][columnIndex] = '%';
+                lines[lineIndex][columnIndex] = { symbol: '%', color: 'red' };
             }
         }
         // Show player at centre of both axes
-        lines[this.staticCenter.line][this.staticCenter.column] = '@';
+        // lines[this.staticCenter.line][this.staticCenter.column] = '@';
+        lines[this.staticCenter.line][this.staticCenter.column] = { symbol: '@', color: 'red' };
         
         // Print to screen
         const allLinesHtml = document.getElementById('game-view').children;
-        console.log(allLinesHtml);
         for (let y = 0; y < this.height; y++) {
             const allTilesHtml = allLinesHtml.item(y).children;
             // html.textContent = lines[i].join(' '); // corrects aspect ratio!
             for (let x = 0; x < this.width; x++) {
-                allTilesHtml.item(x).textContent = lines[y][x];
+                // allTilesHtml.item(x).textContent = lines[y][x];
+                allTilesHtml.item(x).textContent = lines[y][x].symbol;
+                allTilesHtml.item(x).style.color = lines[y][x].color;
             }
         }
     }
