@@ -173,7 +173,8 @@ io.on('connection', (socket) => {
     
     socket.on('disconnect', async (reason) => {
         console.log(`User with ID ${socket.userId} closed a session. Reason: ${reason}.`);
-        const matchingSockets = await io.in(socket.userId).fetchSockets();
+        const matchingSockets = await io.in(userRoom(socket.userId)).fetchSockets();
+        console.log(`Matching sockets: ${matchingSockets}`);
         const isDisconnected = matchingSockets.length === 0;
         if (isDisconnected) {
             socket.broadcast.emit('other disconnected', socket.userId);
