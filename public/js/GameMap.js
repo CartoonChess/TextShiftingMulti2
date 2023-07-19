@@ -69,10 +69,14 @@ export class GameMap {
     // dimension are overridden if lines is supplied
     // info must be an object
     constructor(width = 0, height = 0, lines, border = new MapBorder(), info) {
-        if (lines && lines.length && lines[0].length) {
+        // if (lines && lines.length && lines[0].length) {
+        if (lines && lines.length && lines[0].length && lines[0][0].length) {
             this.lines = lines;
-            this.height = lines.length;
-            this.width = lines[0].length;
+            // this.height = lines.length;
+            // this.width = lines[0].length;
+            this.depth = lines.length;
+            this.height = lines[0].length;
+            this.width = lines[0][0].length;
         } else {
             // If there's no lines data or it seems improperly formatted
             this.lines = GameMap.#generateBlankLines(width, height);

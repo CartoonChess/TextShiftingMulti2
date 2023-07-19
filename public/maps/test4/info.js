@@ -15,7 +15,7 @@ export const data = {
     "dimensions": {
         "width": 2,
         "height": 2,
-        "depth": 1
+        "depth": 2
     },
     "startPosition": {
         "column": 0,

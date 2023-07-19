@@ -109,13 +109,16 @@ export class View {
     }
 
     // Builds line, using border for negative indexes
-    #getLine(lineIndex) {
+    // TODO: Should all instances of `#map` be `map` (also in getTileFromBorder)? Or do reverse in update()?
+    // #getLine(lineIndex) {
+    #getLine(lineIndex, layerIndex) {
         const line = [];
         for (let x = this.left; x < this.left + this.width; x++) {
             if (x >= 0 && lineIndex >= 0
                && x < this.#map.width && lineIndex < this.#map.height) {
                 // If within map bounds, grab from there
-                line.push(this.#map.lines[lineIndex][x]);
+                // line.push(this.#map.lines[lineIndex][x]);
+                line.push(this.#map.lines[layerIndex][lineIndex][x]);
             } else {
                 // If outside map bounds, generate from border
                 line.push(this.#getTileFromBorder(x, lineIndex));
@@ -132,32 +135,54 @@ export class View {
         const lines = [];
         
         // Generate map tiles
-        for (let i = 0; i < this.height; i++) {
-            lines[i] = this.#getLine(this.top + i);
+        // for (let i = 0; i < this.height; i++) {
+        //     lines[i] = this.#getLine(this.top + i);
+        // }
+        for (let z = 0; z < this.map.depth; z++) {
+            // Must explicitly define parent dimension of array (`lines[z]`), or else can't assign child (`lines[z][y]`)
+            lines[z] = [];
+            for (let y = 0; y < this.height; y++) {
+                lines[z][y] = this.#getLine(this.top + y, z);
+            }
         }
+        
         // Add in remote players
-        // for (const remotePlayer of remotePlayers) {
         for (const remotePlayer of remotePlayers.values()) {
             if (this.isVisible(remotePlayer)) {
                 const lineIndex = remotePlayer.position.line - this.top;
                 const columnIndex = remotePlayer.position.column - this.left;
                 // lines[lineIndex][columnIndex] = '%';
-                lines[lineIndex][columnIndex] = { symbol: '%', color: 'red' };
+                // lines[lineIndex][columnIndex] = { symbol: '%', color: 'red' };
+                lines[this.map.depth - 1][lineIndex][columnIndex] = { symbol: '%', color: 'red' };
             }
         }
+        
         // Show player at centre of both axes
         // lines[this.staticCenter.line][this.staticCenter.column] = '@';
-        lines[this.staticCenter.line][this.staticCenter.column] = { symbol: '@', color: 'red' };
+        // lines[this.staticCenter.line][this.staticCenter.column] = { symbol: '@', color: 'red' };
+        lines[this.map.depth - 1][this.staticCenter.line][this.staticCenter.column] = { symbol: '@', color: 'red' };
         
         // Print to screen
         const allLinesHtml = document.getElementById('game-view').children;
-        for (let y = 0; y < this.height; y++) {
-            const allTilesHtml = allLinesHtml.item(y).children;
-            // html.textContent = lines[i].join(' '); // corrects aspect ratio!
-            for (let x = 0; x < this.width; x++) {
-                // allTilesHtml.item(x).textContent = lines[y][x];
-                allTilesHtml.item(x).textContent = lines[y][x].symbol;
-                allTilesHtml.item(x).style.color = lines[y][x].color;
+        // for (let y = 0; y < this.height; y++) {
+        //     const allTilesHtml = allLinesHtml.item(y).children;
+        //     // html.textContent = lines[i].join(' '); // corrects aspect ratio!
+        //     for (let x = 0; x < this.width; x++) {
+        //         // allTilesHtml.item(x).textContent = lines[y][x];
+        //         // allTilesHtml.item(x).textContent = lines[y][x].symbol;
+        //         // allTilesHtml.item(x).style.color = lines[y][x].color;
+        //         // allTilesHtml.item(x).style.backgroundColor = lines[y][x].backgroundColor;
+        //     }
+        // }
+        for (let z = 0; z < this.map.depth; z++) {
+            for (let y = 0; y < this.height; y++) {
+                const allTilesHtml = allLinesHtml.item(y).children;
+                // html.textContent = lines[i].join(' '); // corrects aspect ratio!
+                for (let x = 0; x < this.width; x++) {
+                    allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
+                    allTilesHtml.item(x).style.color = lines[z][y][x].color;
+                    allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor;
+                }
             }
         }
     }
