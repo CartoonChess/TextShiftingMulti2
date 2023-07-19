@@ -139,7 +139,7 @@ export class View {
         //     lines[i] = this.#getLine(this.top + i);
         // }
         for (let z = 0; z < this.map.depth; z++) {
-            // Must explicitly define parent dimension of array (`lines[z]`), or else can't assign child (`lines[z][y]`)
+            // Must explicitly define parent dimension of array (`lines[z]`), or else can't assign to child (`lines[z][y]`)
             lines[z] = [];
             for (let y = 0; y < this.height; y++) {
                 lines[z][y] = this.#getLine(this.top + y, z);
@@ -164,20 +164,9 @@ export class View {
         
         // Print to screen
         const allLinesHtml = document.getElementById('game-view').children;
-        // for (let y = 0; y < this.height; y++) {
-        //     const allTilesHtml = allLinesHtml.item(y).children;
-        //     // html.textContent = lines[i].join(' '); // corrects aspect ratio!
-        //     for (let x = 0; x < this.width; x++) {
-        //         // allTilesHtml.item(x).textContent = lines[y][x];
-        //         // allTilesHtml.item(x).textContent = lines[y][x].symbol;
-        //         // allTilesHtml.item(x).style.color = lines[y][x].color;
-        //         // allTilesHtml.item(x).style.backgroundColor = lines[y][x].backgroundColor;
-        //     }
-        // }
         for (let z = 0; z < this.map.depth; z++) {
             for (let y = 0; y < this.height; y++) {
                 const allTilesHtml = allLinesHtml.item(y).children;
-                // html.textContent = lines[i].join(' '); // corrects aspect ratio!
                 for (let x = 0; x < this.width; x++) {
                     allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
                     allTilesHtml.item(x).style.color = lines[z][y][x].color;

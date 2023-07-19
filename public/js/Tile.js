@@ -1,6 +1,7 @@
 // TODO: If we're using json anyway, do we even need this?
 // Maybe more for archtypes, like ogres and chairs?
 // - Perhaps func/construct/etc. for mapping directly to element...style(.color) props
+// --or maybe that's just the view's responsibility
 
 export default class Tile {
     //parent/derivedFrom?/"name/type/class"? for resuable tiles...?
