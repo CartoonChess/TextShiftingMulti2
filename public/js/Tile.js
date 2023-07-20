@@ -5,7 +5,7 @@
 
 export default class Tile {
     //parent/derivedFrom?/"name/type/class"? for resuable tiles...?
-    //id = Symbol();
+    //id = Symbol(); // prob shouldn't do random, or else we can't refer to it in map design scripts
     symbol = ' '; //if type needed: GameSymbol
     isVisible = true;
     isSolid = false;

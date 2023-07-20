@@ -62,22 +62,36 @@ import Tile from '../../js/Tile.js';
 export const tiles = [
     [
         [
-            new Tile({ symbol: '.', backgroundColor: 'yellow' }),
+            new Tile({ symbol: '+', color: 'yellow', backgroundColor: 'blue' }),
             new Tile({ symbol: ',', backgroundColor: 'green' })
         ],
         [
             new Tile({ symbol: ' ', backgroundColor: 'green' }),
-            new Tile({ symbol: ' ', backgroundColor: 'yellow' })
+            new Tile({ symbol: ' ', backgroundColor: 'blue' })
         ]
     ],
     [
         [
-            new Tile({ symbol: '0', color: 'blue' }),
-            new Tile({ symbol: 'x', color: 'blue', isSolid: true })
+            new Tile({ symbol: '0', color: 'yellow' }),
+            new Tile({ symbol: 'x', color: 'yellow', isSolid: true })
         ],
         [
-            new Tile({ symbol: 'y', color: 'blue'}),
-            new Tile({ symbol: '1', color: 'blue' })
+            new Tile({ symbol: 'y', color: 'yellow'}),
+            new Tile({ symbol: '1', color: 'yellow' })
         ]
     ]
 ];
+
+// import Tile from '../../js/Tile.js';
+// export const tiles = [
+//     [
+//         [
+//             new Tile({ symbol: '+', color: 'yellow', backgroundColor: 'blue' }),
+//             new Tile({ symbol: ',', backgroundColor: 'green' })
+//         ],
+//         [
+//             new Tile({ symbol: ' ', backgroundColor: 'green' }),
+//             new Tile({ symbol: ' ', backgroundColor: 'blue' })
+//         ]
+//     ]
+// ];

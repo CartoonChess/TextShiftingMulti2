@@ -7,7 +7,7 @@ const log = new MessageLog(document.getElementById('message-log'), true);
 game.log = log;
 log.print('Loading...');
 
-const solidCharacter = '#';
+// const solidCharacter = '#';
 
 // Map and view
 import { GameMap } from './js/GameMap.js';
@@ -42,28 +42,28 @@ async function moveIfAble(character, direction) {
         return log.print(`*bonk*`);
     }
 
-    if (character.surroundings.at(direction) != solidCharacter) {
-        character.move(direction);
-        player.surroundings.update(player.position, view.map);
+    // if (character.surroundings.at(direction) != solidCharacter) {
+    character.move(direction);
+    player.surroundings.update(player.position, view.map);
 
-        // TODO: Specify by coord instead (maps/../info.js); incl. destination
-        if (player.surroundings.here === 'B') {
-            const blankMap = GameMap.createBlank(10, 5, [['.']], { name: 'blank', startPosition: { column: 1, line: 1 } });
-            await game.changeMap(blankMap);
-        } else if (player.surroundings.here === 'T') {
-            const testMap = GameMap.createTestMap(view, 18, 12, 'F', [['★']]);
-            await game.changeMap(testMap);
-        } else if (player.surroundings.here === 'F') {
-            const firstMap = 'test1';
-            await game.changeMap(firstMap);
-        } else if (player.surroundings.here === 'Z') {
-            const secondMap = 'test2';
-            await game.changeMap(secondMap);
-        }
-        
-        updateView();
-        socket.broadcastMove();
-    }
+    // TODO: Specify by coord instead (maps/../info.js); incl. destination
+    // if (player.surroundings.here === 'B') {
+    //     const blankMap = GameMap.createBlank(10, 5, [['.']], { name: 'blank', startPosition: { column: 1, line: 1 } });
+    //     await game.changeMap(blankMap);
+    // } else if (player.surroundings.here === 'T') {
+    //     const testMap = GameMap.createTestMap(view, 18, 12, 'F', [['★']]);
+    //     await game.changeMap(testMap);
+    // } else if (player.surroundings.here === 'F') {
+    //     const firstMap = 'test1';
+    //     await game.changeMap(firstMap);
+    // } else if (player.surroundings.here === 'Z') {
+    //     const secondMap = 'test2';
+    //     await game.changeMap(secondMap);
+    // }
+    
+    updateView();
+    socket.broadcastMove();
+    // }
 }
 
 import InputController from './js/InputController.js';

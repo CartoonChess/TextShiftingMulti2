@@ -5,17 +5,42 @@ body {
     /* Disable touch events */
 }
 
+#game-view {
+    /* position: relative; */
+    /* grid allows overlapping without `position` */
+    display: grid;
+}
+
+/* z-layer */
+#game-view div {
+    /* position: absolute; */
+    grid-column: 1;
+    grid-row: 1;
+}
+
+/* y-line(row) */
 #game-view pre {
     margin: 0;
 }
 
-#game-view pre span {
+/* x tile */
+/* #game-view pre span { */
+#game-view span {
     /* roughly emulates a square for now */
     display: inline-block;
     width: 0.93rem;
     /* height: 1rem; */
     text-align: center;
+
+    /* position: relative; */
 }
+
+/* #game-view pre span.foreground-tile {
+    position: absolute;
+    /* top: 0;
+    left: 0; //
+    inset: 0;
+} */
 
 #message-log {
     /* keep multiplace spaces but still wrap */

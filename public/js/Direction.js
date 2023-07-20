@@ -82,7 +82,7 @@ export class Surroundings {
         }
     }
 
-    // TODO: Update to handle z axis... or simply remove
+    // TODO: Update to handle z axis... or simply remove. Or ask for layer?
     // Return the tile at a given direction object
     at(direction) {
         return this[direction.toString()];
@@ -120,7 +120,7 @@ export class Surroundings {
         return true;
     }
 
-    // TODO: Update to show uppermost tile at each coord
+    // TODO: Update to show uppermost tile at each coord. Or ask for layer? Or give full details??
     toString() {
         // return `\n ${this.up} \n${this.left}${this.here}${this.right}\n ${this.down} `;
         return `\n ${this.up} \n${this.left}${this.here}${this.right}\n ${this.down} `;

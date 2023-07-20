@@ -36,20 +36,60 @@ export class View {
         this.#updateHtml();
     }
 
-    // Create lines in HTML
+    // // Create lines in HTML
+    // #createHtmlLines() {
+    //     for (let y = 0; y < this.height; y++) {
+    //             const line = document.createElement('pre');
+    //             layer.appendChild(line);
+    
+    //             for (let x = 0; x < this.width; x++) {
+    //                 const tile = document.createElement('span');
+    //                 // TODO: Should this be ''? Don't we overwrite it anyway?
+    //                 tile.textContent = ' ';
+    //                 line.appendChild(tile);
+    //             }
+    //         }
+    // }
+
     #updateHtml() {
+        // If creating for the first time (before map is loaded), just make one layer
+        console.warn('set back to 1');
+        // let depth = 1;
+        let depth = 2;
+        if (this.map && this.map.depth) { depth = this.map.depth; }
+        
         const gameView = document.getElementById('game-view');
 
-        for (let y = 0; y < this.height; y++) {
-            const line = document.createElement('pre');
-            gameView.appendChild(line);
+        // TODO: Need to add/remove appropriate number of layers on map change
 
-            for (let x = 0; x < this.width; x++) {
-                const tile = document.createElement('span');
-                tile.textContent = ' ';
-                line.appendChild(tile);
+        for (let z = 0; z < depth; z++) {
+            const layer = document.createElement('div');
+            gameView.appendChild(layer);
+            
+            for (let y = 0; y < this.height; y++) {
+                const line = document.createElement('pre');
+                layer.appendChild(line);
+    
+                for (let x = 0; x < this.width; x++) {
+                    const tile = document.createElement('span');
+                    // TODO: Should this be ''? Don't we overwrite it anyway?
+                    tile.textContent = ' ';
+                    line.appendChild(tile);
+                }
             }
         }
+
+        // for (let y = 0; y < this.height; y++) {
+        //     const line = document.createElement('pre');
+        //     gameView.appendChild(line);
+
+        //     for (let x = 0; x < this.width; x++) {
+        //         const tile = document.createElement('span');
+        //         // TODO: Should this be ''? Don't we overwrite it anyway?
+        //         tile.textContent = ' ';
+        //         line.appendChild(tile);
+        //     }
+        // }
     }
 
     // TODO: definition throws a typescript warning
@@ -57,6 +97,9 @@ export class View {
         this.#map = map;
         // Must set this here for e.g. asking about isVisible before updateView has ever been called
         this.mapCoordinateAtViewCenter = map.center;
+        // Generate new HTML for each layer
+        console.warn('reenable');
+        // this.#updateHtml();
     }
 
     get map() {
@@ -163,14 +206,28 @@ export class View {
         lines[this.map.depth - 1][this.staticCenter.line][this.staticCenter.column] = { symbol: '@', color: 'red' };
         
         // Print to screen
-        const allLinesHtml = document.getElementById('game-view').children;
+        // const allLinesHtml = document.getElementById('game-view').children;
+        const allLayersHtml = document.getElementById('game-view').children;
         for (let z = 0; z < this.map.depth; z++) {
+            // const allLinesHtml = allLayersHtml.children;
+            const allLinesHtml = allLayersHtml.item(z).children;
             for (let y = 0; y < this.height; y++) {
                 const allTilesHtml = allLinesHtml.item(y).children;
                 for (let x = 0; x < this.width; x++) {
                     allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
                     allTilesHtml.item(x).style.color = lines[z][y][x].color;
                     allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor;
+
+                    // while (allTilesHtml.item(x).firstChild) {
+                    //     allTilesHtml.item(x).removeChild(allTilesHtml.item(x).firstChild);
+                    // }
+                    
+                    // const tile = document.createElement('span');
+                    // tile.className = 'foreground-tile';
+                    // tile.textContent = lines[z][y][x].symbol;
+                    // tile.style.color = lines[z][y][x].color;
+                    // // tile.style.backgroundColor = lines[z][y][x].backgroundColor;
+                    // allTilesHtml.item(x).appendChild(tile);
                 }
             }
         }
