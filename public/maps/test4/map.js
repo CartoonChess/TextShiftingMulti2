@@ -62,8 +62,8 @@ import Tile from '../../js/Tile.js';
 export const tiles = [
     [
         [
-            new Tile({ symbol: '+', color: 'yellow', backgroundColor: 'blue' }),
-            new Tile({ symbol: ',', backgroundColor: 'green' })
+            new Tile({ symbol: '+', color: 'red', backgroundColor: 'blue' }),
+            new Tile({ symbol: ',', color: 'red', backgroundColor: 'green' })
         ],
         [
             new Tile({ symbol: ' ', backgroundColor: 'green' }),
