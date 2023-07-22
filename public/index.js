@@ -1,3 +1,18 @@
+// var oldConsole = console.log;
+// console.log = function(){
+//     // var timestamp = "[foo]";
+//     // Array.prototype.unshift.call(arguments, timestamp);
+//     var prefix = "%cDebug: ";
+//     var color = "color: orange";
+//     Array.prototype.unshift.call(arguments, prefix, color);
+//     oldConsole.apply(this, arguments);
+// };
+console.debug('debug');
+console.log('foo');
+console.info('info');
+console.warn('warn');
+console.error('error');
+
 // Game controller
 import Game from '../js/Game.js';
 const game = new Game();

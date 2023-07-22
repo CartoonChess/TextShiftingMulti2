@@ -4,6 +4,8 @@
 // 2. we use `import x from y` instead of require()
 // 3. we have to use `import="module"` in html <script>
 
+import './ConsoleColor.js';
+
 import express from 'express';
 const app = express();
 import http from 'http';

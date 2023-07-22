@@ -37,7 +37,6 @@ export class View {
     }
 
     #addHtmlLayers(layers, gameView) {
-        console.log('addHtmlLayers');
         for (let z = 0; z < layers; z++) {
             const layer = document.createElement('div');
             gameView.appendChild(layer);
@@ -73,7 +72,6 @@ export class View {
         const gameView = document.getElementById('game-view');
         
         const currentNumberOfHtmlLayers = gameView.children.length;
-        console.log(`${depth} - ${currentNumberOfHtmlLayers}`);
         const difference = depth - currentNumberOfHtmlLayers;
         if (difference > 0) {
             this.#addHtmlLayers(difference, gameView);
@@ -209,17 +207,6 @@ export class View {
                     allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
                     allTilesHtml.item(x).style.color = lines[z][y][x].color;
                     allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor;
-
-                    // while (allTilesHtml.item(x).firstChild) {
-                    //     allTilesHtml.item(x).removeChild(allTilesHtml.item(x).firstChild);
-                    // }
-                    
-                    // const tile = document.createElement('span');
-                    // tile.className = 'foreground-tile';
-                    // tile.textContent = lines[z][y][x].symbol;
-                    // tile.style.color = lines[z][y][x].color;
-                    // // tile.style.backgroundColor = lines[z][y][x].backgroundColor;
-                    // allTilesHtml.item(x).appendChild(tile);
                 }
             }
         }
