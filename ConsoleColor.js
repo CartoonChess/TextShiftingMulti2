@@ -42,21 +42,39 @@ function getTag(label, color) {
     return colorString('[' + label + ']', color);
 }
 
+function printToConsole(consoleCopy, args, label, color) {
+    const tag = getTag(label, color);
+    Array.prototype.unshift.call(args, tag);
+    consoleCopy.apply(this, args);
+}
+
 const consoleLog = console.log;
 console.log = function() {
-    const tag = getTag('INF', ConsoleColor.White.background);
-    Array.prototype.unshift.call(arguments, tag);
-    consoleLog.apply(this, arguments);
+    printToConsole(consoleLog, arguments, 'LOG', ConsoleColor.White.background);
 };
 
-//                         safari colors
-// debug    DBUG    DBG    cyan
-// log      LOG?    LOG    white (grey/bright black showing no diff in repl)
-// info     INFO    INF    blue
-// warn     WARN    WRN    yellow
-// error    ERRO    ERR    red
+const consoleInfo = console.info;
+console.info = function() {
+    printToConsole(consoleInfo, arguments, 'INF', ConsoleColor.Cyan.background);
+};
+
+//                              Safari colors
+// debug    DBUG    DBG    D    cyan
+// log      LOG?    LOG    L    white (grey/bright black showing no diff in repl)
+// info     INFO    INF    I    blue
+// warn     WARN    WRN    W    yellow
+// error    ERRO    ERR    E    red
 
 // different import rule for node vs browser so we can use diff method
 // var prefix = "%cDebug: ";
 // var color = "color: orange";
 // Array.prototype.unshift.call(arguments, prefix, color);
+
+let _isServer;
+const isServer = function() {
+    if (_isServer === undefined) {
+        // https://stackoverflow.com/a/31456668/141032
+        _isServer = typeof process !== "undefined" && process?.versions?.node ? true : false;
+    }
+    return _isServer;
+}

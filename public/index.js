@@ -7,8 +7,9 @@
 //     Array.prototype.unshift.call(arguments, prefix, color);
 //     oldConsole.apply(this, arguments);
 // };
+
 console.debug('debug');
-console.log('foo');
+console.log('log');
 console.info('info');
 console.warn('warn');
 console.error('error');
