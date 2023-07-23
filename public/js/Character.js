@@ -10,7 +10,27 @@ export class Player extends Character {
     position;
     surroundings = new Surroundings();
 
-    move(direction) {
+    // move(direction) {
+    //     switch (direction) {
+    //         case Direction.Up: {
+    //             return this.position.line--;
+    //         }
+    //         case Direction.Down: {
+    //             return this.position.line++;
+    //         }
+    //         case Direction.Left: {
+    //             return this.position.column--;
+    //         }
+    //         case Direction.Right: {
+    //             return this.position.column++;
+    //         }
+    //         default: {
+    //             console.warn(`Player.move() default case was triggered (should never happen).`);
+    //         }
+    //     }
+    // }
+    
+    #shiftPosition(direction) {
         switch (direction) {
             case Direction.Up: {
                 return this.position.line--;
@@ -27,6 +47,27 @@ export class Player extends Character {
             default: {
                 console.warn(`Player.move() default case was triggered (should never happen).`);
             }
+        }
+    }
+
+    #warpTo(coordinate) {
+        this.position.line = coordinate.line;
+        this.position.column = coordinate.column;
+    }
+
+    move(destination) {
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
+        const className = destination?.constructor?.name;
+        // if (typeof className === 'string' && className !== '') {
+        //     return className;
+        // }
+        
+        if (className === 'Direction') {
+            this.#shiftPosition(destination);
+        } else if (className === 'Coordinate') {
+            this.#warpTo(destination)
+        } else {
+            console.error('Character.move() must be passed a Direction or a Coordinate.');
         }
     }
 }

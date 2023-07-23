@@ -1,6 +1,6 @@
 import '../../ConsoleColor.js';
 import { Coordinate } from './GameMap.js';
-import Tile from './Tile.js';
+// import Tile from './Tile.js';
 
 export class View {
     // half the width and height of the view
@@ -74,6 +74,7 @@ export class View {
         
         const currentNumberOfHtmlLayers = gameView.children.length;
         const difference = depth - currentNumberOfHtmlLayers;
+        console.debug(depth, currentNumberOfHtmlLayers);
         if (difference > 0) {
             this.#addHtmlLayers(difference, gameView);
         } else if (difference < 0) {

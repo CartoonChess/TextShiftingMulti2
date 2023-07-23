@@ -32,12 +32,13 @@ function updateView() {
     view.update(player, game.remotePlayers);
 }
 
+import { Direction } from './js/Direction.js';
 async function moveIfAble(character, direction) {
     // Maybe this should be handled by the Game object...
     if (!socket.isReadyForView) { return; }
 
     // if (character.surroundings.at(direction).isSolid) {
-    if (character.surroundings.doInclude('isSolid', direction)) {
+    if (character.surroundings.thatInclude('isSolid', direction).length) {
         // return log.print(`The ${character.surroundings.at(direction).symbol} goes bonk.`);
         return log.print(`*bonk*`);
     }
@@ -60,6 +61,20 @@ async function moveIfAble(character, direction) {
     //     const secondMap = 'test2';
     //     await game.changeMap(secondMap);
     // }
+
+    const tilesWithScripts = character.surroundings.thatInclude('scripts', Direction.Here);
+    for (const tile of tilesWithScripts) {
+        for (const script of tile.scripts) {
+            const className = script.constructor?.name;
+            if (className === 'WarpTileScript') {
+                if (script.destinationMap) {
+                    await game.changeMap(script.destinationMap, script.destinationCoordinate);
+                } else {
+                    character.move(script.destinationCoordinate);
+                }
+            }
+        }
+    }
     
     updateView();
     socket.broadcastMove();

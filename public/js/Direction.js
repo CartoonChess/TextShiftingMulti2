@@ -5,16 +5,18 @@ export class Direction {
     static Down = new this('down');
     static Left = new this('left');
     static Right = new this('right');
+    static Here = new this('here');
 
     constructor(name) {
         this.name = name;
     }
     static fromInt(num) {
         switch (num) {
+            case 0: { return this.Up; }
             case 1: { return this.Right; }
             case 2: { return this.Down; }
             case 3: { return this.Left; }
-            default: { return this.Up; }
+            default: { return this.Here; }
         }
     }
     toString() {
@@ -101,20 +103,32 @@ export class Surroundings {
     //     return false;
     // }
 
-    // Return true if at least one tile meets condition
-    doInclude(property, direction) {
-        if (!direction) { console.error(`Surroundings.doInclude must be supplied a Tile property and a Direction.`); }
-        const tiles = this.at(direction);
-        for (let tile of tiles) {
+    // // Return true if at least one tile meets condition
+    // doInclude(property, direction) {
+    //     if (!direction) { return console.error(`Surroundings.doInclude must be supplied a Tile property and a Direction.`); }
+    //     const tiles = this.at(direction);
+    //     for (let tile of tiles) {
+    //         // TODO: How do we check the condition...?
+    //         if (tile[property]) { return true; }
+    //     }
+    //     return false;
+    // }
+    
+    // Return array of all tiles that meet condition, or empty array if none
+    thatInclude(property, direction) {
+        if (!direction) { return console.error(`Surroundings.doInclude must be supplied a Tile property and a Direction.`); }
+        const allTiles = this.at(direction);
+        const matchingTiles = [];
+        for (let tile of allTiles) {
             // TODO: How do we check the condition...?
-            if (tile[property]) { return true; }
+            if (tile[property]) { matchingTiles.push(tile); }
         }
-        return false;
+        return matchingTiles;
     }
 
     // Return true if all tiles meet condition
     areAll(property, direction) {
-        if (!direction) { console.error(`Surroundings.areAll must be supplied a Tile property and a Direction.`); }
+        if (!direction) { return console.error(`Surroundings.areAll must be supplied a Tile property and a Direction.`); }
         const tiles = this.at(direction);
         for (let tile of tiles) {
             if (!tile[property]) { return false; }

@@ -40,6 +40,7 @@ export default class Game {
         }
         if (typeof map === 'object') {
             // Assume it's a GameMap object
+            console.debug('object');
             this.view.map = map;
         } else {
             // Assume it's a map package name (string)
