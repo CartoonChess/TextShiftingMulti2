@@ -56,13 +56,14 @@ export class View {
         }
     }
 
-    #removeHtmlLayers(layers) {
-        // TODO: Need to add/remove appropriate number of layers on map change
-        // - probably going to need to do the same for x/y for changing view size later
+    #removeHtmlLayers(layers, gameView) {
+        // TODO: probably going to need to do the same for x/y for changing view size later
         // while (allTilesHtml.item(x).firstChild) {
         //     allTilesHtml.item(x).removeChild(allTilesHtml.item(x).firstChild);
         // }
-        console.warn('View.#removeHtmlLayers not yet implemented!');
+        for (let z = layers; z < 0; z++) {
+            gameView.removeChild(gameView.firstChild);
+        }
     }
 
     #updateHtml() {
@@ -74,7 +75,6 @@ export class View {
         
         const currentNumberOfHtmlLayers = gameView.children.length;
         const difference = depth - currentNumberOfHtmlLayers;
-        console.debug(depth, currentNumberOfHtmlLayers);
         if (difference > 0) {
             this.#addHtmlLayers(difference, gameView);
         } else if (difference < 0) {
