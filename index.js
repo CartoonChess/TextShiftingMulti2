@@ -4,7 +4,7 @@
 // 2. we use `import x from y` instead of require()
 // 3. we have to use `import="module"` in html <script>
 
-import './ConsoleColor.js';
+// import './ConsoleColor.js';
 
 import express from 'express';
 const app = express();
@@ -36,6 +36,12 @@ const mapRoom = (mapName) => 'map:' + mapName;
 // Feels like a hack lol
 app.get('/randomBytes.js', (req, res) => {
     res.sendFile(__dirname + '/randomBytes.js');
+});
+
+// app.get('../../ConsoleColor.js', (req, res) => {
+//     res.sendFile(__dirname + '../../ConsoleColor.js');
+app.get('/ConsoleColor.js', (req, res) => {
+    res.sendFile(__dirname + '/ConsoleColor.js');
 });
 
 app.get('/String_prototype.js', (req, res) => {

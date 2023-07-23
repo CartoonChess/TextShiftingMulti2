@@ -1,3 +1,4 @@
+import '../../ConsoleColor.js';
 import { Coordinate } from './GameMap.js';
 import { RemotePlayer } from './Character.js';
 

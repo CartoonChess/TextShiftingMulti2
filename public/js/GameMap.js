@@ -1,3 +1,5 @@
+import '../../ConsoleColor.js';
+
 export class Coordinate {
     constructor(column, line) {
         this.column = column;

@@ -1,3 +1,5 @@
+import '../../ConsoleColor.js';
+
 export class Direction {
     static Up = new this('up');
     static Down = new this('down');

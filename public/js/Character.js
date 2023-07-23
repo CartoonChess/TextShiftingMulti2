@@ -1,3 +1,5 @@
+import '../../ConsoleColor.js';
+
 // abstract
 class Character {
     move() {}

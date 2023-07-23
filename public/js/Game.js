@@ -1,3 +1,4 @@
+import '../../ConsoleColor.js';
 import { Coordinate, GameMap } from './GameMap.js';
 
 export default class Game {
