@@ -30,8 +30,10 @@ export default class Tile {
     isVisible = true;
     isSolid = false;
     //type = new Character(); //(collectable) item, (furniture-like) foreground?, background/solid...
-    color = 0xff0000;
-    backgroundColor = 0x00ff00; //can be null (transparent)
+    color = 'inherit'; // default (like black)
+    // TODO: Better just to have View.updateView() strip `.style` properties when undefined?
+    // backgroundColor = 0x00ff00; //can be null (transparent)
+    backgroundColor = 'inherit';
     // alpha/transparency (0.00 ~ 1?)
     image;
     //position = new Coordinate(0, 0);

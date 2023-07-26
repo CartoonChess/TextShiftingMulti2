@@ -21,7 +21,7 @@ export const tiles = [
         [
             new Tile({ symbol: '2' }),
             new Tile({ symbol: 'x', isSolid: true }),
-            new Tile({ symbol: '2' }),
+            new Tile({ symbol: '2', backgroundColor: 'cyan' }),
             new Tile({ symbol: 'x', isSolid: true }),
             new Tile({ symbol: 'x', isSolid: true })
         ],
