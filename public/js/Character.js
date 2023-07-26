@@ -8,27 +8,8 @@ class Character {
 import { Direction, Surroundings } from './Direction.js';
 export class Player extends Character {
     position;
+    // #position;
     surroundings = new Surroundings();
-
-    // move(direction) {
-    //     switch (direction) {
-    //         case Direction.Up: {
-    //             return this.position.line--;
-    //         }
-    //         case Direction.Down: {
-    //             return this.position.line++;
-    //         }
-    //         case Direction.Left: {
-    //             return this.position.column--;
-    //         }
-    //         case Direction.Right: {
-    //             return this.position.column++;
-    //         }
-    //         default: {
-    //             console.warn(`Player.move() default case was triggered (should never happen).`);
-    //         }
-    //     }
-    // }
     
     #shiftPosition(direction) {
         switch (direction) {
@@ -70,6 +51,16 @@ export class Player extends Character {
             console.error('Character.move() must be passed a Direction or a Coordinate.');
         }
     }
+
+    // // TODO: remove these DEBUG funcs
+    // get position() {
+    //     console.debug(`Player.position (get): ${this.#position}.`);
+    //     return this.#position;
+    // }
+    // set position(coord) {
+    //     console.debug(`Player.position (set): ${this.#position} -> ${coord}.`);
+    //     this.#position = coord;
+    // }
 }
 
 import { Coordinate } from './GameMap.js';

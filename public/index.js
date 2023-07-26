@@ -33,6 +33,7 @@ function updateView() {
 }
 
 import { Direction } from './js/Direction.js';
+import { Coordinate } from './js/GameMap.js';
 async function moveIfAble(character, direction) {
     // Maybe this should be handled by the Game object...
     if (!socket.isReadyForView) { return; }
@@ -67,10 +68,13 @@ async function moveIfAble(character, direction) {
         for (const script of tile.scripts) {
             const className = script.constructor?.name;
             if (className === 'WarpTileScript') {
+                // HACK: Passing Coordinate in script.destinationCoordinate means it gets stuck to this tile's coord
+                // -Next time you return to this map, you'll be standing on where this warp tile was (modifies WarpTileScript)
+                const destinationCoordinate = Coordinate.fromJson(script.destinationCoordinate.toJson());
                 if (script.destinationMap) {
-                    await game.changeMap(script.destinationMap, script.destinationCoordinate);
+                    await game.changeMap(script.destinationMap, destinationCoordinate);
                 } else {
-                    character.move(script.destinationCoordinate);
+                    character.move(destinationCoordinate);
                 }
             }
         }
