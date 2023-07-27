@@ -71,39 +71,60 @@ export class View {
         
         const gameView = document.getElementById('game-view');
         this.#resizeHtml(gameView, widthDifference, heightDifference);
-        this.update();
+        // this.update();
     }
 
-    #resizeHtml(gameView, widthDifference, heightDifference) {
-        // const allLayers = gameView.children;
-        // const allLines = allLayers.item(z).children;
+    // #resizeHtml(gameView, widthDifference, heightDifference) {
+    //     // const allLayers = gameView.children;
+    //     // const allLines = allLayers.item(z).children;
         
-        // for (let z = 0; z < layers; z++) {
-        for (const layer of gameView.children) {
-            // const layer = document.createElement('div');
-            // gameView.appendChild(layer);
+    //     // for (let z = 0; z < layers; z++) {
+    //     for (const layer of gameView.children) {
+    //         // const layer = document.createElement('div');
+    //         // gameView.appendChild(layer);
 
+    //         // TODO: Account for negative values too
+    //         for (let y = 0; y < heightDifference; y++) {
+    //             const line = document.createElement('pre');
+    //             // const line2 = document.createElement('pre');
+    //             layer.appendChild(line);
+    //             // layer.appendChild(line2);
+
+    //             // TODO: Account for widthDifference
+    //             for (let x = 0; x < this.width; x++) {
+    //                 const tile = document.createElement('span');
+    //                 tile.textContent = ' ';
+    //                 line.appendChild(tile);
+    //                 // const tile2 = document.createElement('span');
+    //                 // tile2.textContent = ' ';
+    //                 // line2.appendChild(tile2);
+    //             }
+    //         }
+    //     }
+    // }
+    
+    #resizeHtml(gameView, widthDifference, heightDifference) {
+        // TODO: Round up/down so we're always working with an even number
+        // -or will `hD / 2` take care of that for us?
+        
+        for (const layer of gameView.children) {
             // TODO: Account for negative values too
-            for (let y = 0; y < heightDifference; y++) {
-                const line = document.createElement('pre');
-                // const line2 = document.createElement('pre');
-                layer.appendChild(line);
-                // layer.appendChild(line2);
+            for (let y = 0; y < heightDifference / 2; y++) {
+                const topLine = document.createElement('pre');
+                layer.insertBefore(topLine, layer.firstChild);
+                const bottomLine = topLine.cloneNode();
+                layer.appendChild(bottomLine);
 
                 // TODO: Account for widthDifference
                 for (let x = 0; x < this.width; x++) {
-                    const tile = document.createElement('span');
-                    tile.textContent = ' ';
-                    line.appendChild(tile);
-                    // const tile2 = document.createElement('span');
-                    // tile2.textContent = ' ';
-                    // line2.appendChild(tile2);
+                    const topTile = document.createElement('span');
+                    topTile.textContent = ' ';
+                    topLine.appendChild(topTile);
+                    const bottomTile = topTile.cloneNode(true);
+                    bottomLine.appendChild(bottomTile);
                 }
             }
         }
-
-        // TODO: how do we get player back in center?
-        // -note that currently their position does not visually match the computed one
     }
 
     #removeHtmlLayers(layers, gameView) {
