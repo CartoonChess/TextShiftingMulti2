@@ -20,7 +20,7 @@ export class View {
 
         // View should always be an odd number
         // If not, staticCenter will cause OBOE
-        // TODO: Minimum 2?
+        // TODO: Minimum 3?
         if (this.width % 2 === 0) {
             console.warn('View dimensions must be an odd number; shrinking width.');
             this.width--;
@@ -30,11 +30,19 @@ export class View {
             this.height--;
         }
         
+        // this.staticCenter = new Coordinate(
+        //     Math.floor(this.width / 2),
+        //     Math.floor(this.height / 2)
+        // );
+        this.#updateStaticCenter();
+        this.#updateHtml();
+    }
+
+    #updateStaticCenter() {
         this.staticCenter = new Coordinate(
             Math.floor(this.width / 2),
             Math.floor(this.height / 2)
         );
-        this.#updateHtml();
     }
 
     #addHtmlLayers(layers, gameView) {
@@ -54,6 +62,48 @@ export class View {
                 }
             }
         }
+    }
+
+    resize(widthDifference, heightDifference) {
+        this.width += widthDifference;
+        this.height += heightDifference;
+        this.#updateStaticCenter();
+        
+        const gameView = document.getElementById('game-view');
+        this.#resizeHtml(gameView, widthDifference, heightDifference);
+        this.update();
+    }
+
+    #resizeHtml(gameView, widthDifference, heightDifference) {
+        // const allLayers = gameView.children;
+        // const allLines = allLayers.item(z).children;
+        
+        // for (let z = 0; z < layers; z++) {
+        for (const layer of gameView.children) {
+            // const layer = document.createElement('div');
+            // gameView.appendChild(layer);
+
+            // TODO: Account for negative values too
+            for (let y = 0; y < heightDifference; y++) {
+                const line = document.createElement('pre');
+                // const line2 = document.createElement('pre');
+                layer.appendChild(line);
+                // layer.appendChild(line2);
+
+                // TODO: Account for widthDifference
+                for (let x = 0; x < this.width; x++) {
+                    const tile = document.createElement('span');
+                    tile.textContent = ' ';
+                    line.appendChild(tile);
+                    // const tile2 = document.createElement('span');
+                    // tile2.textContent = ' ';
+                    // line2.appendChild(tile2);
+                }
+            }
+        }
+
+        // TODO: how do we get player back in center?
+        // -note that currently their position does not visually match the computed one
     }
 
     #removeHtmlLayers(layers, gameView) {
@@ -79,13 +129,18 @@ export class View {
             this.#addHtmlLayers(difference, gameView);
         } else if (difference < 0) {
             this.#removeHtmlLayers(difference, gameView);
+        } else {
+            // Resizing x/y
+            // Ideally we add equally one row to opposite sides so that map remains centered
+            // const line = document.createElement('pre');
+            // gameView[layer].insertBefore(div, gameView.firstChild);
+            // this.#resizeHtml(gameView);
         }
         
         // If same number of layers as before, no need to make a change
         // TODO: This will probably change when we allow changing view dimensions
     }
 
-    // TODO: definition throws a typescript warning
     set map(map) {
         this.#map = map;
         // Must set this here for e.g. asking about isVisible before updateView has ever been called
@@ -145,7 +200,6 @@ export class View {
 
     // Builds line, using border for negative indexes
     // TODO: Should all instances of `#map` be `map` (also in getTileFromBorder)? Or do reverse in update()?
-    // #getLine(lineIndex) {
     #getLine(lineIndex, layerIndex) {
         const line = [];
         for (let x = this.left; x < this.left + this.width; x++) {
@@ -169,10 +223,6 @@ export class View {
         this.mapCoordinateAtViewCenter = player.position;
         const lines = [];
         
-        // Generate map tiles
-        // for (let i = 0; i < this.height; i++) {
-        //     lines[i] = this.#getLine(this.top + i);
-        // }
         for (let z = 0; z < this.map.depth; z++) {
             // Must explicitly define parent dimension of array (`lines[z]`), or else can't assign to child (`lines[z][y]`)
             lines[z] = [];
@@ -186,22 +236,16 @@ export class View {
             if (this.isVisible(remotePlayer)) {
                 const lineIndex = remotePlayer.position.line - this.top;
                 const columnIndex = remotePlayer.position.column - this.left;
-                // lines[lineIndex][columnIndex] = '%';
-                // lines[lineIndex][columnIndex] = { symbol: '%', color: 'red' };
                 lines[this.map.depth - 1][lineIndex][columnIndex] = { symbol: '%', color: 'red' };
             }
         }
         
         // Show player at centre of both axes
-        // lines[this.staticCenter.line][this.staticCenter.column] = '@';
-        // lines[this.staticCenter.line][this.staticCenter.column] = { symbol: '@', color: 'red' };
         lines[this.map.depth - 1][this.staticCenter.line][this.staticCenter.column] = { symbol: '@', color: 'red' };
         
         // Print to screen
-        // const allLinesHtml = document.getElementById('game-view').children;
         const allLayersHtml = document.getElementById('game-view').children;
         for (let z = 0; z < this.map.depth; z++) {
-            // const allLinesHtml = allLayersHtml.children;
             const allLinesHtml = allLayersHtml.item(z).children;
             for (let y = 0; y < this.height; y++) {
                 const allTilesHtml = allLinesHtml.item(y).children;
