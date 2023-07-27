@@ -65,51 +65,26 @@ export class View {
     }
 
     resize(widthDifference, heightDifference) {
+        // Round down so we're always working with an even number
+        // Note that this means 1 will cause the view to remain unchanged
+        widthDifference -= widthDifference % 2;
+        heightDifference -= heightDifference % 2;
+        
         this.width += widthDifference;
         this.height += heightDifference;
         this.#updateStaticCenter();
         
         const gameView = document.getElementById('game-view');
         this.#resizeHtml(gameView, widthDifference, heightDifference);
+        // TODO: We probably need this, due to map tiles and remote players etc.
         // this.update();
     }
 
-    // #resizeHtml(gameView, widthDifference, heightDifference) {
-    //     // const allLayers = gameView.children;
-    //     // const allLines = allLayers.item(z).children;
-        
-    //     // for (let z = 0; z < layers; z++) {
-    //     for (const layer of gameView.children) {
-    //         // const layer = document.createElement('div');
-    //         // gameView.appendChild(layer);
-
-    //         // TODO: Account for negative values too
-    //         for (let y = 0; y < heightDifference; y++) {
-    //             const line = document.createElement('pre');
-    //             // const line2 = document.createElement('pre');
-    //             layer.appendChild(line);
-    //             // layer.appendChild(line2);
-
-    //             // TODO: Account for widthDifference
-    //             for (let x = 0; x < this.width; x++) {
-    //                 const tile = document.createElement('span');
-    //                 tile.textContent = ' ';
-    //                 line.appendChild(tile);
-    //                 // const tile2 = document.createElement('span');
-    //                 // tile2.textContent = ' ';
-    //                 // line2.appendChild(tile2);
-    //             }
-    //         }
-    //     }
-    // }
-    
     #resizeHtml(gameView, widthDifference, heightDifference) {
-        // TODO: Round up/down so we're always working with an even number
-        // -or will `hD / 2` take care of that for us?
-        
         for (const layer of gameView.children) {
             // TODO: Account for negative values too
             for (let y = 0; y < heightDifference / 2; y++) {
+                console.debug(y);
                 const topLine = document.createElement('pre');
                 layer.insertBefore(topLine, layer.firstChild);
                 const bottomLine = topLine.cloneNode();

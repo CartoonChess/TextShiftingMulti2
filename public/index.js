@@ -93,18 +93,14 @@ game.toggleInput(true);
 const shrinkViewButton = document.getElementById('shrink-view');
 // shrinkViewButton.addEventListener('click', funcName);
 shrinkViewButton.addEventListener('click', function() {
-    view.width -= 2;
+    // view.width -= 2;
     // updateView();
 });
 
 const growViewButton = document.getElementById('grow-view');
 // shrinkViewButton.addEventListener('click', funcName);
 growViewButton.addEventListener('click', function() {
-    // moveIfAble(player, Direction.Up);
-    // view.width += 2;
-    // view.height += 2;
     view.resize(0, 2);
-    // updateView();
 });
 
 // Mobile - currently disabled
