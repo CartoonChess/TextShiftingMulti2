@@ -95,6 +95,7 @@ const shrinkViewButton = document.getElementById('shrink-view');
 shrinkViewButton.addEventListener('click', function() {
     // view.width -= 2;
     // updateView();
+    view.resize(0, -2);
 });
 
 const growViewButton = document.getElementById('grow-view');

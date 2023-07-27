@@ -32,10 +32,6 @@ export class View {
             this.height--;
         }
         
-        // this.staticCenter = new Coordinate(
-        //     Math.floor(this.width / 2),
-        //     Math.floor(this.height / 2)
-        // );
         this.#updateStaticCenter();
         this.#updateHtml();
     }
@@ -66,22 +62,7 @@ export class View {
         }
     }
 
-    resize(widthDifference, heightDifference) {
-        // Round down so we're always working with an even number
-        // Note that this means 1 will cause the view to remain unchanged
-        widthDifference -= widthDifference % 2;
-        heightDifference -= heightDifference % 2;
-        
-        this.width += widthDifference;
-        this.height += heightDifference;
-        this.#updateStaticCenter();
-        
-        this.#resizeHtml(widthDifference, heightDifference);
-        // TODO: We probably need this, due to map tiles and remote players etc.
-        // this.update();
-    }
-
-    #resizeHtml(widthDifference, heightDifference) {
+    #growHtml(widthDifference, heightDifference) {
         for (const layer of this.#selfHtml.children) {
             // TODO: Account for negative values too
             for (let y = 0; y < heightDifference / 2; y++) {
@@ -100,6 +81,38 @@ export class View {
                 }
             }
         }
+    }
+
+    #shrinkHtml(widthDifference, heightDifference) {
+        // TODO: Account with attempting to shrink below minimum (1? 3?)
+        for (const layer of this.#selfHtml.children) {
+            for (let y = heightDifference / 2; y < 0; y++) {
+                layer.removeChild(layer.firstChild);
+                layer.removeChild(layer.lastChild);
+                // TODO: Account for widthDifference
+            }
+        }
+    }
+
+    resize(widthDifference, heightDifference) {
+        // Round down so we're always working with an even number
+        // Note that this means 1 will cause the view to remain unchanged
+        widthDifference -= widthDifference % 2;
+        heightDifference -= heightDifference % 2;
+        
+        this.width += widthDifference;
+        this.height += heightDifference;
+        this.#updateStaticCenter();
+
+        // TODO: Account for height of 0
+        // TODO: Account for width
+        if (heightDifference > 0) {
+            this.#growHtml(widthDifference, heightDifference);
+        } else if (heightDifference < 0) {
+            this.#shrinkHtml(widthDifference, heightDifference)
+        }
+        
+        this.update();
     }
 
     #removeHtmlLayers(layers) {
