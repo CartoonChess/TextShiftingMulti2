@@ -12,7 +12,7 @@ log.print('Loading...');
 // Map and view
 import { GameMap } from './js/GameMap.js';
 import { View } from './js/View.js';
-const view = new View(7, 7);
+const view = new View(7, 7, 'game-view');
 view.map = await GameMap.loadFromPackage(Game.defaultMapPackage);
 game.view = view;
 

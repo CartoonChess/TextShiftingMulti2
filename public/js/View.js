@@ -13,10 +13,12 @@ export class View {
     #right;
     #top;
     #bottom;
+    #selfHtml;
 
-    constructor(width, height) {
+    constructor(width, height, htmlId) {
         this.width = width > 0 ? width : 1;
         this.height = height > 0 ? height : 1;
+        this.#selfHtml = document.getElementById(htmlId);
 
         // View should always be an odd number
         // If not, staticCenter will cause OBOE
@@ -45,10 +47,10 @@ export class View {
         );
     }
 
-    #addHtmlLayers(layers, gameView) {
+    #addHtmlLayers(layers) {
         for (let z = 0; z < layers; z++) {
             const layer = document.createElement('div');
-            gameView.appendChild(layer);
+            this.#selfHtml.appendChild(layer);
             
             for (let y = 0; y < this.height; y++) {
                 const line = document.createElement('pre');
@@ -74,17 +76,15 @@ export class View {
         this.height += heightDifference;
         this.#updateStaticCenter();
         
-        const gameView = document.getElementById('game-view');
-        this.#resizeHtml(gameView, widthDifference, heightDifference);
+        this.#resizeHtml(widthDifference, heightDifference);
         // TODO: We probably need this, due to map tiles and remote players etc.
         // this.update();
     }
 
-    #resizeHtml(gameView, widthDifference, heightDifference) {
-        for (const layer of gameView.children) {
+    #resizeHtml(widthDifference, heightDifference) {
+        for (const layer of this.#selfHtml.children) {
             // TODO: Account for negative values too
             for (let y = 0; y < heightDifference / 2; y++) {
-                console.debug(y);
                 const topLine = document.createElement('pre');
                 layer.insertBefore(topLine, layer.firstChild);
                 const bottomLine = topLine.cloneNode();
@@ -102,13 +102,13 @@ export class View {
         }
     }
 
-    #removeHtmlLayers(layers, gameView) {
+    #removeHtmlLayers(layers) {
         // TODO: probably going to need to do the same for x/y for changing view size later
         // while (allTilesHtml.item(x).firstChild) {
         //     allTilesHtml.item(x).removeChild(allTilesHtml.item(x).firstChild);
         // }
         for (let z = layers; z < 0; z++) {
-            gameView.removeChild(gameView.firstChild);
+            this.#selfHtml.removeChild(this.#selfHtml.firstChild);
         }
     }
 
@@ -117,20 +117,18 @@ export class View {
         let depth = 1;
         if (this.map?.depth) { depth = this.map.depth; }
         
-        const gameView = document.getElementById('game-view');
-        
-        const currentNumberOfHtmlLayers = gameView.children.length;
+        const currentNumberOfHtmlLayers = this.#selfHtml.children.length;
         const difference = depth - currentNumberOfHtmlLayers;
         if (difference > 0) {
-            this.#addHtmlLayers(difference, gameView);
+            this.#addHtmlLayers(difference, this.#selfHtml);
         } else if (difference < 0) {
-            this.#removeHtmlLayers(difference, gameView);
+            this.#removeHtmlLayers(difference, this.#selfHtml);
         } else {
             // Resizing x/y
             // Ideally we add equally one row to opposite sides so that map remains centered
             // const line = document.createElement('pre');
-            // gameView[layer].insertBefore(div, gameView.firstChild);
-            // this.#resizeHtml(gameView);
+            // this.#selfHtml[layer].insertBefore(div, this.#selfHtml.firstChild);
+            // this.#resizeHtml(this.#selfHtml);
         }
         
         // If same number of layers as before, no need to make a change
@@ -240,7 +238,7 @@ export class View {
         lines[this.map.depth - 1][this.staticCenter.line][this.staticCenter.column] = { symbol: '@', color: 'red' };
         
         // Print to screen
-        const allLayersHtml = document.getElementById('game-view').children;
+        const allLayersHtml = this.#selfHtml.children;
         for (let z = 0; z < this.map.depth; z++) {
             const allLinesHtml = allLayersHtml.item(z).children;
             for (let y = 0; y < this.height; y++) {
