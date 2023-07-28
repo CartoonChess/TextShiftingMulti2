@@ -115,5 +115,11 @@ increaseViewWidthButton.addEventListener('click', function() {
     updateView();
 });
 
+
+//
+// TODO: Test resizing width and height simultaneously
+//
+
+
 // Mobile - currently disabled
 // import './mobile.js';

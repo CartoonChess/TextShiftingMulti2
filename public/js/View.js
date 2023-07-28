@@ -43,6 +43,8 @@ export class View {
         );
     }
 
+    // TODO: Move HTML logic into something like ViewHTML class?
+
     #addHtmlLayers(layers) {
         for (let z = 0; z < layers; z++) {
             const layer = document.createElement('div');
@@ -61,17 +63,21 @@ export class View {
             }
         }
     }
+    
+    #removeHtmlLayers(layers) {
+        for (let z = layers; z < 0; z++) {
+            this.#selfHtml.removeChild(this.#selfHtml.firstChild);
+        }
+    }
 
     #increaseHtmlHeight(difference) {
         for (const layer of this.#selfHtml.children) {
-            // TODO: Account for negative values too
             for (let y = 0; y < difference / 2; y++) {
                 const topLine = document.createElement('pre');
                 layer.insertBefore(topLine, layer.firstChild);
                 const bottomLine = topLine.cloneNode();
                 layer.appendChild(bottomLine);
 
-                // TODO: Account for widthDifference
                 for (let x = 0; x < this.width; x++) {
                     const topTile = document.createElement('span');
                     topTile.textContent = ' ';
@@ -93,8 +99,19 @@ export class View {
         }
     }
 
-    #increaseHtmlWidth(diference) {
-        console.warn('View.increaseHtmlWidth not yet implemented.');
+    #increaseHtmlWidth(difference) {
+        for (const layer of this.#selfHtml.children) {
+            for (const line of layer.children) {
+                for (let x = 0; x < difference / 2; x++) {
+                    const leftTile = document.createElement('span');
+                    leftTile.textContent = ' ';
+                    // line.appendChild(leftTile);
+                    line.insertBefore(leftTile, line.firstChild);
+                    const rightTile = leftTile.cloneNode(true);
+                    line.appendChild(rightTile);
+                }
+            }
+        }
     }
     
     #decreaseHtmlWidth(difference) {
@@ -137,16 +154,6 @@ export class View {
             this.#increaseHtmlWidth(widthDifference);
         } else if (widthDifference < 0) {
             this.#decreaseHtmlWidth(widthDifference);
-        }
-    }
-
-    #removeHtmlLayers(layers) {
-        // TODO: probably going to need to do the same for x/y for changing view size later
-        // while (allTilesHtml.item(x).firstChild) {
-        //     allTilesHtml.item(x).removeChild(allTilesHtml.item(x).firstChild);
-        // }
-        for (let z = layers; z < 0; z++) {
-            this.#selfHtml.removeChild(this.#selfHtml.firstChild);
         }
     }
 
