@@ -90,19 +90,28 @@ game.inputController.move = (direction) => {
 
 game.toggleInput(true);
 
-const shrinkViewButton = document.getElementById('shrink-view');
-// shrinkViewButton.addEventListener('click', funcName);
-shrinkViewButton.addEventListener('click', function() {
-    // view.width -= 2;
-    // updateView();
+const decreaseViewHeightButton = document.getElementById('decrease-view-height');
+// decreaseViewButton.addEventListener('click', funcName);
+decreaseViewHeightButton.addEventListener('click', function() {
     view.resize(0, -2);
     updateView();
 });
 
-const growViewButton = document.getElementById('grow-view');
-// shrinkViewButton.addEventListener('click', funcName);
-growViewButton.addEventListener('click', function() {
+const increaseViewHeightButton = document.getElementById('increase-view-height');
+increaseViewHeightButton.addEventListener('click', function() {
     view.resize(0, 2);
+    updateView();
+});
+
+const decreaseViewWidthButton = document.getElementById('decrease-view-width');
+decreaseViewWidthButton.addEventListener('click', function() {
+    view.resize(-2, 0);
+    updateView();
+});
+
+const increaseViewWidthButton = document.getElementById('increase-view-width');
+increaseViewWidthButton.addEventListener('click', function() {
+    view.resize(2, 0);
     updateView();
 });
 

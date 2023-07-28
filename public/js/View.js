@@ -62,10 +62,10 @@ export class View {
         }
     }
 
-    #growHtml(widthDifference, heightDifference) {
+    #increaseHtmlHeight(difference) {
         for (const layer of this.#selfHtml.children) {
             // TODO: Account for negative values too
-            for (let y = 0; y < heightDifference / 2; y++) {
+            for (let y = 0; y < difference / 2; y++) {
                 const topLine = document.createElement('pre');
                 layer.insertBefore(topLine, layer.firstChild);
                 const bottomLine = topLine.cloneNode();
@@ -83,34 +83,60 @@ export class View {
         }
     }
 
-    #shrinkHtml(widthDifference, heightDifference) {
+    #decreaseHtmlHeight(difference) {
         // TODO: Account with attempting to shrink below minimum (1? 3?)
         for (const layer of this.#selfHtml.children) {
-            for (let y = heightDifference / 2; y < 0; y++) {
+            for (let y = difference / 2; y < 0; y++) {
                 layer.removeChild(layer.firstChild);
                 layer.removeChild(layer.lastChild);
-                // TODO: Account for widthDifference
             }
         }
     }
 
+    #increaseHtmlWidth(diference) {
+        console.warn('View.increaseHtmlWidth not yet implemented.');
+    }
+    
+    #decreaseHtmlWidth(difference) {
+        // TODO: Account with attempting to shrink below minimum (1? 3?)
+        for (const layer of this.#selfHtml.children) {
+            for (const line of layer.children) {
+                for (let x = difference / 2; x < 0; x++) {
+                    line.removeChild(line.firstChild);
+                    line.removeChild(line.lastChild);
+                }
+            }
+        }
+    }
+    
+    #adjustResizeDifference(size) {
+        if (Math.abs(size) === 1) {
+            // Minimum of (-)2
+            size = size * 2;
+        } else {
+            // Must be even
+            size -= size % 2;
+        }
+        return size;
+    }
+
     // Make sure caller also calls updateView(...) after!
     resize(widthDifference, heightDifference) {
-        // Round down so we're always working with an even number
-        // Note that this means 1 will cause the view to remain unchanged
-        widthDifference -= widthDifference % 2;
-        heightDifference -= heightDifference % 2;
-        
-        this.width += widthDifference;
-        this.height += heightDifference;
+        // Adjust view size by an even number of rows/columns
+        this.width += this.#adjustResizeDifference(widthDifference);
+        this.height += this.#adjustResizeDifference(heightDifference);
         this.#updateStaticCenter();
 
-        // TODO: Account for height of 0
-        // TODO: Account for width
         if (heightDifference > 0) {
-            this.#growHtml(widthDifference, heightDifference);
+            this.#increaseHtmlHeight(heightDifference);
         } else if (heightDifference < 0) {
-            this.#shrinkHtml(widthDifference, heightDifference)
+            this.#decreaseHtmlHeight(heightDifference)
+        }
+
+        if (widthDifference > 0) {
+            this.#increaseHtmlWidth(widthDifference);
+        } else if (widthDifference < 0) {
+            this.#decreaseHtmlWidth(widthDifference);
         }
     }
 
