@@ -94,6 +94,7 @@ export class View {
         }
     }
 
+    // Make sure caller also calls updateView(...) after!
     resize(widthDifference, heightDifference) {
         // Round down so we're always working with an even number
         // Note that this means 1 will cause the view to remain unchanged
@@ -111,8 +112,6 @@ export class View {
         } else if (heightDifference < 0) {
             this.#shrinkHtml(widthDifference, heightDifference)
         }
-        
-        this.update();
     }
 
     #removeHtmlLayers(layers) {

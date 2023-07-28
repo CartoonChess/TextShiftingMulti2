@@ -96,12 +96,14 @@ shrinkViewButton.addEventListener('click', function() {
     // view.width -= 2;
     // updateView();
     view.resize(0, -2);
+    updateView();
 });
 
 const growViewButton = document.getElementById('grow-view');
 // shrinkViewButton.addEventListener('click', funcName);
 growViewButton.addEventListener('click', function() {
     view.resize(0, 2);
+    updateView();
 });
 
 // Mobile - currently disabled
