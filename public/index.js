@@ -115,11 +115,10 @@ increaseViewWidthButton.addEventListener('click', function() {
     updateView();
 });
 
-
-//
-// TODO: Test resizing width and height simultaneously
-//
-
+const toggleEditorButton = document.getElementById('toggle-editor');
+toggleEditorButton.addEventListener('click', function() {
+    // TODO: Implement
+});
 
 // Mobile - currently disabled
 // import './mobile.js';

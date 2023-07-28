@@ -125,13 +125,14 @@ export class View {
             }
         }
     }
-    
+
+    // Adjust view size by an even number of rows/columns
     #adjustResizeDifference(size) {
         if (Math.abs(size) === 1) {
             // Minimum of (-)2
             size = size * 2;
         } else {
-            // Must be even
+            // Must be even; round down
             size -= size % 2;
         }
         return size;
@@ -139,10 +140,8 @@ export class View {
 
     // Make sure caller also calls updateView(...) after!
     resize(widthDifference, heightDifference) {
-        // Adjust view size by an even number of rows/columns
-        this.width += this.#adjustResizeDifference(widthDifference);
-        this.height += this.#adjustResizeDifference(heightDifference);
-        this.#updateStaticCenter();
+        heightDifference = this.#adjustResizeDifference(heightDifference);
+        this.height += heightDifference;
 
         if (heightDifference > 0) {
             this.#increaseHtmlHeight(heightDifference);
@@ -150,11 +149,16 @@ export class View {
             this.#decreaseHtmlHeight(heightDifference)
         }
 
+        widthDifference = this.#adjustResizeDifference(widthDifference);
+        this.width += widthDifference;
+        
         if (widthDifference > 0) {
             this.#increaseHtmlWidth(widthDifference);
         } else if (widthDifference < 0) {
             this.#decreaseHtmlWidth(widthDifference);
         }
+
+        this.#updateStaticCenter();
     }
 
     #updateHtml() {
@@ -164,20 +168,16 @@ export class View {
         
         const currentNumberOfHtmlLayers = this.#selfHtml.children.length;
         const difference = depth - currentNumberOfHtmlLayers;
+        
         if (difference > 0) {
             this.#addHtmlLayers(difference, this.#selfHtml);
         } else if (difference < 0) {
             this.#removeHtmlLayers(difference, this.#selfHtml);
-        } else {
-            // Resizing x/y
-            // Ideally we add equally one row to opposite sides so that map remains centered
-            // const line = document.createElement('pre');
-            // this.#selfHtml[layer].insertBefore(div, this.#selfHtml.firstChild);
-            // this.#resizeHtml(this.#selfHtml);
         }
         
         // If same number of layers as before, no need to make a change
-        // TODO: This will probably change when we allow changing view dimensions
+        // - (This func only ever called when updating # of layers)
+        // - Should we refactor to call when resizing as well?
     }
 
     set map(map) {
@@ -290,6 +290,8 @@ export class View {
                 const allTilesHtml = allLinesHtml.item(y).children;
                 for (let x = 0; x < this.width; x++) {
                     allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
+                    // shows grid properly but causes ghosting/bleeding
+                    // allTilesHtml.item(x).textContent = lines[z][y][x].symbol ? lines[z][y][x].symbol : ' ';
                     allTilesHtml.item(x).style.color = lines[z][y][x].color;
                     allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor;
                 }
