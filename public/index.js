@@ -117,7 +117,13 @@ increaseViewWidthButton.addEventListener('click', function() {
 
 const toggleEditorButton = document.getElementById('toggle-editor');
 toggleEditorButton.addEventListener('click', function() {
-    // TODO: Implement
+    const bodyClasses = document.body.classList;
+    const editClass = 'edit-mode';
+    if (bodyClasses.contains(editClass)) {
+        bodyClasses.remove(editClass);
+    } else {
+        bodyClasses.add(editClass);
+    }
 });
 
 // Mobile - currently disabled

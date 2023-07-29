@@ -289,11 +289,12 @@ export class View {
             for (let y = 0; y < this.height; y++) {
                 const allTilesHtml = allLinesHtml.item(y).children;
                 for (let x = 0; x < this.width; x++) {
-                    allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
+                    // allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
                     // shows grid properly but causes ghosting/bleeding
-                    // allTilesHtml.item(x).textContent = lines[z][y][x].symbol ? lines[z][y][x].symbol : ' ';
+                    allTilesHtml.item(x).textContent = lines[z][y][x].symbol ? lines[z][y][x].symbol : ' ';
                     allTilesHtml.item(x).style.color = lines[z][y][x].color;
-                    allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor;
+                    // allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor;
+                    allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor ? lines[z][y][x].backgroundColor : 'inherit';
                 }
             }
         }

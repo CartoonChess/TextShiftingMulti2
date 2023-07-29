@@ -9,6 +9,12 @@ body {
     /* position: relative; */
     /* grid allows overlapping without `position` */
     display: grid;
+    width: fit-content;
+}
+
+/* #game-view.edit-mode { */
+.edit-mode #game-view {
+    border: 3px solid #7f7f7f;
 }
 
 /* z-layer */
@@ -33,8 +39,10 @@ body {
     text-align: center;
 
     /* position: relative; */
-    /* debug */
-    border: 1px solid black;
+}
+
+.edit-mode #game-view span {
+    border: 0.5px solid #7f7f7f;
 }
 
 /* #game-view pre span.foreground-tile {
