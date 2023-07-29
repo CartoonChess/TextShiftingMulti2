@@ -6,7 +6,6 @@ body {
 }
 
 #game-view {
-    /* position: relative; */
     /* grid allows overlapping without `position` */
     display: grid;
     width: fit-content;
@@ -15,11 +14,11 @@ body {
 /* #game-view.edit-mode { */
 .edit-mode #game-view {
     border: 3px solid #7f7f7f;
+    border-width: 2px 3px 3px 2px;
 }
 
 /* z-layer */
 #game-view div {
-    /* position: absolute; */
     grid-column: 1;
     grid-row: 1;
 }
@@ -37,20 +36,12 @@ body {
     width: 0.93rem;
     /* height: 1rem; */
     text-align: center;
-
-    /* position: relative; */
 }
 
 .edit-mode #game-view span {
-    border: 0.5px solid #7f7f7f;
+    border-top: 1px solid #7f7f7f;
+    border-left: 1px solid #7f7f7f;
 }
-
-/* #game-view pre span.foreground-tile {
-    position: absolute;
-    /* top: 0;
-    left: 0; //
-    inset: 0;
-} */
 
 #message-log {
     /* keep multiplace spaces but still wrap */

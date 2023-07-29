@@ -139,7 +139,8 @@ export class View {
     }
 
     // Make sure caller also calls updateView(...) after!
-    resize(widthDifference, heightDifference) {
+    // resize(widthDifference, heightDifference) {
+    resizeBy(widthDifference, heightDifference) {
         heightDifference = this.#adjustResizeDifference(heightDifference);
         this.height += heightDifference;
 
@@ -159,6 +160,12 @@ export class View {
         }
 
         this.#updateStaticCenter();
+    }
+
+    resizeTo(width, height) {
+        const widthDifference = width - this.width;
+        const heightDifference = height - this.height;
+        this.resizeBy(widthDifference, heightDifference);
     }
 
     #updateHtml() {
