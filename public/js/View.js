@@ -7,9 +7,25 @@ class ViewHtml {
     // TODO: Rename to `element` or something
     #selfHtml;
 
+    #width;
+    #height;
+    #depth;
+
     constructor(view, htmlId) {
         this.#view = view;
         this.#selfHtml = document.getElementById(htmlId);
+    }
+
+    get depth() {
+        return this.#selfHtml.children.length;
+    }
+
+    get height() {
+        return this.#selfHtml.firstChild.children.length;
+    }
+
+    get width() {
+        return this.#selfHtml.firstChild.firstChild.children.length;
     }
 
     #addLayers(layers) {
@@ -19,10 +35,12 @@ class ViewHtml {
 
             // TODO: Change func sig to `#addLayers(depth, height, width)`?
             for (let y = 0; y < this.#view.height; y++) {
+            // for (let y = 0; y < this.height; y++) {
                 const line = document.createElement('pre');
                 layer.appendChild(line);
     
                 for (let x = 0; x < this.#view.width; x++) {
+                // for (let x = 0; x < this.width; x++) {
                     const tile = document.createElement('span');
                     // TODO: Should this be ''? Don't we overwrite it anyway?
                     tile.textContent = ' ';
@@ -60,6 +78,9 @@ class ViewHtml {
     }
 
     increaseHeight(difference) {
+        // Get this before making any changes
+        const width = this.width;
+        
         for (const layer of this.#selfHtml.children) {
             for (let y = 0; y < difference / 2; y++) {
                 const topLine = document.createElement('pre');
@@ -68,7 +89,8 @@ class ViewHtml {
                 layer.appendChild(bottomLine);
 
                 // TODO: Change func sig for width? Or calculate using html only maybe?
-                for (let x = 0; x < this.#view.width; x++) {
+                // for (let x = 0; x < this.#view.width; x++) {
+                for (let x = 0; x < width; x++) {
                     const topTile = document.createElement('span');
                     topTile.textContent = ' ';
                     topLine.appendChild(topTile);
@@ -116,15 +138,18 @@ class ViewHtml {
         }
     }
 
-    // TODO: Pass in z/y/x?
-    refresh(lines) {
+    // TODO: Use this.#width etc. instead
+    refresh(lines, width, height, depth) {
         // Print to screen
         const allLayersHtml = this.#selfHtml.children;
-        for (let z = 0; z < this.#view.map.depth; z++) {
+        // for (let z = 0; z < this.#view.map.depth; z++) {
+        for (let z = 0; z < depth; z++) {
             const allLinesHtml = allLayersHtml.item(z).children;
-            for (let y = 0; y < this.#view.height; y++) {
+            // for (let y = 0; y < this.#view.height; y++) {
+            for (let y = 0; y < height; y++) {
                 const allTilesHtml = allLinesHtml.item(y).children;
-                for (let x = 0; x < this.#view.width; x++) {
+                // for (let x = 0; x < this.#view.width; x++) {
+                for (let x = 0; x < width; x++) {
                     // allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
                     // shows grid properly but causes ghosting/bleeding
                     allTilesHtml.item(x).textContent = lines[z][y][x].symbol ? lines[z][y][x].symbol : ' ';
@@ -155,12 +180,6 @@ export class View {
     constructor(width, height, htmlId) {
         this.width = width > 0 ? width : 1;
         this.height = height > 0 ? height : 1;
-        // this.#selfHtml = document.getElementById(htmlId);
-        if (htmlId) {
-            console.debug(htmlId);
-            this.html = htmlId;
-        }
-        // this.html = new ViewHtml(this, document.getElementById(htmlId));
 
         // View should always be an odd number
         // If not, staticCenter will cause OBOE
@@ -176,13 +195,16 @@ export class View {
         
         this.#updateStaticCenter();
         // this.#updateHtml();
+        // this.#selfHtml = document.getElementById(htmlId);
+        if (htmlId) {
+            this.html = htmlId;
+        }
+        // this.html = new ViewHtml(this, document.getElementById(htmlId));
     }
 
     set html(id) {
-        console.debug(id);
         // this.#html = new ViewHtml(this, document.getElementById(id));
         this.#html = new ViewHtml(this, id);
-        console.debug(this.#html);
         this.#html.updateDepth();
     }
 
@@ -192,89 +214,6 @@ export class View {
             Math.floor(this.height / 2)
         );
     }
-
-    // TODO: Move HTML logic into something like ViewHTML class?
-
-    // #addHtmlLayers(layers) {
-    //     for (let z = 0; z < layers; z++) {
-    //         const layer = document.createElement('div');
-    //         this.#selfHtml.appendChild(layer);
-            
-    //         for (let y = 0; y < this.height; y++) {
-    //             const line = document.createElement('pre');
-    //             layer.appendChild(line);
-    
-    //             for (let x = 0; x < this.width; x++) {
-    //                 const tile = document.createElement('span');
-    //                 // TODO: Should this be ''? Don't we overwrite it anyway?
-    //                 tile.textContent = ' ';
-    //                 line.appendChild(tile);
-    //             }
-    //         }
-    //     }
-    // }
-    
-    // #removeHtmlLayers(layers) {
-    //     for (let z = layers; z < 0; z++) {
-    //         this.#selfHtml.removeChild(this.#selfHtml.firstChild);
-    //     }
-    // }
-
-    // #increaseHtmlHeight(difference) {
-    //     for (const layer of this.#selfHtml.children) {
-    //         for (let y = 0; y < difference / 2; y++) {
-    //             const topLine = document.createElement('pre');
-    //             layer.insertBefore(topLine, layer.firstChild);
-    //             const bottomLine = topLine.cloneNode();
-    //             layer.appendChild(bottomLine);
-
-    //             for (let x = 0; x < this.width; x++) {
-    //                 const topTile = document.createElement('span');
-    //                 topTile.textContent = ' ';
-    //                 topLine.appendChild(topTile);
-    //                 const bottomTile = topTile.cloneNode(true);
-    //                 bottomLine.appendChild(bottomTile);
-    //             }
-    //         }
-    //     }
-    // }
-
-    // #decreaseHtmlHeight(difference) {
-    //     // TODO: Account with attempting to shrink below minimum (1? 3?)
-    //     for (const layer of this.#selfHtml.children) {
-    //         for (let y = difference / 2; y < 0; y++) {
-    //             layer.removeChild(layer.firstChild);
-    //             layer.removeChild(layer.lastChild);
-    //         }
-    //     }
-    // }
-
-    // #increaseHtmlWidth(difference) {
-    //     for (const layer of this.#selfHtml.children) {
-    //         for (const line of layer.children) {
-    //             for (let x = 0; x < difference / 2; x++) {
-    //                 const leftTile = document.createElement('span');
-    //                 leftTile.textContent = ' ';
-    //                 // line.appendChild(leftTile);
-    //                 line.insertBefore(leftTile, line.firstChild);
-    //                 const rightTile = leftTile.cloneNode(true);
-    //                 line.appendChild(rightTile);
-    //             }
-    //         }
-    //     }
-    // }
-    
-    // #decreaseHtmlWidth(difference) {
-    //     // TODO: Account with attempting to shrink below minimum (1? 3?)
-    //     for (const layer of this.#selfHtml.children) {
-    //         for (const line of layer.children) {
-    //             for (let x = difference / 2; x < 0; x++) {
-    //                 line.removeChild(line.firstChild);
-    //                 line.removeChild(line.lastChild);
-    //             }
-    //         }
-    //     }
-    // }
 
     // Adjust view size by an even number of rows/columns
     #adjustResizeDifference(size) {
@@ -460,6 +399,13 @@ export class View {
         //         }
         //     }
         // }
-        this.#html.refresh(lines);
+        
+        // this.#html.refresh(lines);
+         this.#html.refresh(
+             lines,
+             this.width,
+             this.height,
+             this.map.depth
+         );
     }
 }
