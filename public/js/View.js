@@ -3,44 +3,50 @@ import { Coordinate } from './GameMap.js';
 // import Tile from './Tile.js';
 
 class ViewHtml {
-    #view;
+    // #view;
     // TODO: Rename to `element` or something
-    #selfHtml;
+    #container;
 
     #width;
     #height;
     #depth;
 
-    constructor(view, htmlId) {
-        this.#view = view;
-        this.#selfHtml = document.getElementById(htmlId);
+    // constructor(view, htmlId, width, height) {
+    constructor(htmlId, width, height) {
+        // this.#view = view;
+        this.#container = document.getElementById(htmlId);
+        this.updateDepth(1, height, width);
     }
 
     get depth() {
-        return this.#selfHtml.children.length;
+        return this.#container.children.length;
     }
 
     get height() {
-        return this.#selfHtml.firstChild.children.length;
+        return this.#container.firstChild.children.length;
     }
 
     get width() {
-        return this.#selfHtml.firstChild.firstChild.children.length;
+        return this.#container.firstChild.firstChild.children.length;
     }
 
-    #addLayers(layers) {
+    #addLayers(layers, height, width) {
+        if (!height) { height = this.height; }
+        if (!width) { width = this.width; }
+        if (!height || !width ) { return console.error(`ViewHtml.#addLayers() was called without passing height and width arguments while ViewHtml instance couldn't calculate these values implicitly.`); }
+        
         for (let z = 0; z < layers; z++) {
             const layer = document.createElement('div');
-            this.#selfHtml.appendChild(layer);
+            this.#container.appendChild(layer);
 
             // TODO: Change func sig to `#addLayers(depth, height, width)`?
-            for (let y = 0; y < this.#view.height; y++) {
-            // for (let y = 0; y < this.height; y++) {
+            // for (let y = 0; y < this.#view.height; y++) {
+            for (let y = 0; y < height; y++) {
                 const line = document.createElement('pre');
                 layer.appendChild(line);
     
-                for (let x = 0; x < this.#view.width; x++) {
-                // for (let x = 0; x < this.width; x++) {
+                // for (let x = 0; x < this.#view.width; x++) {
+                for (let x = 0; x < width; x++) {
                     const tile = document.createElement('span');
                     // TODO: Should this be ''? Don't we overwrite it anyway?
                     tile.textContent = ' ';
@@ -52,24 +58,25 @@ class ViewHtml {
     
     #removeLayers(layers) {
         for (let z = layers; z < 0; z++) {
-            this.#selfHtml.removeChild(this.#selfHtml.firstChild);
+            this.#container.removeChild(this.#container.firstChild);
         }
     }
 
     // #updateHtml() {
-    updateDepth() {
+    updateDepth(depth, height, width) {
         // If creating for the first time (before map is loaded), just make one layer
-        let depth = 1;
+        // let depth = 1;
         // TODO: Change func sig to `update(layerCount)`?
-        if (this.#view.map?.depth) { depth = this.#view.map.depth; }
+        // if (this.#view.map?.depth) { depth = this.#view.map.depth; }
+        if (!depth) { return console.error('Must pass ViewHtml.updateDepth() a depth argument.'); }
         
-        const currentNumberOfLayers = this.#selfHtml.children.length;
+        const currentNumberOfLayers = this.#container.children.length;
         const difference = depth - currentNumberOfLayers;
         
         if (difference > 0) {
-            this.#addLayers(difference);
+            this.#addLayers(difference, height, width);
         } else if (difference < 0) {
-            this.#removeLayers(difference);
+            this.#removeLayers(difference, height, width);
         }
         
         // If same number of layers as before, no need to make a change
@@ -81,7 +88,7 @@ class ViewHtml {
         // Get this before making any changes
         const width = this.width;
         
-        for (const layer of this.#selfHtml.children) {
+        for (const layer of this.#container.children) {
             for (let y = 0; y < difference / 2; y++) {
                 const topLine = document.createElement('pre');
                 layer.insertBefore(topLine, layer.firstChild);
@@ -103,7 +110,7 @@ class ViewHtml {
 
     decreaseHeight(difference) {
         // TODO: Account with attempting to shrink below minimum (1? 3?)
-        for (const layer of this.#selfHtml.children) {
+        for (const layer of this.#container.children) {
             for (let y = difference / 2; y < 0; y++) {
                 layer.removeChild(layer.firstChild);
                 layer.removeChild(layer.lastChild);
@@ -112,7 +119,7 @@ class ViewHtml {
     }
 
     increaseWidth(difference) {
-        for (const layer of this.#selfHtml.children) {
+        for (const layer of this.#container.children) {
             for (const line of layer.children) {
                 for (let x = 0; x < difference / 2; x++) {
                     const leftTile = document.createElement('span');
@@ -128,7 +135,7 @@ class ViewHtml {
     
     decreaseWidth(difference) {
         // TODO: Account with attempting to shrink below minimum (1? 3?)
-        for (const layer of this.#selfHtml.children) {
+        for (const layer of this.#container.children) {
             for (const line of layer.children) {
                 for (let x = difference / 2; x < 0; x++) {
                     line.removeChild(line.firstChild);
@@ -141,7 +148,7 @@ class ViewHtml {
     // TODO: Use this.#width etc. instead
     refresh(lines, width, height, depth) {
         // Print to screen
-        const allLayersHtml = this.#selfHtml.children;
+        const allLayersHtml = this.#container.children;
         // for (let z = 0; z < this.#view.map.depth; z++) {
         for (let z = 0; z < depth; z++) {
             const allLinesHtml = allLayersHtml.item(z).children;
@@ -203,9 +210,9 @@ export class View {
     }
 
     set html(id) {
-        // this.#html = new ViewHtml(this, document.getElementById(id));
-        this.#html = new ViewHtml(this, id);
-        this.#html.updateDepth();
+        // this.#html = new ViewHtml(this, id);
+        this.#html = new ViewHtml(id, this.width, this.height);
+        // this.#html.updateDepth();
     }
 
     #updateStaticCenter() {
@@ -285,8 +292,8 @@ export class View {
         // Must set this here for e.g. asking about isVisible before updateView has ever been called
         this.mapCoordinateAtViewCenter = map.center;
         // Update HTML based on number of layers
-        // this.#updateHtml();
-        this.#html.updateDepth();
+        // this.#html.updateDepth();
+        this.#html.updateDepth(map.depth);
     }
 
     get map() {
