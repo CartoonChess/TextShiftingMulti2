@@ -3,17 +3,13 @@ import { Coordinate } from './GameMap.js';
 // import Tile from './Tile.js';
 
 class ViewHtml {
-    // #view;
-    // TODO: Rename to `element` or something
     #container;
 
     #width;
     #height;
     #depth;
 
-    // constructor(view, htmlId, width, height) {
     constructor(htmlId, width, height) {
-        // this.#view = view;
         this.#container = document.getElementById(htmlId);
         this.updateDepth(1, height, width);
     }
@@ -39,13 +35,10 @@ class ViewHtml {
             const layer = document.createElement('div');
             this.#container.appendChild(layer);
 
-            // TODO: Change func sig to `#addLayers(depth, height, width)`?
-            // for (let y = 0; y < this.#view.height; y++) {
             for (let y = 0; y < height; y++) {
                 const line = document.createElement('pre');
                 layer.appendChild(line);
     
-                // for (let x = 0; x < this.#view.width; x++) {
                 for (let x = 0; x < width; x++) {
                     const tile = document.createElement('span');
                     // TODO: Should this be ''? Don't we overwrite it anyway?
@@ -62,12 +55,7 @@ class ViewHtml {
         }
     }
 
-    // #updateHtml() {
     updateDepth(depth, height, width) {
-        // If creating for the first time (before map is loaded), just make one layer
-        // let depth = 1;
-        // TODO: Change func sig to `update(layerCount)`?
-        // if (this.#view.map?.depth) { depth = this.#view.map.depth; }
         if (!depth) { return console.error('Must pass ViewHtml.updateDepth() a depth argument.'); }
         
         const currentNumberOfLayers = this.#container.children.length;
@@ -78,10 +66,6 @@ class ViewHtml {
         } else if (difference < 0) {
             this.#removeLayers(difference, height, width);
         }
-        
-        // If same number of layers as before, no need to make a change
-        // - (This func only ever called when updating # of layers)
-        // - Should we refactor to call when resizing as well?
     }
 
     increaseHeight(difference) {
@@ -95,8 +79,6 @@ class ViewHtml {
                 const bottomLine = topLine.cloneNode();
                 layer.appendChild(bottomLine);
 
-                // TODO: Change func sig for width? Or calculate using html only maybe?
-                // for (let x = 0; x < this.#view.width; x++) {
                 for (let x = 0; x < width; x++) {
                     const topTile = document.createElement('span');
                     topTile.textContent = ' ';
@@ -124,7 +106,6 @@ class ViewHtml {
                 for (let x = 0; x < difference / 2; x++) {
                     const leftTile = document.createElement('span');
                     leftTile.textContent = ' ';
-                    // line.appendChild(leftTile);
                     line.insertBefore(leftTile, line.firstChild);
                     const rightTile = leftTile.cloneNode(true);
                     line.appendChild(rightTile);
@@ -145,24 +126,18 @@ class ViewHtml {
         }
     }
 
-    // TODO: Use this.#width etc. instead
-    refresh(lines, width, height, depth) {
-        // Print to screen
+    // Update each tile
+    refresh(lines, depth, height, width) {
         const allLayersHtml = this.#container.children;
-        // for (let z = 0; z < this.#view.map.depth; z++) {
         for (let z = 0; z < depth; z++) {
             const allLinesHtml = allLayersHtml.item(z).children;
-            // for (let y = 0; y < this.#view.height; y++) {
             for (let y = 0; y < height; y++) {
                 const allTilesHtml = allLinesHtml.item(y).children;
-                // for (let x = 0; x < this.#view.width; x++) {
                 for (let x = 0; x < width; x++) {
-                    // allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
-                    // shows grid properly but causes ghosting/bleeding
+                    // Default values provided to prevent ghosting
                     allTilesHtml.item(x).textContent = lines[z][y][x].symbol ? lines[z][y][x].symbol : ' ';
-                    allTilesHtml.item(x).style.color = lines[z][y][x].color;
-                    // allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor;
                     allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor ? lines[z][y][x].backgroundColor : 'inherit';
+                    allTilesHtml.item(x).style.color = lines[z][y][x].color;
                 }
             }
         }
@@ -180,8 +155,6 @@ export class View {
     #right;
     #top;
     #bottom;
-    // #selfHtml;
-    // TODO: Do we need to make this private?
     #html;
 
     constructor(width, height, htmlId) {
@@ -201,18 +174,14 @@ export class View {
         }
         
         this.#updateStaticCenter();
-        // this.#updateHtml();
-        // this.#selfHtml = document.getElementById(htmlId);
+        
         if (htmlId) {
             this.html = htmlId;
         }
-        // this.html = new ViewHtml(this, document.getElementById(htmlId));
     }
 
     set html(id) {
-        // this.#html = new ViewHtml(this, id);
         this.#html = new ViewHtml(id, this.width, this.height);
-        // this.#html.updateDepth();
     }
 
     #updateStaticCenter() {
@@ -235,16 +204,13 @@ export class View {
     }
 
     // Make sure caller also calls updateView(...) after!
-    // resize(widthDifference, heightDifference) {
     resizeBy(widthDifference, heightDifference) {
         heightDifference = this.#adjustResizeDifference(heightDifference);
         this.height += heightDifference;
 
         if (heightDifference > 0) {
-            // this.#increaseHtmlHeight(heightDifference);
             this.#html.increaseHeight(heightDifference);
         } else if (heightDifference < 0) {
-            // this.#decreaseHtmlHeight(heightDifference)
             this.#html.decreaseHeight(heightDifference);
         }
 
@@ -252,10 +218,8 @@ export class View {
         this.width += widthDifference;
         
         if (widthDifference > 0) {
-            // this.#increaseHtmlWidth(widthDifference);
             this.#html.increaseWidth(widthDifference);
         } else if (widthDifference < 0) {
-            // this.#decreaseHtmlWidth(widthDifference);
             this.#html.decreaseWidth(widthDifference);
         }
 
@@ -267,25 +231,6 @@ export class View {
         const heightDifference = height - this.height;
         this.resizeBy(widthDifference, heightDifference);
     }
-
-    // #updateHtml() {
-    //     // If creating for the first time (before map is loaded), just make one layer
-    //     let depth = 1;
-    //     if (this.map?.depth) { depth = this.map.depth; }
-        
-    //     const currentNumberOfHtmlLayers = this.#selfHtml.children.length;
-    //     const difference = depth - currentNumberOfHtmlLayers;
-        
-    //     if (difference > 0) {
-    //         this.#addHtmlLayers(difference, this.#selfHtml);
-    //     } else if (difference < 0) {
-    //         this.#removeHtmlLayers(difference, this.#selfHtml);
-    //     }
-        
-    //     // If same number of layers as before, no need to make a change
-    //     // - (This func only ever called when updating # of layers)
-    //     // - Should we refactor to call when resizing as well?
-    // }
 
     set map(map) {
         this.#map = map;
@@ -391,28 +336,11 @@ export class View {
         lines[this.map.depth - 1][this.staticCenter.line][this.staticCenter.column] = { symbol: '@', color: 'red' };
         
         // Print to screen
-        // const allLayersHtml = this.#selfHtml.children;
-        // for (let z = 0; z < this.map.depth; z++) {
-        //     const allLinesHtml = allLayersHtml.item(z).children;
-        //     for (let y = 0; y < this.height; y++) {
-        //         const allTilesHtml = allLinesHtml.item(y).children;
-        //         for (let x = 0; x < this.width; x++) {
-        //             // allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
-        //             // shows grid properly but causes ghosting/bleeding
-        //             allTilesHtml.item(x).textContent = lines[z][y][x].symbol ? lines[z][y][x].symbol : ' ';
-        //             allTilesHtml.item(x).style.color = lines[z][y][x].color;
-        //             // allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor;
-        //             allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor ? lines[z][y][x].backgroundColor : 'inherit';
-        //         }
-        //     }
-        // }
-        
-        // this.#html.refresh(lines);
-         this.#html.refresh(
-             lines,
-             this.width,
-             this.height,
-             this.map.depth
-         );
+        this.#html.refresh(
+            lines,
+            this.map.depth,
+            this.height,
+            this.width,
+        );
     }
 }
