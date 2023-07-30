@@ -2,59 +2,27 @@ import '../../ConsoleColor.js';
 import { Coordinate } from './GameMap.js';
 // import Tile from './Tile.js';
 
-export class View {
-    // half the width and height of the view
-    staticCenter;
-    #map;
-    // the current corresponding map coordinate directly under the static center
-    mapCoordinateAtViewCenter;
-    // the column/row of map at the bounds of the view
-    #left;
-    #right;
-    #top;
-    #bottom;
+class ViewHtml {
+    #view;
+    // TODO: Rename to `element` or something
     #selfHtml;
 
-    constructor(width, height, htmlId) {
-        this.width = width > 0 ? width : 1;
-        this.height = height > 0 ? height : 1;
+    constructor(view, htmlId) {
+        this.#view = view;
         this.#selfHtml = document.getElementById(htmlId);
-
-        // View should always be an odd number
-        // If not, staticCenter will cause OBOE
-        // TODO: Minimum 3?
-        if (this.width % 2 === 0) {
-            console.warn('View dimensions must be an odd number; shrinking width.');
-            this.width--;
-        }
-        if (this.height % 2 === 0) {
-            console.warn('View dimensions must be an odd number; shrinking height.');
-            this.height--;
-        }
-        
-        this.#updateStaticCenter();
-        this.#updateHtml();
     }
 
-    #updateStaticCenter() {
-        this.staticCenter = new Coordinate(
-            Math.floor(this.width / 2),
-            Math.floor(this.height / 2)
-        );
-    }
-
-    // TODO: Move HTML logic into something like ViewHTML class?
-
-    #addHtmlLayers(layers) {
+    #addLayers(layers) {
         for (let z = 0; z < layers; z++) {
             const layer = document.createElement('div');
             this.#selfHtml.appendChild(layer);
-            
-            for (let y = 0; y < this.height; y++) {
+
+            // TODO: Change func sig to `#addLayers(depth, height, width)`?
+            for (let y = 0; y < this.#view.height; y++) {
                 const line = document.createElement('pre');
                 layer.appendChild(line);
     
-                for (let x = 0; x < this.width; x++) {
+                for (let x = 0; x < this.#view.width; x++) {
                     const tile = document.createElement('span');
                     // TODO: Should this be ''? Don't we overwrite it anyway?
                     tile.textContent = ' ';
@@ -64,13 +32,34 @@ export class View {
         }
     }
     
-    #removeHtmlLayers(layers) {
+    #removeLayers(layers) {
         for (let z = layers; z < 0; z++) {
             this.#selfHtml.removeChild(this.#selfHtml.firstChild);
         }
     }
 
-    #increaseHtmlHeight(difference) {
+    // #updateHtml() {
+    updateDepth() {
+        // If creating for the first time (before map is loaded), just make one layer
+        let depth = 1;
+        // TODO: Change func sig to `update(layerCount)`?
+        if (this.#view.map?.depth) { depth = this.#view.map.depth; }
+        
+        const currentNumberOfLayers = this.#selfHtml.children.length;
+        const difference = depth - currentNumberOfLayers;
+        
+        if (difference > 0) {
+            this.#addLayers(difference);
+        } else if (difference < 0) {
+            this.#removeLayers(difference);
+        }
+        
+        // If same number of layers as before, no need to make a change
+        // - (This func only ever called when updating # of layers)
+        // - Should we refactor to call when resizing as well?
+    }
+
+    increaseHeight(difference) {
         for (const layer of this.#selfHtml.children) {
             for (let y = 0; y < difference / 2; y++) {
                 const topLine = document.createElement('pre');
@@ -78,7 +67,8 @@ export class View {
                 const bottomLine = topLine.cloneNode();
                 layer.appendChild(bottomLine);
 
-                for (let x = 0; x < this.width; x++) {
+                // TODO: Change func sig for width? Or calculate using html only maybe?
+                for (let x = 0; x < this.#view.width; x++) {
                     const topTile = document.createElement('span');
                     topTile.textContent = ' ';
                     topLine.appendChild(topTile);
@@ -89,7 +79,7 @@ export class View {
         }
     }
 
-    #decreaseHtmlHeight(difference) {
+    decreaseHeight(difference) {
         // TODO: Account with attempting to shrink below minimum (1? 3?)
         for (const layer of this.#selfHtml.children) {
             for (let y = difference / 2; y < 0; y++) {
@@ -99,7 +89,7 @@ export class View {
         }
     }
 
-    #increaseHtmlWidth(difference) {
+    increaseWidth(difference) {
         for (const layer of this.#selfHtml.children) {
             for (const line of layer.children) {
                 for (let x = 0; x < difference / 2; x++) {
@@ -114,7 +104,7 @@ export class View {
         }
     }
     
-    #decreaseHtmlWidth(difference) {
+    decreaseWidth(difference) {
         // TODO: Account with attempting to shrink below minimum (1? 3?)
         for (const layer of this.#selfHtml.children) {
             for (const line of layer.children) {
@@ -125,6 +115,166 @@ export class View {
             }
         }
     }
+
+    // TODO: Pass in z/y/x?
+    refresh(lines) {
+        // Print to screen
+        const allLayersHtml = this.#selfHtml.children;
+        for (let z = 0; z < this.#view.map.depth; z++) {
+            const allLinesHtml = allLayersHtml.item(z).children;
+            for (let y = 0; y < this.#view.height; y++) {
+                const allTilesHtml = allLinesHtml.item(y).children;
+                for (let x = 0; x < this.#view.width; x++) {
+                    // allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
+                    // shows grid properly but causes ghosting/bleeding
+                    allTilesHtml.item(x).textContent = lines[z][y][x].symbol ? lines[z][y][x].symbol : ' ';
+                    allTilesHtml.item(x).style.color = lines[z][y][x].color;
+                    // allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor;
+                    allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor ? lines[z][y][x].backgroundColor : 'inherit';
+                }
+            }
+        }
+    }
+}
+
+export class View {
+    // half the width and height of the view
+    staticCenter;
+    #map;
+    // the current corresponding map coordinate directly under the static center
+    mapCoordinateAtViewCenter;
+    // the column/row of map at the bounds of the view
+    #left;
+    #right;
+    #top;
+    #bottom;
+    // #selfHtml;
+    // TODO: Do we need to make this private?
+    #html;
+
+    constructor(width, height, htmlId) {
+        this.width = width > 0 ? width : 1;
+        this.height = height > 0 ? height : 1;
+        // this.#selfHtml = document.getElementById(htmlId);
+        if (htmlId) {
+            console.debug(htmlId);
+            this.html = htmlId;
+        }
+        // this.html = new ViewHtml(this, document.getElementById(htmlId));
+
+        // View should always be an odd number
+        // If not, staticCenter will cause OBOE
+        // TODO: Minimum 3?
+        if (this.width % 2 === 0) {
+            console.warn('View dimensions must be an odd number; shrinking width.');
+            this.width--;
+        }
+        if (this.height % 2 === 0) {
+            console.warn('View dimensions must be an odd number; shrinking height.');
+            this.height--;
+        }
+        
+        this.#updateStaticCenter();
+        // this.#updateHtml();
+    }
+
+    set html(id) {
+        console.debug(id);
+        // this.#html = new ViewHtml(this, document.getElementById(id));
+        this.#html = new ViewHtml(this, id);
+        console.debug(this.#html);
+        this.#html.updateDepth();
+    }
+
+    #updateStaticCenter() {
+        this.staticCenter = new Coordinate(
+            Math.floor(this.width / 2),
+            Math.floor(this.height / 2)
+        );
+    }
+
+    // TODO: Move HTML logic into something like ViewHTML class?
+
+    // #addHtmlLayers(layers) {
+    //     for (let z = 0; z < layers; z++) {
+    //         const layer = document.createElement('div');
+    //         this.#selfHtml.appendChild(layer);
+            
+    //         for (let y = 0; y < this.height; y++) {
+    //             const line = document.createElement('pre');
+    //             layer.appendChild(line);
+    
+    //             for (let x = 0; x < this.width; x++) {
+    //                 const tile = document.createElement('span');
+    //                 // TODO: Should this be ''? Don't we overwrite it anyway?
+    //                 tile.textContent = ' ';
+    //                 line.appendChild(tile);
+    //             }
+    //         }
+    //     }
+    // }
+    
+    // #removeHtmlLayers(layers) {
+    //     for (let z = layers; z < 0; z++) {
+    //         this.#selfHtml.removeChild(this.#selfHtml.firstChild);
+    //     }
+    // }
+
+    // #increaseHtmlHeight(difference) {
+    //     for (const layer of this.#selfHtml.children) {
+    //         for (let y = 0; y < difference / 2; y++) {
+    //             const topLine = document.createElement('pre');
+    //             layer.insertBefore(topLine, layer.firstChild);
+    //             const bottomLine = topLine.cloneNode();
+    //             layer.appendChild(bottomLine);
+
+    //             for (let x = 0; x < this.width; x++) {
+    //                 const topTile = document.createElement('span');
+    //                 topTile.textContent = ' ';
+    //                 topLine.appendChild(topTile);
+    //                 const bottomTile = topTile.cloneNode(true);
+    //                 bottomLine.appendChild(bottomTile);
+    //             }
+    //         }
+    //     }
+    // }
+
+    // #decreaseHtmlHeight(difference) {
+    //     // TODO: Account with attempting to shrink below minimum (1? 3?)
+    //     for (const layer of this.#selfHtml.children) {
+    //         for (let y = difference / 2; y < 0; y++) {
+    //             layer.removeChild(layer.firstChild);
+    //             layer.removeChild(layer.lastChild);
+    //         }
+    //     }
+    // }
+
+    // #increaseHtmlWidth(difference) {
+    //     for (const layer of this.#selfHtml.children) {
+    //         for (const line of layer.children) {
+    //             for (let x = 0; x < difference / 2; x++) {
+    //                 const leftTile = document.createElement('span');
+    //                 leftTile.textContent = ' ';
+    //                 // line.appendChild(leftTile);
+    //                 line.insertBefore(leftTile, line.firstChild);
+    //                 const rightTile = leftTile.cloneNode(true);
+    //                 line.appendChild(rightTile);
+    //             }
+    //         }
+    //     }
+    // }
+    
+    // #decreaseHtmlWidth(difference) {
+    //     // TODO: Account with attempting to shrink below minimum (1? 3?)
+    //     for (const layer of this.#selfHtml.children) {
+    //         for (const line of layer.children) {
+    //             for (let x = difference / 2; x < 0; x++) {
+    //                 line.removeChild(line.firstChild);
+    //                 line.removeChild(line.lastChild);
+    //             }
+    //         }
+    //     }
+    // }
 
     // Adjust view size by an even number of rows/columns
     #adjustResizeDifference(size) {
@@ -145,18 +295,22 @@ export class View {
         this.height += heightDifference;
 
         if (heightDifference > 0) {
-            this.#increaseHtmlHeight(heightDifference);
+            // this.#increaseHtmlHeight(heightDifference);
+            this.#html.increaseHeight(heightDifference);
         } else if (heightDifference < 0) {
-            this.#decreaseHtmlHeight(heightDifference)
+            // this.#decreaseHtmlHeight(heightDifference)
+            this.#html.decreaseHeight(heightDifference);
         }
 
         widthDifference = this.#adjustResizeDifference(widthDifference);
         this.width += widthDifference;
         
         if (widthDifference > 0) {
-            this.#increaseHtmlWidth(widthDifference);
+            // this.#increaseHtmlWidth(widthDifference);
+            this.#html.increaseWidth(widthDifference);
         } else if (widthDifference < 0) {
-            this.#decreaseHtmlWidth(widthDifference);
+            // this.#decreaseHtmlWidth(widthDifference);
+            this.#html.decreaseWidth(widthDifference);
         }
 
         this.#updateStaticCenter();
@@ -168,31 +322,32 @@ export class View {
         this.resizeBy(widthDifference, heightDifference);
     }
 
-    #updateHtml() {
-        // If creating for the first time (before map is loaded), just make one layer
-        let depth = 1;
-        if (this.map?.depth) { depth = this.map.depth; }
+    // #updateHtml() {
+    //     // If creating for the first time (before map is loaded), just make one layer
+    //     let depth = 1;
+    //     if (this.map?.depth) { depth = this.map.depth; }
         
-        const currentNumberOfHtmlLayers = this.#selfHtml.children.length;
-        const difference = depth - currentNumberOfHtmlLayers;
+    //     const currentNumberOfHtmlLayers = this.#selfHtml.children.length;
+    //     const difference = depth - currentNumberOfHtmlLayers;
         
-        if (difference > 0) {
-            this.#addHtmlLayers(difference, this.#selfHtml);
-        } else if (difference < 0) {
-            this.#removeHtmlLayers(difference, this.#selfHtml);
-        }
+    //     if (difference > 0) {
+    //         this.#addHtmlLayers(difference, this.#selfHtml);
+    //     } else if (difference < 0) {
+    //         this.#removeHtmlLayers(difference, this.#selfHtml);
+    //     }
         
-        // If same number of layers as before, no need to make a change
-        // - (This func only ever called when updating # of layers)
-        // - Should we refactor to call when resizing as well?
-    }
+    //     // If same number of layers as before, no need to make a change
+    //     // - (This func only ever called when updating # of layers)
+    //     // - Should we refactor to call when resizing as well?
+    // }
 
     set map(map) {
         this.#map = map;
         // Must set this here for e.g. asking about isVisible before updateView has ever been called
         this.mapCoordinateAtViewCenter = map.center;
         // Update HTML based on number of layers
-        this.#updateHtml();
+        // this.#updateHtml();
+        this.#html.updateDepth();
     }
 
     get map() {
@@ -290,20 +445,21 @@ export class View {
         lines[this.map.depth - 1][this.staticCenter.line][this.staticCenter.column] = { symbol: '@', color: 'red' };
         
         // Print to screen
-        const allLayersHtml = this.#selfHtml.children;
-        for (let z = 0; z < this.map.depth; z++) {
-            const allLinesHtml = allLayersHtml.item(z).children;
-            for (let y = 0; y < this.height; y++) {
-                const allTilesHtml = allLinesHtml.item(y).children;
-                for (let x = 0; x < this.width; x++) {
-                    // allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
-                    // shows grid properly but causes ghosting/bleeding
-                    allTilesHtml.item(x).textContent = lines[z][y][x].symbol ? lines[z][y][x].symbol : ' ';
-                    allTilesHtml.item(x).style.color = lines[z][y][x].color;
-                    // allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor;
-                    allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor ? lines[z][y][x].backgroundColor : 'inherit';
-                }
-            }
-        }
+        // const allLayersHtml = this.#selfHtml.children;
+        // for (let z = 0; z < this.map.depth; z++) {
+        //     const allLinesHtml = allLayersHtml.item(z).children;
+        //     for (let y = 0; y < this.height; y++) {
+        //         const allTilesHtml = allLinesHtml.item(y).children;
+        //         for (let x = 0; x < this.width; x++) {
+        //             // allTilesHtml.item(x).textContent = lines[z][y][x].symbol;
+        //             // shows grid properly but causes ghosting/bleeding
+        //             allTilesHtml.item(x).textContent = lines[z][y][x].symbol ? lines[z][y][x].symbol : ' ';
+        //             allTilesHtml.item(x).style.color = lines[z][y][x].color;
+        //             // allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor;
+        //             allTilesHtml.item(x).style.backgroundColor = lines[z][y][x].backgroundColor ? lines[z][y][x].backgroundColor : 'inherit';
+        //         }
+        //     }
+        // }
+        this.#html.refresh(lines);
     }
 }

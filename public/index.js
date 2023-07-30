@@ -45,21 +45,6 @@ async function moveIfAble(character, direction) {
     character.move(direction);
     player.surroundings.update(player.position, view.map);
 
-    // TODO: Specify by coord instead (maps/../info.js); incl. destination
-    // if (player.surroundings.here === 'B') {
-    //     const blankMap = GameMap.createBlank(10, 5, [['.']], { name: 'blank', startPosition: { column: 1, line: 1 } });
-    //     await game.changeMap(blankMap);
-    // } else if (player.surroundings.here === 'T') {
-    //     const testMap = GameMap.createTestMap(view, 18, 12, 'F', [['★']]);
-    //     await game.changeMap(testMap);
-    // } else if (player.surroundings.here === 'F') {
-    //     const firstMap = 'test1';
-    //     await game.changeMap(firstMap);
-    // } else if (player.surroundings.here === 'Z') {
-    //     const secondMap = 'test2';
-    //     await game.changeMap(secondMap);
-    // }
-
     const tilesWithScripts = character.surroundings.thatInclude('scripts', Direction.Here);
     for (const tile of tilesWithScripts) {
         for (const script of tile.scripts) {
