@@ -144,6 +144,7 @@ class ViewHtml {
     }
 }
 
+
 export class View {
     // half the width and height of the view
     staticCenter;

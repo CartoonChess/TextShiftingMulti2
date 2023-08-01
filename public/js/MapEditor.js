@@ -1,5 +1,6 @@
 // MVC's view
 class MapEditorHtml {
+    // TODO: Don't show any buttons until load is complete
     #controller;
     
     decreaseViewHeightButton = document.getElementById('decrease-view-height');
@@ -20,42 +21,31 @@ class MapEditorHtml {
     }
 
     #addEventListeners() {
-        // document.addEventListener('keydown', this.inputController);
+        const buttons = [
+            this.decreaseViewHeightButton,
+            this.increaseViewHeightButton,
+            this.decreaseViewWidthButton,
+            this.increaseViewWidthButton,
+            this.toggleEditorButton
+        ]
 
-        // decreaseViewButton.addEventListener('click', funcName);
-        // this.#decreaseViewHeightButton.addEventListener('click', function() {
-        //     this.#game.view.resizeBy(0, -2);
-        //     updateView();
-        // });
-        this.decreaseViewHeightButton.addEventListener('click', this.#controller);
-        this.increaseViewHeightButton.addEventListener('click', this.#controller);
-        this.decreaseViewWidthButton.addEventListener('click', this.#controller);
-        this.increaseViewWidthButton.addEventListener('click', this.#controller);
-        
-        // increaseViewHeightButton.addEventListener('click', function() {
-        //     this.#game.view.resizeBy(0, 2);
-        //     updateView();
-        // });
-        
-        // decreaseViewWidthButton.addEventListener('click', function() {
-        //     this.#game.view.resizeBy(-2, 0);
-        //     updateView();
-        // });
-        
-        // increaseViewWidthButton.addEventListener('click', function() {
-        //     this.#game.view.resizeBy(2, 0);
-        //     updateView();
-        // });
-
-        this.toggleEditorButton.addEventListener('click', this.#controller);
+        for (const button of buttons) {
+            button.addEventListener('click', this.#controller);
+        }
     }
 
     #addAdditionalEventListeners() {
-        this.toggleGridCheckbox.addEventListener('change', this.#controller);
-        this.toggleMaxViewCheckbox.addEventListener('change', this.#controller);
+        // TODO: Integrate with above once everything is programmatic
+        const checkboxes = [
+            this.toggleGridCheckbox,
+            this.toggleMaxViewCheckbox
+        ]
+
+        for (const checkbox of checkboxes) {
+            checkbox.addEventListener('change', this.#controller);
+        }
     }
 
-    // toggleGridCheckbox.addEventListener('change', function() {
     toggleGrid(isEnabled) {
         const bodyClasses = document.body.classList;
         const editClass = 'edit-mode';
@@ -88,12 +78,8 @@ class MapEditorHtml {
         this.toggleMaxViewCheckbox = this.#createCheckboxInside(this.#controlsContainer, 'toggle-max-view', 'Show whole map');
 
         this.#addAdditionalEventListeners();
-    
-        //togglegrid
-        //togglemax
     }
     
-    // toggleEditorButton.addEventListener('click', function() {
     toggleEditor() {
         const toggleEditorButtonEnabledText = 'Disable Edit Mode';
         // If we're editing now or have ever been, just toggle control visibility
@@ -112,31 +98,17 @@ class MapEditorHtml {
     }
 }
 
+
 // MVC's controller
 class MapEditorController {
     #model;
     html;
     
     constructor(model) {
-        // #addEventListeners();
         this.#model = model;
     }
 
-    // #addEventListeners() {
-    //     document.addEventListener('keydown', this.inputController);
-    // }
-
     handleEvent(event) {
-        // switch (event.target.id) {
-        //     case 'decrease-view-height':
-        //         this.#model.decreaseView();
-        // }
-        
-        // const decreaseViewHeightButton = document.getElementById('decrease-view-height');
-        // switch (event.target) {
-        //     case decreaseViewHeightButton:
-        //         this.#model.decreaseView();
-        // }
         switch (event.target) {
             case this.html.decreaseViewHeightButton:
                 this.#model.decreaseViewHeight();
@@ -157,12 +129,12 @@ class MapEditorController {
                 this.html.toggleGrid(this.html.toggleGridCheckbox.checked);
                 break;
             case this.html.toggleMaxViewCheckbox:
-                // this.html.toggleMaxView(this.html.toggleMaxViewCheckbox);
                 this.#model.toggleMaxView(this.html.toggleMaxViewCheckbox.checked);
                 break;
         }
     }
 }
+
 
 import { Coordinate } from './GameMap.js';
 
@@ -201,14 +173,6 @@ export default class MapEditor {
     decreaseViewWidth() { this.#resizeViewBy(-2); }
     increaseViewWidth() { this.#resizeViewBy(2); }
     
-    // mapEditor.controller.handleInput = (someKindaInput) => {
-        
-    // }
-    
-    // TODO: Don't show any buttons until load is complete
-    // - this class should be generating them anyway, not statically written into index.html
-
-    // toggleMaxViewCheckbox.addEventListener('change', function() {
     toggleMaxView(isBecomingMaxView) {
         let newWidth = this.#oldViewWidth;
         let newHeight = this.#oldViewHeight;
@@ -221,7 +185,6 @@ export default class MapEditor {
         }
         this.#game.view.resizeTo(newWidth, newHeight);
 
-        // const isBecomingMaxView = isEnabled;
         // Don't allow player movement when map is full size
         this.#game.toggleInput(!isBecomingMaxView);
         if (isBecomingMaxView) {
