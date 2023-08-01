@@ -70,129 +70,144 @@ async function moveIfAble(character, direction) {
     // }
 }
 
+// WARN: Is this going to try and interpret map editor button click events?
 import InputController from './js/InputController.js';
 game.inputController = new InputController();
 game.inputController.move = (direction) => {
     moveIfAble(player, direction);
 };
 
+// Model: MapEditor[Data]
+// View: MapEditorHtml
+// Controller: MapEditorController
+
+// TODO: Real user auth
+const isAdmin = true;
+import MapEditor from './js/MapEditor.js';
+if (isAdmin) {
+    const mapEditor = new MapEditor(game);
+    // mapEditor.controller.handleInput = (someKindaInput) => {
+        
+    // }
+}
+
 game.toggleInput(true);
 
 // TODO: Don't show any buttons until load is complete
 
-const decreaseViewHeightButton = document.getElementById('decrease-view-height');
-// decreaseViewButton.addEventListener('click', funcName);
-decreaseViewHeightButton.addEventListener('click', function() {
-    view.resizeBy(0, -2);
-    updateView();
-});
+// const decreaseViewHeightButton = document.getElementById('decrease-view-height');
+// // decreaseViewButton.addEventListener('click', funcName);
+// decreaseViewHeightButton.addEventListener('click', function() {
+//     view.resizeBy(0, -2);
+//     updateView();
+// });
 
-const increaseViewHeightButton = document.getElementById('increase-view-height');
-increaseViewHeightButton.addEventListener('click', function() {
-    view.resizeBy(0, 2);
-    updateView();
-});
+// const increaseViewHeightButton = document.getElementById('increase-view-height');
+// increaseViewHeightButton.addEventListener('click', function() {
+//     view.resizeBy(0, 2);
+//     updateView();
+// });
 
-const decreaseViewWidthButton = document.getElementById('decrease-view-width');
-decreaseViewWidthButton.addEventListener('click', function() {
-    view.resizeBy(-2, 0);
-    updateView();
-});
+// const decreaseViewWidthButton = document.getElementById('decrease-view-width');
+// decreaseViewWidthButton.addEventListener('click', function() {
+//     view.resizeBy(-2, 0);
+//     updateView();
+// });
 
-const increaseViewWidthButton = document.getElementById('increase-view-width');
-increaseViewWidthButton.addEventListener('click', function() {
-    view.resizeBy(2, 0);
-    updateView();
-});
+// const increaseViewWidthButton = document.getElementById('increase-view-width');
+// increaseViewWidthButton.addEventListener('click', function() {
+//     view.resizeBy(2, 0);
+//     updateView();
+// });
 
-// function createCheckboxAfter(element, id, label) {
-function createCheckboxInside(container, id, label) {
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.id = id;
-    // element.after(checkbox);
-    container.appendChild(checkbox);
-    const checkboxLabel = document.createElement('label');
-    checkboxLabel.htmlFor = checkbox.id;
-    checkboxLabel.textContent = label;
-    // checkbox.after(checkboxLabel);
-    container.appendChild(checkboxLabel);
+// // function createCheckboxAfter(element, id, label) {
+// function createCheckboxInside(container, id, label) {
+//     const checkbox = document.createElement('input');
+//     checkbox.type = 'checkbox';
+//     checkbox.id = id;
+//     // element.after(checkbox);
+//     container.appendChild(checkbox);
+//     const checkboxLabel = document.createElement('label');
+//     checkboxLabel.htmlFor = checkbox.id;
+//     checkboxLabel.textContent = label;
+//     // checkbox.after(checkboxLabel);
+//     container.appendChild(checkboxLabel);
 
-    return checkbox;
-}
+//     return checkbox;
+// }
 
-let controlsContainer;
-let toggleGridCheckbox;
-let toggleMaxViewCheckbox;
+// let controlsContainer;
+// let toggleGridCheckbox;
+// let toggleMaxViewCheckbox;
 
-let oldViewWidth = view.width;
-let oldViewHeight = view.height;
-let oldPlayerPosition;
+// let oldViewWidth = view.width;
+// let oldViewHeight = view.height;
+// let oldPlayerPosition;
 
-const toggleEditorButton = document.getElementById('toggle-editor');
-const toggleEditorButtonDisabledText = toggleEditorButton.textContent;
-const toggleEditorButtonEnabledText = 'Close Editor';
+// const toggleEditorButton = document.getElementById('toggle-editor');
+// const toggleEditorButtonDisabledText = toggleEditorButton.textContent;
+// const toggleEditorButtonEnabledText = 'Close Editor';
 
-toggleEditorButton.addEventListener('click', function() {
-    // If we're editing now or have ever been, just toggle control visibility
-    if (controlsContainer) {
-        console.debug(controlsContainer.style.display);
-        if (controlsContainer.style.display === 'none') {
-            controlsContainer.style.display = 'block';
-            toggleEditorButton.textContent = toggleEditorButtonEnabledText;
-        } else {
-            controlsContainer.style.display = 'none'
-            toggleEditorButton.textContent = toggleEditorButtonDisabledText;
-        }
-        return;
-    }
+// toggleEditorButton.addEventListener('click', function() {
+//     // If we're editing now or have ever been, just toggle control visibility
+//     if (controlsContainer) {
+//         console.debug(controlsContainer.style.display);
+//         if (controlsContainer.style.display === 'none') {
+//             controlsContainer.style.display = 'block';
+//             toggleEditorButton.textContent = toggleEditorButtonEnabledText;
+//         } else {
+//             controlsContainer.style.display = 'none'
+//             toggleEditorButton.textContent = toggleEditorButtonDisabledText;
+//         }
+//         return;
+//     }
 
-    // If this is our first time entering edit mode, set up controls
+//     // If this is our first time entering edit mode, set up controls
 
-    toggleEditorButton.textContent = toggleEditorButtonEnabledText;
+//     toggleEditorButton.textContent = toggleEditorButtonEnabledText;
 
-    controlsContainer = document.createElement('div');
-    toggleEditorButton.after(controlsContainer);
-    toggleGridCheckbox = createCheckboxInside(controlsContainer, 'toggle-grid', 'Grid');
-    toggleMaxViewCheckbox = createCheckboxInside(controlsContainer, 'toggle-max-view', 'Show whole map');
+//     controlsContainer = document.createElement('div');
+//     toggleEditorButton.after(controlsContainer);
+//     toggleGridCheckbox = createCheckboxInside(controlsContainer, 'toggle-grid', 'Grid');
+//     toggleMaxViewCheckbox = createCheckboxInside(controlsContainer, 'toggle-max-view', 'Show whole map');
 
-    toggleGridCheckbox.addEventListener('change', function() {
-        const bodyClasses = document.body.classList;
-        const editClass = 'edit-mode';
-        if (this.checked) {
-            bodyClasses.add(editClass);
-        } else {
-            bodyClasses.remove(editClass);
-        }
-    });
+//     toggleGridCheckbox.addEventListener('change', function() {
+//         const bodyClasses = document.body.classList;
+//         const editClass = 'edit-mode';
+//         if (this.checked) {
+//             bodyClasses.add(editClass);
+//         } else {
+//             bodyClasses.remove(editClass);
+//         }
+//     });
 
-    toggleMaxViewCheckbox.addEventListener('change', function() {
-        let newWidth = oldViewWidth;
-        let newHeight = oldViewHeight;
-        if (this.checked) {
-            // TODO: Deal with even dimensions moer gracefully
-            // -(currently does +1 to dimension, but visually unclear to user)
-            newWidth = view.map.width;
-            newHeight = view.map.height;
-        }
-        view.resizeTo(newWidth, newHeight);
+//     toggleMaxViewCheckbox.addEventListener('change', function() {
+//         let newWidth = oldViewWidth;
+//         let newHeight = oldViewHeight;
+//         if (this.checked) {
+//             // TODO: Deal with even dimensions moer gracefully
+//             // -(currently does +1 to dimension, but visually unclear to user)
+//             newWidth = view.map.width;
+//             newHeight = view.map.height;
+//         }
+//         view.resizeTo(newWidth, newHeight);
 
-        const isBecomingMaxView = this.checked;
-        // Don't allow player movement when map is full size
-        game.toggleInput(!isBecomingMaxView);
-        if (isBecomingMaxView) {
-            // WARN: If clicked before game is fully loaded, player.position will (probably) be undefined!
-            oldPlayerPosition = Coordinate.fromJson(player.position.toJson());
-            player.move(view.staticCenter);
-        } else {
-            player.move(oldPlayerPosition);
-        }
-        player.surroundings.update(player.position, view.map);
-        // NOTE: Does not change on server/refresh as we haven't called socket.broadcastMove()...
+//         const isBecomingMaxView = this.checked;
+//         // Don't allow player movement when map is full size
+//         game.toggleInput(!isBecomingMaxView);
+//         if (isBecomingMaxView) {
+//             // WARN: If clicked before game is fully loaded, player.position will (probably) be undefined!
+//             oldPlayerPosition = Coordinate.fromJson(player.position.toJson());
+//             player.move(view.staticCenter);
+//         } else {
+//             player.move(oldPlayerPosition);
+//         }
+//         player.surroundings.update(player.position, view.map);
+//         // NOTE: Does not change on server/refresh as we haven't called socket.broadcastMove()...
         
-        updateView();
-    });
-});
+//         updateView();
+//     });
+// });
 
 // Mobile - currently disabled
 // import './mobile.js';
