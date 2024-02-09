@@ -7,8 +7,6 @@ const log = new MessageLog(document.getElementById('message-log'), true);
 game.log = log;
 log.print('Loading...');
 
-// const solidCharacter = '#';
-
 // Map and view
 import { GameMap } from './js/GameMap.js';
 import { View } from './js/View.js';

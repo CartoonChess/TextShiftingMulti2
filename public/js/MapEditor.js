@@ -2,6 +2,8 @@
 class MapEditorHtml {
     // TODO: Don't show any buttons until load is complete
     #controller;
+
+    #mapName;
     
     decreaseViewHeightButton = document.getElementById('decrease-view-height');
     increaseViewHeightButton = document.getElementById('increase-view-height');
@@ -13,10 +15,14 @@ class MapEditorHtml {
     #controlsContainer;
     toggleGridCheckbox;
     toggleMaxViewCheckbox;
+
+    #infoContainer;
+    mapNameTextbox;
     
-    constructor(controller) {
+    constructor(mapName, controller) {
         this.#controller = controller;
-        this.#controller.html = this;
+        // this.#controller.html = this;
+        this.#mapName = mapName;
         this.#addEventListeners();
     }
 
@@ -36,13 +42,14 @@ class MapEditorHtml {
 
     #addAdditionalEventListeners() {
         // TODO: Integrate with above once everything is programmatic
-        const checkboxes = [
+        const inputs = [
             this.toggleGridCheckbox,
-            this.toggleMaxViewCheckbox
+            this.toggleMaxViewCheckbox,
+            this.mapNameTextbox
         ]
 
-        for (const checkbox of checkboxes) {
-            checkbox.addEventListener('change', this.#controller);
+        for (const input of inputs) {
+            input.addEventListener('change', this.#controller);
         }
     }
 
@@ -69,13 +76,36 @@ class MapEditorHtml {
         return checkbox;
     }
 
+    #createInfoContainer() {
+        this.#infoContainer = document.createElement('div');
+        document.getElementById('game-view').before(this.#infoContainer);
+
+        
+        // Location (directory)
+        // TODO: Implement (see notes for ideas)
+
+        // Map name
+        const mapNameText = this.#mapName;
+        this.mapNameTextbox = document.createElement('input');
+        this.mapNameTextbox.id = 'map-name';
+        this.mapNameTextbox.type = 'text';
+        this.mapNameTextbox.value = mapNameText;
+        this.#infoContainer.appendChild(this.mapNameTextbox);
+
+        // Map dimensions
+        // TODO: textboxes? dropdowns?? +/- buttons..? maybe textbox + buttons...
+    }
+
     #initializeEditor(buttonText) {
         this.toggleEditorButton.textContent = buttonText;
-    
+        
+        // TODO: probably break this block into its own func
         this.#controlsContainer = document.createElement('div');
         this.toggleEditorButton.after(this.#controlsContainer);
         this.toggleGridCheckbox = this.#createCheckboxInside(this.#controlsContainer, 'toggle-grid', 'Grid');
         this.toggleMaxViewCheckbox = this.#createCheckboxInside(this.#controlsContainer, 'toggle-max-view', 'Show whole map');
+        
+        this.#createInfoContainer();
 
         this.#addAdditionalEventListeners();
     }
@@ -86,9 +116,11 @@ class MapEditorHtml {
         if (this.#controlsContainer) {
             if (this.#controlsContainer.style.display === 'none') {
                 this.#controlsContainer.style.display = 'block';
+                this.#infoContainer.style.display = 'block';
                 this.toggleEditorButton.textContent = toggleEditorButtonEnabledText;
             } else {
                 this.#controlsContainer.style.display = 'none'
+                this.#infoContainer.style.display = 'none';
                 this.toggleEditorButton.textContent = 'Enable Edit Mode';
             }
         } else {
@@ -103,9 +135,12 @@ class MapEditorHtml {
 class MapEditorController {
     #model;
     html;
+    // #html;
     
     constructor(model) {
         this.#model = model;
+        // this.#html = new MapEditorHtml(this);
+        this.html = new MapEditorHtml(this.#model.mapName, this);
     }
 
     handleEvent(event) {
@@ -131,6 +166,9 @@ class MapEditorController {
             case this.html.toggleMaxViewCheckbox:
                 this.#model.toggleMaxView(this.html.toggleMaxViewCheckbox.checked);
                 break;
+            case this.html.mapNameTextbox:
+                this.#model.updateMapName(this.html.mapNameTextbox.value);
+                break;
         }
     }
 }
@@ -140,8 +178,8 @@ import { Coordinate } from './GameMap.js';
 
 // MVC's model
 export default class MapEditor {
-    #html;
-    #controller;
+    // #html;
+    // #controller;
 
     #game;
 
@@ -151,12 +189,22 @@ export default class MapEditor {
     
     constructor(game) {
         this.#game = game;
-        this.#controller = new MapEditorController(this);
-        this.#html = new MapEditorHtml(this.#controller);
+        // this.#controller = new MapEditorController(this);
+        new MapEditorController(this);
+        // this.#html = new MapEditorHtml(this.#controller);
         // this.#controller.html = this.#html;
 
         this.#oldViewWidth = this.#game.view.width;
         this.#oldViewHeight = this.#game.view.height;
+    }
+
+    get mapName() {
+        return this.#game.view.map.name;
+    }
+
+    updateMapName(name) {
+        // TODO: Implement
+        console.debug(name);
     }
 
     #updateView() {
