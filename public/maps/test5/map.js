@@ -1,5 +1,5 @@
-import Tile, { WarpTileScript } from '../../js/Tile.js';
-import { Coordinate } from '../../js/GameMap.js';
+import Tile, { WarpTileScript } from '/js/Tile.js';
+import { Coordinate } from '/js/GameMap.js';
 export const tiles = [
     [
         [

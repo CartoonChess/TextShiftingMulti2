@@ -3,7 +3,7 @@ class MapEditorHtml {
     // TODO: Don't show any buttons until load is complete
     #controller;
 
-    #mapName;
+    // #mapName;
     
     decreaseViewHeightButton = document.getElementById('decrease-view-height');
     increaseViewHeightButton = document.getElementById('increase-view-height');
@@ -19,11 +19,16 @@ class MapEditorHtml {
     #infoContainer;
     mapNameDropdown;
     
-    constructor(mapName, controller) {
+    // constructor(mapName, controller) {
+    constructor(controller) {
         this.#controller = controller;
         // this.#controller.html = this;
-        this.#mapName = mapName;
+        // this.#mapName = mapName;
         this.#addEventListeners();
+    }
+
+    get #mapName() {
+        return this.#controller.mapName;
     }
 
     #addEventListeners() {
@@ -100,18 +105,20 @@ class MapEditorHtml {
 
         // Populate with full map list when available
         const mapList = await this.#controller.getDirectoryListing();
+        let didFindCurrentMap = false;
 
         for (const map of mapList) {
             const option = document.createElement('option');
             option.text = map;
             option.value = option.text;
             this.mapNameDropdown.appendChild(option);
+
+            // Remove pre-await map name and highlight identical replacement in list
+            if (map === this.#mapName) {
+                this.mapNameDropdown.options[0].remove();
+                option.selected = true;
+            }
         }
-        
-        // TODO: How do we figure out the dir of the map if we don't know if it's in a subdir somewhere??
-        // - maybe this should be the true map name, when loading them in the Game in the first place...
-        // - abandon data.name var...?
-        // Once that happens, we also need to remove the first option from the list (before async op)
 
         // Make it clickable
         this.mapNameDropdown.disabled = false;
@@ -172,7 +179,8 @@ class MapEditorController {
     constructor(model) {
         this.#model = model;
         // this.#html = new MapEditorHtml(this);
-        this.html = new MapEditorHtml(this.#model.mapName, this);
+        // this.html = new MapEditorHtml(this.#model.mapName, this);
+        this.html = new MapEditorHtml(this);
     }
 
     async handleEvent(event) {
@@ -206,6 +214,10 @@ class MapEditorController {
 
     async getDirectoryListing() {
         return await this.#model.getDirectoryListing();
+    }
+
+    get mapName() {
+        return this.#model.mapName;
     }
 }
 
@@ -249,6 +261,7 @@ export default class MapEditor {
     // TODO: Maybe this should just be in the controller?
     async getDirectoryListing() {
         // Note that '/maps' corresponds to express's `.get` access point
+        // TODO: This directory should be like a global constant
         const response = await fetch('/maps');
         if (response.ok) {
             return await response.json();

@@ -71,11 +71,8 @@ export class GameMap {
     // dimension are overridden if lines is supplied
     // info must be an object
     constructor(width = 0, height = 0, lines, border = new MapBorder(), info) {
-        // if (lines && lines.length && lines[0].length) {
         if (lines && lines.length && lines[0].length && lines[0][0].length) {
             this.lines = lines;
-            // this.height = lines.length;
-            // this.width = lines[0].length;
             this.depth = lines.length;
             this.height = lines[0].length;
             this.width = lines[0][0].length;
@@ -107,7 +104,9 @@ export class GameMap {
                 // startPosition defaults to center
                 this.startPosition = this.#center;
             }
-            if (info.name) {
+            // Note: This should be automatically set to path, even if info.js tries to supply it
+            // if (info.name) {
+            if (!this.name && info.name) {
                 this.name = info.name;
             }
         }
@@ -129,16 +128,24 @@ export class GameMap {
         return new this(undefined, undefined, lines, border, info);
     }
 
-    static async #loadInfoFromFile(filePath) {
+    static async #loadInfoFromFile(filePath, pkgName) {
         try {
             const file = await import(filePath);
+            
+            // Overwrite data.name with path instead
+            if (pkgName) {
+                console.debug(file.data.name);
+                file.data.name = pkgName;
+                console.debug(file.data.name);
+            }
+
             return file.data;
         } catch(err) {
             console.error(`Couldn't open file "${filePath}": ${err}`);
         }
     }
 
-    static async loadFromFile(filePath, borderFilePath, infoFilePath) {
+    static async loadFromFile(filePath, borderFilePath, infoFilePath, pkgName) {
         if (!filePath) { return console.error(`Must provide a file path to use GameMap.loadFromFile.`); }
 
         const lines = await this.#loadLinesFromFile(filePath);
@@ -148,7 +155,7 @@ export class GameMap {
             border = await MapBorder.loadFromFile(borderFilePath);
         }
 
-        const info = await this.#loadInfoFromFile(infoFilePath);
+        const info = await this.#loadInfoFromFile(infoFilePath, pkgName);
         return this.createFromLines(lines, border, info);
     }
 
@@ -157,15 +164,15 @@ export class GameMap {
         if (!pkgName) { return console.error(`Must provide a package name to use GameMap.loadFromPackage.`); }
 
         // "advised to access private static props thru class NAME"
+        // TODO: Should ask server for path separator symbol (diff for Windows?)
         const prefix = GameMap.#packagePath + pkgName + '/';
         const infoFilePath = prefix + 'info.js'
         if (infoOnly) {
-            return this.#loadInfoFromFile(infoFilePath);
+            return this.#loadInfoFromFile(infoFilePath, pkgName);
         } else {
-            // const filePath = prefix + 'map';
             const filePath = prefix + 'map.js';
             const borderFilePath = prefix + 'border';
-            return this.loadFromFile(filePath, borderFilePath, infoFilePath);
+            return this.loadFromFile(filePath, borderFilePath, infoFilePath, pkgName);
         }
     }
 
@@ -178,21 +185,11 @@ export class GameMap {
     static async #loadLinesFromFile(filePath) {
         let data;
         try {
-            // const response = await fetch(filePath);
-            // data = await response.text();
             const file = await import(filePath);
             return file.tiles;
         } catch (err) {
             return console.error(`GameMap.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
         }
-
-        // Split into 2D array of lines and their tiles
-        // const lines = data.split('\n');
-        // for (let i = 0; i < lines.length; i++) {
-        //     lines[i] = lines[i].split('');
-        // }
-        
-        // return lines;
     }
 
     static createTestMap(view, width = view.width * 2, height = view.height * 2, boundCharacter = '#', border) {

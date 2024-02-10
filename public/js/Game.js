@@ -8,8 +8,8 @@ export default class Game {
     remotePlayers;
     inputController;
 
-    // static defaultMapPackage = 'test1';
-    static defaultMapPackage = 'test4';
+    // static defaultMapPackage = 'test4';
+    static defaultMapPackage = 'test4/sub';
 
     static async #getMapPackageInfo(pkgName) {
         if (!pkgName || typeof pkgName === 'object') {

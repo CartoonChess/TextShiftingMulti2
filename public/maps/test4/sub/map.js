@@ -58,6 +58,10 @@
 //     ]
 // ];
 
+// import Tile from '../../js/Tile.js';
+// import { Tile } from '../../js/Tile.js';
+// import Tile, { WarpTileScript } from '../../js/Tile.js';
+// import { Coordinate } from '../../js/GameMap.js';
 import Tile, { WarpTileScript } from '/js/Tile.js';
 import { Coordinate } from '/js/GameMap.js';
 export const tiles = [
@@ -73,12 +77,12 @@ export const tiles = [
     ],
     [
         [
-            new Tile({ symbol: '0', color: 'yellow' }),
-            new Tile({ symbol: 'x', color: 'yellow', isSolid: true })
+            new Tile({ symbol: 's', color: 'yellow' }),
+            new Tile({ symbol: 'u', color: 'yellow', isSolid: true })
         ],
         [
-            new Tile({ symbol: 'y', color: 'yellow' }),
-            new Tile({ symbol: '1', color: 'yellow', scripts: [
+            new Tile({ symbol: 'u', color: 'yellow' }),
+            new Tile({ symbol: 'b', color: 'yellow', scripts: [
                 new WarpTileScript(new Coordinate(-2, -2), 'test5')
             ] })
         ]
