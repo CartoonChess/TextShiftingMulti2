@@ -17,7 +17,7 @@ class MapEditorHtml {
     toggleMaxViewCheckbox;
 
     #infoContainer;
-    mapNameTextbox;
+    mapNameDropdown;
     
     constructor(mapName, controller) {
         this.#controller = controller;
@@ -42,15 +42,19 @@ class MapEditorHtml {
 
     #addAdditionalEventListeners() {
         // TODO: Integrate with above once everything is programmatic
+        // Note that mapNameDropdown isn't actually `input` but `select` (rename to `elements`?)
         const inputs = [
             this.toggleGridCheckbox,
             this.toggleMaxViewCheckbox,
-            this.mapNameTextbox
+            this.mapNameDropdown
         ]
-
+        
         for (const input of inputs) {
             input.addEventListener('change', this.#controller);
         }
+
+        // TODO: Do we want mapNameDropdown to trigger on change or on input? Seems fine for now...
+        // this.mapNameDropdown.addEventListener('input', this.#controller);
     }
 
     toggleGrid(isEnabled) {
@@ -76,27 +80,55 @@ class MapEditorHtml {
         return checkbox;
     }
 
-    #createInfoContainer() {
+    async #createInfoContainer() {
         this.#infoContainer = document.createElement('div');
         document.getElementById('game-view').before(this.#infoContainer);
-
         
-        // Location (directory)
-        // TODO: Implement (see notes for ideas)
+        // Map name and location (directory)
+
+        // Create disabled dropdown showing map name
+        this.mapNameDropdown = document.createElement('select');
+        this.mapNameDropdown.id = 'map-name';
+        this.mapNameDropdown.disabled = true;
+
+        const option = document.createElement('option');
+        option.text = this.#mapName;
+        option.value = option.text;
+        this.mapNameDropdown.add(option);
+
+        this.#infoContainer.appendChild(this.mapNameDropdown);
+
+        // Populate with full map list when available
+        const mapList = await this.#controller.getDirectoryListing();
+
+        for (const map of mapList) {
+            const option = document.createElement('option');
+            option.text = map;
+            option.value = option.text;
+            this.mapNameDropdown.appendChild(option);
+        }
+        
+        // TODO: How do we figure out the dir of the map if we don't know if it's in a subdir somewhere??
+        // - maybe this should be the true map name, when loading them in the Game in the first place...
+        // - abandon data.name var...?
+        // Once that happens, we also need to remove the first option from the list (before async op)
+
+        // Make it clickable
+        this.mapNameDropdown.disabled = false;
 
         // Map name
-        const mapNameText = this.#mapName;
-        this.mapNameTextbox = document.createElement('input');
-        this.mapNameTextbox.id = 'map-name';
-        this.mapNameTextbox.type = 'text';
-        this.mapNameTextbox.value = mapNameText;
-        this.#infoContainer.appendChild(this.mapNameTextbox);
+        // const mapNameText = this.#mapName;
+        // this.mapNameTextbox = document.createElement('input');
+        // this.mapNameTextbox.id = 'map-name';
+        // this.mapNameTextbox.type = 'text';
+        // this.mapNameTextbox.value = mapNameText;
+        // this.#infoContainer.appendChild(this.mapNameTextbox);
 
         // Map dimensions
         // TODO: textboxes? dropdowns?? +/- buttons..? maybe textbox + buttons...
     }
 
-    #initializeEditor(buttonText) {
+    async #initializeEditor(buttonText) {
         this.toggleEditorButton.textContent = buttonText;
         
         // TODO: probably break this block into its own func
@@ -105,12 +137,12 @@ class MapEditorHtml {
         this.toggleGridCheckbox = this.#createCheckboxInside(this.#controlsContainer, 'toggle-grid', 'Grid');
         this.toggleMaxViewCheckbox = this.#createCheckboxInside(this.#controlsContainer, 'toggle-max-view', 'Show whole map');
         
-        this.#createInfoContainer();
+        await this.#createInfoContainer();
 
         this.#addAdditionalEventListeners();
     }
     
-    toggleEditor() {
+    async toggleEditor() {
         const toggleEditorButtonEnabledText = 'Disable Edit Mode';
         // If we're editing now or have ever been, just toggle control visibility
         if (this.#controlsContainer) {
@@ -125,7 +157,7 @@ class MapEditorHtml {
             }
         } else {
             // If this is our first time entering edit mode, set up controls
-            this.#initializeEditor(toggleEditorButtonEnabledText);
+            await this.#initializeEditor(toggleEditorButtonEnabledText);
         }
     }
 }
@@ -143,7 +175,7 @@ class MapEditorController {
         this.html = new MapEditorHtml(this.#model.mapName, this);
     }
 
-    handleEvent(event) {
+    async handleEvent(event) {
         switch (event.target) {
             case this.html.decreaseViewHeightButton:
                 this.#model.decreaseViewHeight();
@@ -158,7 +190,7 @@ class MapEditorController {
                 this.#model.increaseViewWidth();
                 break;
             case this.html.toggleEditorButton:
-                this.html.toggleEditor();
+                await this.html.toggleEditor();
                 break;
             case this.html.toggleGridCheckbox:
                 this.html.toggleGrid(this.html.toggleGridCheckbox.checked);
@@ -166,10 +198,14 @@ class MapEditorController {
             case this.html.toggleMaxViewCheckbox:
                 this.#model.toggleMaxView(this.html.toggleMaxViewCheckbox.checked);
                 break;
-            case this.html.mapNameTextbox:
-                this.#model.updateMapName(this.html.mapNameTextbox.value);
+            case this.html.mapNameDropdown:
+                this.#model.updateMapName(this.html.mapNameDropdown.value);
                 break;
         }
+    }
+
+    async getDirectoryListing() {
+        return await this.#model.getDirectoryListing();
     }
 }
 
@@ -196,6 +232,9 @@ export default class MapEditor {
 
         this.#oldViewWidth = this.#game.view.width;
         this.#oldViewHeight = this.#game.view.height;
+
+        // TODO: Figure out when to call this
+        this.getDirectoryListing();
     }
 
     get mapName() {
@@ -206,6 +245,25 @@ export default class MapEditor {
         // TODO: Implement
         console.debug(name);
     }
+
+    // TODO: Maybe this should just be in the controller?
+    async getDirectoryListing() {
+        // Note that '/maps' corresponds to express's `.get` access point
+        const response = await fetch('/maps');
+        if (response.ok) {
+            return await response.json();
+        } else {
+            console.error('Could not fetch directory listing.');
+        }
+    }
+
+    // #createMap() {
+
+    // }
+
+    // #deleteMap() {
+
+    // }
 
     #updateView() {
         this.#game.view.update(this.#game.player, this.#game.remotePlayers);

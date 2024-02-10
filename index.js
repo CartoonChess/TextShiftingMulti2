@@ -4,8 +4,6 @@
 // 2. we use `import x from y` instead of require()
 // 3. we have to use `import="module"` in html <script>
 
-// import './ConsoleColor.js';
-
 import express from 'express';
 const app = express();
 import http from 'http';
@@ -38,8 +36,6 @@ app.get('/randomBytes.js', (req, res) => {
     res.sendFile(__dirname + '/randomBytes.js');
 });
 
-// app.get('../../ConsoleColor.js', (req, res) => {
-//     res.sendFile(__dirname + '../../ConsoleColor.js');
 app.get('/ConsoleColor.js', (req, res) => {
     res.sendFile(__dirname + '/ConsoleColor.js');
 });
@@ -48,9 +44,10 @@ app.get('/String_prototype.js', (req, res) => {
     res.sendFile(__dirname + '/String_prototype.js');
 });
 
-app.get('/chat.html', (req, res) => {
-    res.sendFile(__dirname + '/__old/chat.html');
-});
+// TODO: Remove?
+// app.get('/fs_readdirRecursive.js', (req, res) => {
+//     res.sendFile(__dirname + '/fs_readdirRecursive.js');
+// });
 
 // Serve up the /public folder as the root html folder
 // Use `__dirname` in ES module: https://flaviocopes.com/fix-dirname-not-defined-es-module-scope/
@@ -61,6 +58,26 @@ const __dirname = path.dirname(__filename);
 
 const publicDir = path.join(__dirname, 'public');
 app.use('/', express.static(publicDir));
+
+// Provide maps directory listing for editor mode
+// Gives name, or name with relative path if in subdirectory
+import fs from './fs_readdirRecursive.js';
+const mapsDir = publicDir + '/maps';
+app.get('/maps', async (req, res) => {
+    try {
+        const files = await fs.readdirRecursive(mapsDir, true, false);
+        // Strip leading directory info
+        const maps = files.map(path => path.substring(mapsDir.length + 1));
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(maps));
+    } catch (err) {
+        const error = `Server cannot read maps directory: ${err}.`;
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: error }));
+        return console.error(error);
+    }
+});
 
 import Game from './public/js/Game.js';
 const defaultGameMap = Game.defaultMapPackage;
@@ -135,7 +152,7 @@ io.on('connection', (socket) => {
     
 
     // Save sessions so they persist across refreshes
-    // Doesn't apply if repl restarts
+    // Doesn't apply if server restarts
     sessionStore.saveSession(socket.sessionId, {
         userId: socket.userId,
         isOnline: true,
