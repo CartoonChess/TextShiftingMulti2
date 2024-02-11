@@ -17,7 +17,19 @@ class MapEditorHtml {
     toggleMaxViewCheckbox;
 
     #infoContainer;
+
     mapNameDropdown;
+
+    increaseMapWidthOnLeftButton;
+    decreaseMapWidthOnLeftButton;
+    increaseMapWidthOnRightButton;
+    decreaseMapWidthOnRightButton;
+    increaseMapHeightOnTopButton;
+    decreaseMapHeightOnTopButton;
+    increaseMapHeightOnBottomButton;
+    decreaseMapHeightOnBottomButton;
+    mapWidthTextbox;
+    mapHeightTextbox;
     
     // constructor(mapName, controller) {
     constructor(controller) {
@@ -29,6 +41,14 @@ class MapEditorHtml {
 
     get #mapName() {
         return this.#controller.mapName;
+    }
+
+    get #mapWidth() {
+        return this.#controller.mapWidth;
+    }
+
+    get #mapHeight() {
+        return this.#controller.mapHeight;
     }
 
     #addEventListeners() {
@@ -85,44 +105,39 @@ class MapEditorHtml {
         return checkbox;
     }
 
-    async #createInfoContainer() {
-        this.#infoContainer = document.createElement('div');
-        document.getElementById('game-view').before(this.#infoContainer);
-        
-        // Map name and location (directory)
-
+    async #createMapNameControls() {
         // Create disabled dropdown showing map name
         this.mapNameDropdown = document.createElement('select');
         this.mapNameDropdown.id = 'map-name';
         this.mapNameDropdown.disabled = true;
-
+    
         const option = document.createElement('option');
         option.text = this.#mapName;
         option.value = option.text;
         this.mapNameDropdown.add(option);
-
+    
         this.#infoContainer.appendChild(this.mapNameDropdown);
-
+    
         // Populate with full map list when available
         const mapList = await this.#controller.getDirectoryListing();
         let didFindCurrentMap = false;
-
+    
         for (const map of mapList) {
             const option = document.createElement('option');
             option.text = map;
             option.value = option.text;
             this.mapNameDropdown.appendChild(option);
-
+    
             // Remove pre-await map name and highlight identical replacement in list
             if (map === this.#mapName) {
                 this.mapNameDropdown.options[0].remove();
                 option.selected = true;
             }
         }
-
+    
         // Make it clickable
         this.mapNameDropdown.disabled = false;
-
+    
         // Map name
         // const mapNameText = this.#mapName;
         // this.mapNameTextbox = document.createElement('input');
@@ -130,9 +145,95 @@ class MapEditorHtml {
         // this.mapNameTextbox.type = 'text';
         // this.mapNameTextbox.value = mapNameText;
         // this.#infoContainer.appendChild(this.mapNameTextbox);
+    
+        // TODO: Edit (rename/move), delete, new buttons
+    }
 
-        // Map dimensions
-        // TODO: textboxes? dropdowns?? +/- buttons..? maybe textbox + buttons...
+    #createButtonInside(container, id, text) {
+        const button = document.createElement('button');
+        button.id = id;
+        button.textContent = text;
+        container.appendChild(button);
+    
+        return button;
+    }
+
+    #creatTextboxInside(container, id, text) {
+        const textbox = document.createElement('input');
+        textbox.id = id;
+        textbox.type = 'text';
+        textbox.value = text;
+        container.appendChild(textbox);
+    
+        return textbox;
+    }
+
+    #getButtonName(change, axis, side) {
+        if ((change != '+' && change != '-')
+            || (axis != 'x' && axis != 'y')
+            || (side != 'l' && side != 'r' && side != 't' && side != 'b')) {
+                return console.error('Illegal argument passed to MapEditorHtml.#getButtonName().');
+            }
+    
+        const changeText = change == '+' ? 'increase' : 'decrease';
+        const axisText = axis == 'x' ? 'width' : 'height';
+        let sideText = '';
+        switch (side) {
+            case 'l': { sideText = 'left'; break; }
+            case 'r': { sideText = 'right'; break; }
+            case 't': { sideText = 'top'; break; }
+            case 'b': { sideText = 'bottom'; break; }
+            default: {
+                console.error('MapEditorHtml.#getButtonName() default case was triggered (should never happen).');
+            }
+        }
+
+        return `${changeText}-map-${axisText}-on-${sideText}-button`;
+    }
+
+    #createMapDimensionButton(change, axis, side, symbol) {
+        return this.#createButtonInside(this.#infoContainer, this.#getButtonName(change, axis, side), symbol);
+    }
+
+    #createMapDimensionControls() {
+        const lt = '<';
+        const rt = '>';
+        const up = '^';
+        const dn = 'v';
+
+        // Horizontal (x)
+        // Leftside buttons
+        this.increaseMapWidthOnLeftButton = this.#createMapDimensionButton('+', 'x', 'l', lt);
+        this.decreaseMapWidthOnLeftButton = this.#createMapDimensionButton('-', 'x', 'l', rt);
+        // Numerical size
+        this.mapWidthTextbox = this.#creatTextboxInside(this.#infoContainer, 'map-width', this.#mapWidth);
+        // Rightside buttons
+        this.decreaseMapWidthOnRightButton = this.#createMapDimensionButton('-', 'x', 'r', lt);
+        this.increaseMapWidthOnRightButton = this.#createMapDimensionButton('+', 'x', 'r', rt);
+        
+        // Verical (y)
+        // Top buttons
+        this.#infoContainer.appendChild(document.createElement('br'));
+        this.increaseMapHeightOnTopButton = this.#createMapDimensionButton('+', 'y', 't', up);
+        this.decreaseMapHeightOnTopButton = this.#createMapDimensionButton('-', 'y', 't', dn);
+        // Numerical size
+        this.#infoContainer.appendChild(document.createElement('br'));
+        this.mapHeightTextbox = this.#creatTextboxInside(this.#infoContainer, 'map-height', this.#mapHeight);
+        // Bottom buttons
+        this.#infoContainer.appendChild(document.createElement('br'));
+        this.decreaseMapHeightOnBottomButton = this.#createMapDimensionButton('-', 'y', 'b', up);
+        this.increaseMapHeightOnBottomButton = this.#createMapDimensionButton('+', 'y', 'b', dn);
+    }
+
+    async #createInfoContainer() {
+        this.#infoContainer = document.createElement('div');
+        document.getElementById('game-view').before(this.#infoContainer);
+        
+        // Map name and location (directory)
+        await this.#createMapNameControls();
+
+        // Map size
+        this.#createMapDimensionControls();
     }
 
     async #initializeEditor(buttonText) {
@@ -171,13 +272,16 @@ class MapEditorHtml {
 
 
 // MVC's controller
-class MapEditorController {
+// class MapEditorController {
+export default class MapEditor {
     #model;
     html;
     // #html;
     
-    constructor(model) {
-        this.#model = model;
+    // constructor(model) {
+    //     this.#model = model;
+    constructor(game) {
+        this.#model = new MapEditorModel(game);
         // this.#html = new MapEditorHtml(this);
         // this.html = new MapEditorHtml(this.#model.mapName, this);
         this.html = new MapEditorHtml(this);
@@ -219,13 +323,22 @@ class MapEditorController {
     get mapName() {
         return this.#model.mapName;
     }
+
+    get mapWidth() {
+        return this.#model.mapWidth;
+    }
+
+    get mapHeight() {
+        return this.#model.mapHeight;
+    }
 }
 
 
 import { Coordinate } from './GameMap.js';
 
 // MVC's model
-export default class MapEditor {
+// export default class MapEditor {
+class MapEditorModel {
     // #html;
     // #controller;
 
@@ -238,7 +351,7 @@ export default class MapEditor {
     constructor(game) {
         this.#game = game;
         // this.#controller = new MapEditorController(this);
-        new MapEditorController(this);
+        // new MapEditorController(this);
         // this.#html = new MapEditorHtml(this.#controller);
         // this.#controller.html = this.#html;
 
@@ -253,9 +366,20 @@ export default class MapEditor {
         return this.#game.view.map.name;
     }
 
+    get mapWidth() {
+        return this.#game.view.map.width;
+    }
+
+    get mapHeight() {
+        return this.#game.view.map.height;
+    }
+
+    get mapDepth() {
+        // TODO: implement
+    }
+
     updateMapName(name) {
         // TODO: Implement
-        console.debug(name);
     }
 
     // TODO: Maybe this should just be in the controller?
