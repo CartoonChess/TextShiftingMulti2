@@ -86,6 +86,14 @@ class MapEditorHtml {
             input.addEventListener('change', this.#controller);
         }
 
+        const buttons = [
+            this.createMapButton
+        ]
+
+        for (const button of buttons) {
+            button.addEventListener('click', this.#controller);
+        }
+
         // TODO: Do we want mapNameDropdown to trigger on change or on input? Seems fine for now...
         // this.mapNameDropdown.addEventListener('input', this.#controller);
     }
@@ -336,6 +344,10 @@ export default class MapEditor {
             case this.html.mapNameDropdown:
                 this.#model.updateMapName(this.html.mapNameDropdown.value);
                 break;
+            case this.html.createMapButton:
+                // this.#model.createMap();
+                await this.#createMap();
+                break;
         }
     }
 
@@ -357,6 +369,55 @@ export default class MapEditor {
 
     get mapDepth() {
         return this.#model.mapDepth;
+    }
+
+    async #createMap() {
+        // Create blank map one directory above current
+        // Update Game etc. with new map
+        // Reflect map stats in html
+
+        const shortName = 'new';
+        // Create in parent folder, with leading slash
+        const pathParts = this.#model.mapName.split('/');
+        pathParts.pop();
+        const fullName = pathParts.join('/') + '/' + shortName;
+
+        const data = {
+            dir: fullName,
+            file: 'info.js',
+            content: `export const data = {
+"name": "${fullName}",
+"dimensions": {
+    "width": 1,
+    "height": 1,
+    "depth": 1
+},
+"startPosition": {
+    "column": 0,
+    "line": 0
+}
+}`
+        };
+
+        try {
+            const response = await fetch('/createMap', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err);
+            }
+
+            const responseText = await response.text();
+            console.log(responseText);
+        } catch (err) {
+            console.error(err.message);
+        }
     }
 }
 
@@ -421,11 +482,17 @@ class MapEditorModel {
         }
     }
 
-    // #createMap() {
-
+    // createMap() {
+    //     // Create blank map one directory above current
+    //     // Update Game etc. with new map
+    //     // Reflect map stats in html
     // }
 
     // #deleteMap() {
+
+    // }
+
+    // #change[move]Map() {
 
     // }
 

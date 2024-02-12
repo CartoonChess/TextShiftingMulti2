@@ -59,6 +59,9 @@ const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, 'public');
 app.use('/', express.static(publicDir));
 
+// Let express parse json POSTs
+app.use(express.json());
+
 // Provide maps directory listing for editor mode
 // Gives name, or name with relative path if in subdirectory
 import fs from './fs_readdirRecursive.js';
@@ -76,6 +79,28 @@ app.get('/maps', async (req, res) => {
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: error }));
         return console.error(error);
+    }
+});
+
+// Create new map (package) in editor mode
+app.post('/createMap', async (req, res) => {
+    try {
+        // Note that `dir` has leading slash already
+        const { dir, file, content } = req.body;
+        const fullDir = path.join(mapsDir, dir);
+        const infoPath = path.join(fullDir, file);
+
+        // Create directories, including intermediate
+        await fs.mkdir(fullDir, { recursive: true });
+        // Create info.js but throw error if already exists
+        await fs.writeFile(infoPath, content, { flag: 'wx'});
+
+        const message = `Created file "${infoPath}".`;
+        console.log(message);
+        res.send(message);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Failed to create map on server.');
     }
 });
 
