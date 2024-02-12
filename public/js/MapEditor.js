@@ -19,6 +19,9 @@ class MapEditorHtml {
     #infoContainer;
 
     mapNameDropdown;
+    updateMapNameButton;
+    createMapButton;
+    deleteMapButton;
 
     increaseMapWidthOnLeftButton;
     decreaseMapWidthOnLeftButton;
@@ -30,6 +33,7 @@ class MapEditorHtml {
     decreaseMapHeightOnBottomButton;
     mapWidthTextbox;
     mapHeightTextbox;
+    mapDepthTextbox;
     
     // constructor(mapName, controller) {
     constructor(controller) {
@@ -49,6 +53,10 @@ class MapEditorHtml {
 
     get #mapHeight() {
         return this.#controller.mapHeight;
+    }
+
+    get #mapDepth() {
+        return this.#controller.mapDepth;
     }
 
     #addEventListeners() {
@@ -105,6 +113,25 @@ class MapEditorHtml {
         return checkbox;
     }
 
+    #createButtonInside(container, id, text) {
+        const button = document.createElement('button');
+        button.id = id;
+        button.textContent = text;
+        container.appendChild(button);
+    
+        return button;
+    }
+
+    #creatTextboxInside(container, id, text) {
+        const textbox = document.createElement('input');
+        textbox.id = id;
+        textbox.type = 'text';
+        textbox.value = text;
+        container.appendChild(textbox);
+    
+        return textbox;
+    }
+
     async #createMapNameControls() {
         // Create disabled dropdown showing map name
         this.mapNameDropdown = document.createElement('select');
@@ -129,15 +156,17 @@ class MapEditorHtml {
             this.mapNameDropdown.appendChild(option);
     
             // Remove pre-await map name and highlight identical replacement in list
-            if (map === this.#mapName) {
+            if (!didFindCurrentMap && map === this.#mapName) {
                 this.mapNameDropdown.options[0].remove();
                 option.selected = true;
+                didFindCurrentMap = true;
             }
         }
     
         // Make it clickable
         this.mapNameDropdown.disabled = false;
-    
+        
+        // TODO: Dropdown becomes a textbox when renaming
         // Map name
         // const mapNameText = this.#mapName;
         // this.mapNameTextbox = document.createElement('input');
@@ -146,29 +175,13 @@ class MapEditorHtml {
         // this.mapNameTextbox.value = mapNameText;
         // this.#infoContainer.appendChild(this.mapNameTextbox);
     
-        // TODO: Edit (rename/move), delete, new buttons
+        // TODO: Make these work
+        this.updateMapNameButton = this.#createButtonInside(this.#infoContainer, 'update-map-name', 'Rename/Move');
+        this.deleteMapButton = this.#createButtonInside(this.#infoContainer, 'delete-map', 'Delete');
+        this.createMapButton = this.#createButtonInside(this.#infoContainer, 'create-map', 'New');
     }
 
-    #createButtonInside(container, id, text) {
-        const button = document.createElement('button');
-        button.id = id;
-        button.textContent = text;
-        container.appendChild(button);
-    
-        return button;
-    }
-
-    #creatTextboxInside(container, id, text) {
-        const textbox = document.createElement('input');
-        textbox.id = id;
-        textbox.type = 'text';
-        textbox.value = text;
-        container.appendChild(textbox);
-    
-        return textbox;
-    }
-
-    #getButtonName(change, axis, side) {
+    #getDimensionButtonID(change, axis, side) {
         if ((change != '+' && change != '-')
             || (axis != 'x' && axis != 'y')
             || (side != 'l' && side != 'r' && side != 't' && side != 'b')) {
@@ -192,7 +205,7 @@ class MapEditorHtml {
     }
 
     #createMapDimensionButton(change, axis, side, symbol) {
-        return this.#createButtonInside(this.#infoContainer, this.#getButtonName(change, axis, side), symbol);
+        return this.#createButtonInside(this.#infoContainer, this.#getDimensionButtonID(change, axis, side), symbol);
     }
 
     #createMapDimensionControls() {
@@ -201,7 +214,11 @@ class MapEditorHtml {
         const up = '^';
         const dn = 'v';
 
-        // Horizontal (x)
+        // TODO: Currently there's no way to know where add/sub will happen if changing textbox number
+        // - Maybe after changing the number, you have to click one of the buttons to make it happen...
+
+        // Width
+        this.#infoContainer.appendChild(document.createElement('hr'));
         // Leftside buttons
         this.increaseMapWidthOnLeftButton = this.#createMapDimensionButton('+', 'x', 'l', lt);
         this.decreaseMapWidthOnLeftButton = this.#createMapDimensionButton('-', 'x', 'l', rt);
@@ -211,9 +228,9 @@ class MapEditorHtml {
         this.decreaseMapWidthOnRightButton = this.#createMapDimensionButton('-', 'x', 'r', lt);
         this.increaseMapWidthOnRightButton = this.#createMapDimensionButton('+', 'x', 'r', rt);
         
-        // Verical (y)
+        // Height
         // Top buttons
-        this.#infoContainer.appendChild(document.createElement('br'));
+        this.#infoContainer.appendChild(document.createElement('hr'));
         this.increaseMapHeightOnTopButton = this.#createMapDimensionButton('+', 'y', 't', up);
         this.decreaseMapHeightOnTopButton = this.#createMapDimensionButton('-', 'y', 't', dn);
         // Numerical size
@@ -223,6 +240,12 @@ class MapEditorHtml {
         this.#infoContainer.appendChild(document.createElement('br'));
         this.decreaseMapHeightOnBottomButton = this.#createMapDimensionButton('-', 'y', 'b', up);
         this.increaseMapHeightOnBottomButton = this.#createMapDimensionButton('+', 'y', 'b', dn);
+
+        // Depth
+        this.#infoContainer.appendChild(document.createElement('hr'));
+        // TODO: Buttons
+        // Numerical size
+        this.mapDepthTextbox = this.#creatTextboxInside(this.#infoContainer, 'map-depth', this.#mapDepth);
     }
 
     async #createInfoContainer() {
@@ -331,6 +354,10 @@ export default class MapEditor {
     get mapHeight() {
         return this.#model.mapHeight;
     }
+
+    get mapDepth() {
+        return this.#model.mapDepth;
+    }
 }
 
 
@@ -375,7 +402,7 @@ class MapEditorModel {
     }
 
     get mapDepth() {
-        // TODO: implement
+        return this.#game.view.map.depth;
     }
 
     updateMapName(name) {

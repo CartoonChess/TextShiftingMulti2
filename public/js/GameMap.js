@@ -134,9 +134,7 @@ export class GameMap {
             
             // Overwrite data.name with path instead
             if (pkgName) {
-                console.debug(file.data.name);
                 file.data.name = pkgName;
-                console.debug(file.data.name);
             }
 
             return file.data;
