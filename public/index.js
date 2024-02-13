@@ -31,7 +31,6 @@ function updateView() {
 }
 
 import { Direction } from './js/Direction.js';
-// import { Coordinate } from './js/GameMap.js';
 async function moveIfAble(character, direction) {
     // Maybe this should be handled by the Game object...
     if (!socket.isReadyForView) { return; }
@@ -81,6 +80,7 @@ game.inputController.move = (direction) => {
 // TODO: Real user auth
 const isAdmin = true;
 import MapEditor from './js/MapEditor.js';
-if (isAdmin) { const mapEditor = new MapEditor(game); }
+// if (isAdmin) { const mapEditor = new MapEditor(game); }
+if (isAdmin) { new MapEditor(game); }
 
 game.toggleInput(true);

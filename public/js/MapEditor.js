@@ -302,6 +302,10 @@ class MapEditorHtml {
 }
 
 
+import { RandomBytes } from '/randomBytes.js';
+const randomBytes = new RandomBytes();
+const randomName = () => randomBytes.alphanumeric(8);
+
 // MVC's controller
 // class MapEditorController {
 export default class MapEditor {
@@ -373,10 +377,8 @@ export default class MapEditor {
 
     async #createMap() {
         // Create blank map one directory above current
-        // Update Game etc. with new map
-        // Reflect map stats in html
 
-        const shortName = 'new';
+        const shortName = randomName();
         // Create in parent folder, with leading slash
         const pathParts = this.#model.mapName.split('/');
         pathParts.pop();
@@ -386,17 +388,17 @@ export default class MapEditor {
             dir: fullName,
             file: 'info.js',
             content: `export const data = {
-"name": "${fullName}",
-"dimensions": {
-    "width": 1,
-    "height": 1,
-    "depth": 1
-},
-"startPosition": {
-    "column": 0,
-    "line": 0
-}
-}`
+                "name": "${fullName}",
+                "dimensions": {
+                    "width": 1,
+                    "height": 1,
+                    "depth": 1
+                },
+                "startPosition": {
+                    "column": 0,
+                    "line": 0
+                }
+            }`
         };
 
         try {
@@ -418,6 +420,15 @@ export default class MapEditor {
         } catch (err) {
             console.error(err.message);
         }
+
+
+        // Update Game etc. with new map
+        // - this should basically be the same as when we're editing an existing map...
+        // - ...except it isn't changing a "piece" of the working data, it's replacing the whole map that's in memory
+        await this.#model.changeMap(fullName);
+        // Reflect map stats in html
+        // - should be same as first load of EditorView obj I guess?
+        // - change to new name in dropdown
     }
 }
 
@@ -482,19 +493,15 @@ class MapEditorModel {
         }
     }
 
-    // createMap() {
-    //     // Create blank map one directory above current
-    //     // Update Game etc. with new map
-    //     // Reflect map stats in html
-    // }
-
     // #deleteMap() {
 
     // }
 
-    // #change[move]Map() {
-
-    // }
+    async changeMap(map) {
+        await this.#game.changeMap(map);
+        // this.#updateView();
+        // socket.broadcastMove();
+    }
 
     #updateView() {
         this.#game.view.update(this.#game.player, this.#game.remotePlayers);
