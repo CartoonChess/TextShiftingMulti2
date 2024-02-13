@@ -414,7 +414,32 @@ export default class MapEditor {
                     "line": 0
                 }
             }`,
-            map: `export const tiles = ['map placeholder'];`,
+            map: `import Tile, { WarpTileScript } from '/js/Tile.js';
+                import { Coordinate } from '/js/GameMap.js';
+                export const tiles = [
+                    [
+                        [
+                            new Tile({ symbol: '+', color: 'red', backgroundColor: 'blue' }),
+                            new Tile({ symbol: ',', color: 'red', backgroundColor: 'green' })
+                        ],
+                        [
+                            new Tile({ symbol: ' ', backgroundColor: 'green' }),
+                            new Tile({ symbol: ' ', backgroundColor: 'blue' })
+                        ]
+                    ],
+                    [
+                        [
+                            new Tile({ symbol: 'n', color: 'yellow' }),
+                            new Tile({ symbol: 'e', color: 'yellow', isSolid: true })
+                        ],
+                        [
+                            new Tile({ symbol: 'e', color: 'yellow' }),
+                            new Tile({ symbol: 'w', color: 'yellow', scripts: [
+                                new WarpTileScript(new Coordinate(-2, -2), 'test5')
+                            ] })
+                        ]
+                    ]
+                ];`,
             border: `// TODO: Use new border format`
 
         };
@@ -441,12 +466,10 @@ export default class MapEditor {
 
 
         // Update Game etc. with new map
-        // - this should basically be the same as when we're editing an existing map...
-        // - ...except it isn't changing a "piece" of the working data, it's replacing the whole map that's in memory
         await this.#model.changeMap(fullName);
         // Reflect map stats in html
         // - should be same as first load of EditorView obj I guess?
-        // - change to new name in dropdown
+        // - change to new name in dropdown (should also happen when warping...)
     }
 }
 
@@ -517,8 +540,9 @@ class MapEditorModel {
 
     async changeMap(map) {
         await this.#game.changeMap(map);
-        // this.#updateView();
+        this.#updateView();
         // socket.broadcastMove();
+        // - or should this be in #updateView()?
     }
 
     #updateView() {

@@ -82,32 +82,6 @@ app.get('/maps', async (req, res) => {
     }
 });
 
-// Create new map (package) in editor mode
-// app.post('/createMap', async (req, res) => {
-//     try {
-//         // Note that `dir` has leading slash already
-//         const { dir, file, content } = req.body;
-//         const fullDir = path.join(mapsDir, dir);
-//         const infoPath = path.join(fullDir, file);
-
-//         // Create directories, including intermediate
-//         await fs.mkdir(fullDir, { recursive: true });
-//         // Create info.js but throw error if already exists
-//         await fs.writeFile(infoPath, content, { flag: 'wx'});
-
-//         const message = `Created file "${infoPath}".`;
-//         console.log(message);
-//         res.send(message);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Failed to create map on server.');
-//     }
-// });
-
-// function getMapPackageFilePath(type) {
-//     return path.join(fullDir, type + '.js');
-// }
-
 async function writeFileExclusive(file, data) {
     await fs.writeFile(file, data, { flag: 'wx'});
 }
@@ -118,9 +92,6 @@ app.post('/createMap', async (req, res) => {
         const { dir, info, map, border } = req.body;
         const fullDir = path.join(mapsDir, dir);
         // TODO: Should this and below be array + loop?
-        // const infoPath = getMapPackageFilePath('info');
-        // const mapPath = getMapPackageFilePath('map');
-        // const borderPath = getMapPackageFilePath('border');
         const infoPath = path.join(fullDir, 'info.js');
         const mapPath = path.join(fullDir, 'map.js');
         // TODO: Use new border format (.js)
@@ -133,7 +104,7 @@ app.post('/createMap', async (req, res) => {
         await writeFileExclusive(mapPath, map);
         await writeFileExclusive(borderPath, border);
 
-        const message = `Created map package "${fullDir}".`;
+        const message = `Created map package "${dir}".`;
         console.log(message);
         res.send(message);
     } catch (err) {
