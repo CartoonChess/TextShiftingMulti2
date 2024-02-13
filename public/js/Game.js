@@ -8,6 +8,22 @@ export default class Game {
     remotePlayers;
     inputController;
 
+    #listeners = new Set();
+
+    addListener(listener) {
+        this.#listeners.add(listener);
+    }
+
+    // removeListener(listener) {
+    //     this.#listeners.delete(listener);
+    // }
+
+    #notifyListeners() {
+        for (const listener of this.#listeners) {
+            listener.listen();
+        }
+    }
+
     // static defaultMapPackage = 'test4';
     static defaultMapPackage = 'test4/sub';
 
@@ -63,6 +79,8 @@ export default class Game {
         // Blank out surroundings in case we land OOB
         this.player.surroundings.clear();
         this.player.surroundings.update(this.player.position, this.view.map);
+
+        this.#notifyListeners();
     }
     
     toggleInput(isEnabled) {

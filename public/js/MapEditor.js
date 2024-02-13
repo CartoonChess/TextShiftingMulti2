@@ -38,8 +38,6 @@ class MapEditorHtml {
     // constructor(mapName, controller) {
     constructor(controller) {
         this.#controller = controller;
-        // this.#controller.html = this;
-        // this.#mapName = mapName;
         this.#addEventListeners();
     }
 
@@ -130,7 +128,7 @@ class MapEditorHtml {
         return button;
     }
 
-    #creatTextboxInside(container, id, text) {
+    #createTextboxInside(container, id, text) {
         const textbox = document.createElement('input');
         textbox.id = id;
         textbox.type = 'text';
@@ -231,7 +229,7 @@ class MapEditorHtml {
         this.increaseMapWidthOnLeftButton = this.#createMapDimensionButton('+', 'x', 'l', lt);
         this.decreaseMapWidthOnLeftButton = this.#createMapDimensionButton('-', 'x', 'l', rt);
         // Numerical size
-        this.mapWidthTextbox = this.#creatTextboxInside(this.#infoContainer, 'map-width', this.#mapWidth);
+        this.mapWidthTextbox = this.#createTextboxInside(this.#infoContainer, 'map-width', this.#mapWidth);
         // Rightside buttons
         this.decreaseMapWidthOnRightButton = this.#createMapDimensionButton('-', 'x', 'r', lt);
         this.increaseMapWidthOnRightButton = this.#createMapDimensionButton('+', 'x', 'r', rt);
@@ -243,7 +241,7 @@ class MapEditorHtml {
         this.decreaseMapHeightOnTopButton = this.#createMapDimensionButton('-', 'y', 't', dn);
         // Numerical size
         this.#infoContainer.appendChild(document.createElement('br'));
-        this.mapHeightTextbox = this.#creatTextboxInside(this.#infoContainer, 'map-height', this.#mapHeight);
+        this.mapHeightTextbox = this.#createTextboxInside(this.#infoContainer, 'map-height', this.#mapHeight);
         // Bottom buttons
         this.#infoContainer.appendChild(document.createElement('br'));
         this.decreaseMapHeightOnBottomButton = this.#createMapDimensionButton('-', 'y', 'b', up);
@@ -253,7 +251,37 @@ class MapEditorHtml {
         this.#infoContainer.appendChild(document.createElement('hr'));
         // TODO: Buttons
         // Numerical size
-        this.mapDepthTextbox = this.#creatTextboxInside(this.#infoContainer, 'map-depth', this.#mapDepth);
+        this.mapDepthTextbox = this.#createTextboxInside(this.#infoContainer, 'map-depth', this.#mapDepth);
+    }
+
+    #updateMapNameDropdown() {
+        for (const option of this.mapNameDropdown.options) {
+            if (option.value === this.#mapName) {
+                option.selected = true;
+                return;
+            }
+        }
+        
+        // Add map if we couldn't find it in the list
+        const option = document.createElement('option');
+        option.text = this.#mapName;
+        option.value = option.text;
+        this.mapNameDropdown.add(option);
+        option.selected = true;
+    }
+
+    // TODO: This logic should probably be removed from the creation methods
+    updateControls() {
+        // Don't try to update anything if we've never opened the editor
+        if (!this.#infoContainer) { return; }
+
+        // Update map name dropdown
+        this.#updateMapNameDropdown();
+
+        // Update map dimension textboxes
+        this.mapWidthTextbox.value = this.#mapWidth;
+        this.mapHeightTextbox.value = this.#mapHeight;
+        this.mapDepthTextbox.value = this.#mapDepth;
     }
 
     async #createInfoContainer() {
@@ -307,49 +335,45 @@ const randomBytes = new RandomBytes();
 const randomName = () => randomBytes.alphanumeric(8);
 
 // MVC's controller
-// class MapEditorController {
+// TODO: Right now this is instantiated as soon as index.js loads.
+// - Instead, it should happen after clicking the Map Editor button.
 export default class MapEditor {
     #model;
-    html;
-    // #html;
+    #html;
     
-    // constructor(model) {
-    //     this.#model = model;
     constructor(game) {
+        game.addListener(this);
         this.#model = new MapEditorModel(game);
-        // this.#html = new MapEditorHtml(this);
-        // this.html = new MapEditorHtml(this.#model.mapName, this);
-        this.html = new MapEditorHtml(this);
+        this.#html = new MapEditorHtml(this);
     }
 
     async handleEvent(event) {
         switch (event.target) {
-            case this.html.decreaseViewHeightButton:
+            case this.#html.decreaseViewHeightButton:
                 this.#model.decreaseViewHeight();
                 break;
-            case this.html.increaseViewHeightButton:
+            case this.#html.increaseViewHeightButton:
                 this.#model.increaseViewHeight();
                 break;
-            case this.html.decreaseViewWidthButton:
+            case this.#html.decreaseViewWidthButton:
                 this.#model.decreaseViewWidth();
                 break;
-            case this.html.increaseViewWidthButton:
+            case this.#html.increaseViewWidthButton:
                 this.#model.increaseViewWidth();
                 break;
-            case this.html.toggleEditorButton:
-                await this.html.toggleEditor();
+            case this.#html.toggleEditorButton:
+                await this.#html.toggleEditor();
                 break;
-            case this.html.toggleGridCheckbox:
-                this.html.toggleGrid(this.html.toggleGridCheckbox.checked);
+            case this.#html.toggleGridCheckbox:
+                this.#html.toggleGrid(this.#html.toggleGridCheckbox.checked);
                 break;
-            case this.html.toggleMaxViewCheckbox:
-                this.#model.toggleMaxView(this.html.toggleMaxViewCheckbox.checked);
+            case this.#html.toggleMaxViewCheckbox:
+                this.#model.toggleMaxView(this.#html.toggleMaxViewCheckbox.checked);
                 break;
-            case this.html.mapNameDropdown:
-                this.#model.updateMapName(this.html.mapNameDropdown.value);
+            case this.#html.mapNameDropdown:
+                this.#model.updateMapName(this.#html.mapNameDropdown.value);
                 break;
-            case this.html.createMapButton:
-                // this.#model.createMap();
+            case this.#html.createMapButton:
                 await this.#createMap();
                 break;
         }
@@ -376,30 +400,16 @@ export default class MapEditor {
     }
 
     async #createMap() {
-        // Create blank map one directory above current
-
         const shortName = randomName();
-        // Create in parent folder, with leading slash
+        // Create blank map one directory above current
+        let fullName = shortName;
         const pathParts = this.#model.mapName.split('/');
-        pathParts.pop();
-        const fullName = pathParts.join('/') + '/' + shortName;
+        if (pathParts.length > 1) {
+            pathParts.pop();
+            fullName = pathParts.join('/') + '/' + shortName;
+        }
 
-        // const data = {
-        //     dir: fullName,
-        //     file: 'info.js',
-        //     content: `export const data = {
-        //         "name": "${fullName}",
-        //         "dimensions": {
-        //             "width": 1,
-        //             "height": 1,
-        //             "depth": 1
-        //         },
-        //         "startPosition": {
-        //             "column": 0,
-        //             "line": 0
-        //         }
-        //     }`
-        // };
+        // TODO: Rather than defining info etc. here, have the server clone template files
         const data = {
             dir: fullName,
             info: `export const data = {
@@ -471,17 +481,19 @@ export default class MapEditor {
         // - should be same as first load of EditorView obj I guess?
         // - change to new name in dropdown (should also happen when warping...)
     }
+
+    // Observe a notification, as a listener
+    // Currently this is exclusively for map changes
+    listen() {
+        this.#html.updateControls();
+    }
 }
 
 
 import { Coordinate } from './GameMap.js';
 
 // MVC's model
-// export default class MapEditor {
 class MapEditorModel {
-    // #html;
-    // #controller;
-
     #game;
 
     #oldViewWidth;
@@ -490,10 +502,7 @@ class MapEditorModel {
     
     constructor(game) {
         this.#game = game;
-        // this.#controller = new MapEditorController(this);
-        // new MapEditorController(this);
-        // this.#html = new MapEditorHtml(this.#controller);
-        // this.#controller.html = this.#html;
+        // this.#game.addListener(this);
 
         this.#oldViewWidth = this.#game.view.width;
         this.#oldViewHeight = this.#game.view.height;
@@ -544,6 +553,12 @@ class MapEditorModel {
         // socket.broadcastMove();
         // - or should this be in #updateView()?
     }
+
+    // // Observe a notification, as a listener
+    // // Currently this is exclusively for map changes
+    // listen() {
+    //     console.debug('map changed');
+    // }
 
     #updateView() {
         this.#game.view.update(this.#game.player, this.#game.remotePlayers);

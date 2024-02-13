@@ -88,7 +88,6 @@ async function writeFileExclusive(file, data) {
 
 app.post('/createMap', async (req, res) => {
     try {
-        // Note that `dir` has leading slash already
         const { dir, info, map, border } = req.body;
         const fullDir = path.join(mapsDir, dir);
         // TODO: Should this and below be array + loop?
@@ -104,7 +103,7 @@ app.post('/createMap', async (req, res) => {
         await writeFileExclusive(mapPath, map);
         await writeFileExclusive(borderPath, border);
 
-        const message = `Created map package "${dir}".`;
+        const message = `Created map package ${dir}.`;
         console.log(message);
         res.send(message);
     } catch (err) {
