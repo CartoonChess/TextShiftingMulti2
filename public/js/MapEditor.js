@@ -189,7 +189,7 @@ class MapEditorHtml {
         this.createMapButton = this.#createButtonInside(this.#infoContainer, 'create-map', 'New');
     }
 
-    #getDimensionButtonID(change, axis, side) {
+    #getDimensionButtonId(change, axis, side) {
         if ((change != '+' && change != '-')
             || (axis != 'x' && axis != 'y')
             || (side != 'l' && side != 'r' && side != 't' && side != 'b')) {
@@ -213,7 +213,7 @@ class MapEditorHtml {
     }
 
     #createMapDimensionButton(change, axis, side, symbol) {
-        return this.#createButtonInside(this.#infoContainer, this.#getDimensionButtonID(change, axis, side), symbol);
+        return this.#createButtonInside(this.#infoContainer, this.#getDimensionButtonId(change, axis, side), symbol);
     }
 
     #createMapDimensionControls() {
@@ -384,10 +384,25 @@ export default class MapEditor {
         pathParts.pop();
         const fullName = pathParts.join('/') + '/' + shortName;
 
+        // const data = {
+        //     dir: fullName,
+        //     file: 'info.js',
+        //     content: `export const data = {
+        //         "name": "${fullName}",
+        //         "dimensions": {
+        //             "width": 1,
+        //             "height": 1,
+        //             "depth": 1
+        //         },
+        //         "startPosition": {
+        //             "column": 0,
+        //             "line": 0
+        //         }
+        //     }`
+        // };
         const data = {
             dir: fullName,
-            file: 'info.js',
-            content: `export const data = {
+            info: `export const data = {
                 "name": "${fullName}",
                 "dimensions": {
                     "width": 1,
@@ -398,7 +413,10 @@ export default class MapEditor {
                     "column": 0,
                     "line": 0
                 }
-            }`
+            }`,
+            map: `export const tiles = ['map placeholder'];`,
+            border: `// TODO: Use new border format`
+
         };
 
         try {

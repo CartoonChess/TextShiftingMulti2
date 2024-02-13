@@ -83,24 +83,62 @@ app.get('/maps', async (req, res) => {
 });
 
 // Create new map (package) in editor mode
+// app.post('/createMap', async (req, res) => {
+//     try {
+//         // Note that `dir` has leading slash already
+//         const { dir, file, content } = req.body;
+//         const fullDir = path.join(mapsDir, dir);
+//         const infoPath = path.join(fullDir, file);
+
+//         // Create directories, including intermediate
+//         await fs.mkdir(fullDir, { recursive: true });
+//         // Create info.js but throw error if already exists
+//         await fs.writeFile(infoPath, content, { flag: 'wx'});
+
+//         const message = `Created file "${infoPath}".`;
+//         console.log(message);
+//         res.send(message);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Failed to create map on server.');
+//     }
+// });
+
+// function getMapPackageFilePath(type) {
+//     return path.join(fullDir, type + '.js');
+// }
+
+async function writeFileExclusive(file, data) {
+    await fs.writeFile(file, data, { flag: 'wx'});
+}
+
 app.post('/createMap', async (req, res) => {
     try {
         // Note that `dir` has leading slash already
-        const { dir, file, content } = req.body;
+        const { dir, info, map, border } = req.body;
         const fullDir = path.join(mapsDir, dir);
-        const infoPath = path.join(fullDir, file);
+        // TODO: Should this and below be array + loop?
+        // const infoPath = getMapPackageFilePath('info');
+        // const mapPath = getMapPackageFilePath('map');
+        // const borderPath = getMapPackageFilePath('border');
+        const infoPath = path.join(fullDir, 'info.js');
+        const mapPath = path.join(fullDir, 'map.js');
+        // TODO: Use new border format (.js)
+        const borderPath = path.join(fullDir, 'border');
 
         // Create directories, including intermediate
         await fs.mkdir(fullDir, { recursive: true });
-        // Create info.js but throw error if already exists
-        await fs.writeFile(infoPath, content, { flag: 'wx'});
+        // Create js files but throw error if any already exist
+        await writeFileExclusive(infoPath, info);
+        await writeFileExclusive(mapPath, map);
+        await writeFileExclusive(borderPath, border);
 
-        const message = `Created file "${infoPath}".`;
+        const message = `Created map package "${fullDir}".`;
         console.log(message);
         res.send(message);
     } catch (err) {
         console.error(err);
-        res.status(500).send('Failed to create map on server.');
+        res.status(500).send('Failed to create one or more map files or directories on server.');
     }
 });
 
