@@ -371,7 +371,8 @@ export default class MapEditor {
                 this.#model.toggleMaxView(this.#html.toggleMaxViewCheckbox.checked);
                 break;
             case this.#html.mapNameDropdown:
-                this.#model.updateMapName(this.#html.mapNameDropdown.value);
+                // this.#model.updateMapName(this.#html.mapNameDropdown.value);
+                await this.#model.changeMap(this.#html.mapNameDropdown.value);
                 break;
             case this.#html.createMapButton:
                 await this.#createMap();
