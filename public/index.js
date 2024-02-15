@@ -81,7 +81,6 @@ game.inputController.move = (direction) => {
 // TODO: Real user auth
 const isAdmin = true;
 import MapEditor from './js/MapEditor.js';
-// if (isAdmin) { const mapEditor = new MapEditor(game); }
 if (isAdmin) { new MapEditor(game); }
 
 game.toggleInput(true);

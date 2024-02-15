@@ -57,6 +57,7 @@ class MapEditorHtml {
         return this.#controller.mapDepth;
     }
 
+    // TODO: Make #addClickEventListners() etc. like in controller class
     #addEventListeners() {
         const buttons = [
             this.decreaseViewHeightButton,
@@ -87,6 +88,11 @@ class MapEditorHtml {
         const buttons = [
             this.createMapButton
         ]
+        // // game-view of course is not a button but a div
+        // const buttons = [
+        //     this.createMapButton,
+        //     this.#controller.viewHtml
+        // ]
 
         for (const button of buttons) {
             button.addEventListener('click', this.#controller);
@@ -263,6 +269,7 @@ class MapEditorHtml {
         }
         
         // Add map if we couldn't find it in the list
+        // TODO: Insert in proper alpha order
         const option = document.createElement('option');
         option.text = this.#mapName;
         option.value = option.text;
@@ -286,7 +293,8 @@ class MapEditorHtml {
 
     async #createInfoContainer() {
         this.#infoContainer = document.createElement('div');
-        document.getElementById('game-view').before(this.#infoContainer);
+        // document.getElementById('game-view').before(this.#infoContainer);
+        this.#controller.viewHtml.before(this.#infoContainer);
         
         // Map name and location (directory)
         await this.#createMapNameControls();
@@ -342,12 +350,49 @@ export default class MapEditor {
     #html;
     
     constructor(game) {
+        // Listen for map changes
         game.addListener(this);
+
         this.#model = new MapEditorModel(game);
         this.#html = new MapEditorHtml(this);
+
+        // Listen for clicks on tiles
+        // Must come after intializing model!
+        this.#addClickEventListeners();
+    }
+
+    #didClickViewTile(tile) {
+        const rowHtml = tile.parentElement;
+        const layerHtml = rowHtml.parentElement;
+
+        const column = Array.from(rowHtml.querySelectorAll('span')).indexOf(tile);
+        const row = Array.from(layerHtml.querySelectorAll('pre')).indexOf(rowHtml);
+        // This would presumably always result in the uppermost layer
+        // const layer = Array.from(this.#model.viewHtml.children).indexOf(layerHtml);
+
+        console.debug(`${column},${row}`);
+        // TODO: Make this match map (model) coords too
+    }
+
+    #addEventListeners(elements, eventType) {
+        for (const element of elements) {
+            element.addEventListener(eventType, this);
+        }
+    }
+
+    #addClickEventListeners() {
+        this.#addEventListeners([
+            this.#model.viewHtml
+        ], 'click');
     }
 
     async handleEvent(event) {
+        // Check if user clicked a map tile
+        if (event.target.tagName === 'SPAN' && event.target.closest('#' + this.#model.viewHtml.id)) {
+            this.#didClickViewTile(event.target);
+            return;
+        }
+
         switch (event.target) {
             case this.#html.decreaseViewHeightButton:
                 this.#model.decreaseViewHeight();
@@ -398,6 +443,10 @@ export default class MapEditor {
 
     get mapDepth() {
         return this.#model.mapDepth;
+    }
+
+    get viewHtml() {
+        return this.#model.viewHtml;
     }
 
     async #createMap() {
@@ -526,6 +575,10 @@ class MapEditorModel {
 
     get mapDepth() {
         return this.#game.view.map.depth;
+    }
+
+    get viewHtml() {
+        return this.#game.view.htmlById;
     }
 
     updateMapName(name) {

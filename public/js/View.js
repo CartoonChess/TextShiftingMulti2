@@ -14,6 +14,10 @@ class ViewHtml {
         this.updateDepth(1, height, width);
     }
 
+    get container() {
+        return this.#container;
+    }
+
     get depth() {
         return this.#container.children.length;
     }
@@ -183,6 +187,10 @@ export class View {
 
     set html(id) {
         this.#html = new ViewHtml(id, this.width, this.height);
+    }
+
+    get htmlById() {
+        return this.#html.container;
     }
 
     #updateStaticCenter() {
