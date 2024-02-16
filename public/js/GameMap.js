@@ -1,9 +1,14 @@
 import '../../ConsoleColor.js';
 
 export class Coordinate {
-    constructor(column, line) {
+    // constructor(column, line) {
+    //     this.column = column;
+    //     this.line = line;
+    // }
+    constructor(column, line, layer) {
         this.column = column;
         this.line = line;
+        this.layer = layer;
     }
     static fromObject(obj) {
         return Object.assign(new this, obj);
@@ -15,6 +20,10 @@ export class Coordinate {
         return JSON.stringify(this);
     }
     toString() {
+        // return `(x: ${this.column}, y: ${this.line})`;
+        if (this.layer) {
+            return `(x: ${this.column}, y: ${this.line}, z: {${this.layer})`;
+        }
         return `(x: ${this.column}, y: ${this.line})`;
     }
     // possibly provide some func/prop that provides .leftOfMe

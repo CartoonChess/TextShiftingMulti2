@@ -1,3 +1,6 @@
+// FIXME: This basically needs to return every tile in the z stack
+const fakeLayer = 0;
+
 import '../../Element_prototype.js';
 
 // MVC's view
@@ -79,11 +82,13 @@ class MapEditorHtml {
 
     #addAdditionalEventListeners() {
         // TODO: Integrate with above once everything is programmatic
+        // TODO: Are tile controls okay here even though they're loaded later?
         // Note that mapNameDropdown isn't actually `input` but `select` (rename to `elements`?)
         const inputs = [
             this.toggleGridCheckbox,
             this.toggleMaxViewCheckbox,
-            this.mapNameDropdown
+            this.mapNameDropdown,
+            this.toggleTileIsSolidCheckbox
         ]
         
         for (const input of inputs) {
@@ -149,8 +154,21 @@ class MapEditorHtml {
         return textbox;
     }
 
+    updateTileControls(tile) {
+        // Don't do anything if not visible
+        if (!this.#mapControlsContainer || this.#mapControlsContainer.style.display === 'none') { return; }
+        // Hide if no tile selected
+        if (!tile) { this.#tileControlsContainer.hide(); return; }
+
+        this.#tileControlsContainer.show();
+        
+        this.toggleTileIsSolidCheckbox.checked = tile.isSolid;
+    }
+
+    // TODO: The rest of these
     #createTileControls() {
         // symbol (dropdown or textbox)
+        // maybe dropdown with "enter new" option that transforms into textbox, like map rename is supposed to do
 
         // isSolid (checkbox)
         this.toggleTileIsSolidCheckbox = this.#createCheckboxInside(this.#tileControlsContainer, 'toggle-tile-solid', 'Solid');
@@ -166,13 +184,6 @@ class MapEditorHtml {
 
         // Only show if map editor is visible
         this.#tileControlsContainer.hide();
-    }
-
-    updateTileControls(tile) {
-        if (!this.#mapControlsContainer || this.#mapControlsContainer.style.display === 'none') { return; }
-
-        this.#tileControlsContainer.show();
-        this.toggleTileIsSolidCheckbox.checked = tile.isSolid;
     }
 
     async #createMapNameControls() {
@@ -384,6 +395,8 @@ const randomName = () => randomBytes.alphanumeric(8);
 export default class MapEditor {
     #model;
     #html;
+
+    #selectedTileMapCoordinate;
     
     constructor(game) {
         // Listen for map changes
@@ -409,10 +422,11 @@ export default class MapEditor {
         // TODO: Shorten logic for when using "show whole map"
         // - view coords and map coords should be identical
 
-        console.debug(`User clicked view at ${column},${line}`);
-
-        const mapTile = this.#model.getTileAtViewCoordinate(column, line);
-        this.#html.updateTileControls(mapTile);
+        // const mapTile = this.#model.getTileAtViewCoordinate(column, line);
+        // this.#html.updateTileControls(mapTile);
+        this.#selectedTileMapCoordinate = this.#model.getMapCoordinateForViewCoordinate(column, line);
+        this.#selectedTileMapCoordinate.layer = fakeLayer;
+        this.#html.updateTileControls(this.#model.getTileAtCoordinate(this.#selectedTileMapCoordinate));
     }
 
     #addEventListeners(elements, eventType) {
@@ -457,11 +471,14 @@ export default class MapEditor {
                 this.#model.toggleMaxView(this.#html.toggleMaxViewCheckbox.checked);
                 break;
             case this.#html.mapNameDropdown:
-                // this.#model.updateMapName(this.#html.mapNameDropdown.value);
                 await this.#model.changeMap(this.#html.mapNameDropdown.value);
                 break;
             case this.#html.createMapButton:
                 await this.#createMap();
+                break;
+            case this.#html.toggleTileIsSolidCheckbox:
+                // TODO: We should probably sanity check selectedTileMapCoordinate
+                this.#model.updateTile(this.#selectedTileMapCoordinate, 'isSolid', this.#html.toggleTileIsSolidCheckbox.checked);
                 break;
         }
     }
@@ -577,6 +594,9 @@ export default class MapEditor {
     // Currently this is exclusively for map changes
     listen() {
         this.#html.updateMapControls();
+        // Clear selected tile
+        this.#selectedTileMapCoordinate = null;
+        this.#html.updateTileControls(null);
     }
 }
 
@@ -626,25 +646,39 @@ class MapEditorModel {
         // TODO: Implement
     }
 
-    // #getTile(coordinate) {
-    //     //
-    // }
+    // getTileAtViewCoordinate(viewColumn, viewLine) {
+    //     const columnOffset = viewColumn - this.#game.view.staticCenter.column;
+    //     const lineOffset = viewLine - this.#game.view.staticCenter.line;
 
-    getTileAtViewCoordinate(viewColumn, viewLine) {
+    //     console.debug(`Clicked tile offset from view center: ${columnOffset},${lineOffset}`);
+
+    //     const mapColumn = this.#game.view.mapCoordinateAtViewCenter.column + columnOffset;
+    //     const mapLine = this.#game.view.mapCoordinateAtViewCenter.line + lineOffset;
+
+    //     console.debug(`Corresponds to map coord ${mapColumn},${mapLine}`);
+
+    //     // return this.#getTile(new Coordinate(mapColumn, mapLine));
+    //     // FIXME: This basically needs to return every tile in the z stack
+    //     const fakeLayer = 0;
+    //     return this.#game.view.getTile(mapColumn, mapLine, fakeLayer);
+    // }
+    getTileAtCoordinate(coordinate) {
+        return this.#game.view.getTile(coordinate.column, coordinate.line, coordinate.layer);
+    }
+
+    getMapCoordinateForViewCoordinate(viewColumn, viewLine) {
         const columnOffset = viewColumn - this.#game.view.staticCenter.column;
         const lineOffset = viewLine - this.#game.view.staticCenter.line;
-
-        console.debug(`Clicked tile offset from view center: ${columnOffset},${lineOffset}`);
 
         const mapColumn = this.#game.view.mapCoordinateAtViewCenter.column + columnOffset;
         const mapLine = this.#game.view.mapCoordinateAtViewCenter.line + lineOffset;
 
-        console.debug(`Corresponds to map coord ${mapColumn},${mapLine}`);
+        return new Coordinate(mapColumn, mapLine);
+    }
 
-        // return this.#getTile(new Coordinate(mapColumn, mapLine));
-        // FIXME: This basically needs to return every tile in the z stack
-        const fakeLayer = 0;
-        return this.#game.view.getTile(mapColumn, mapLine, fakeLayer);
+    updateTile(coordinate, property, value) {
+        const tile = this.#game.view.map.lines[coordinate.layer][coordinate.line][coordinate.column];
+        tile[property] = value;
     }
 
     // TODO: Maybe this should just be in the controller?
@@ -669,12 +703,6 @@ class MapEditorModel {
         // socket.broadcastMove();
         // - or should this be in #updateView()?
     }
-
-    // // Observe a notification, as a listener
-    // // Currently this is exclusively for map changes
-    // listen() {
-    //     console.debug('map changed');
-    // }
 
     #updateView() {
         this.#game.view.update(this.#game.player, this.#game.remotePlayers);
