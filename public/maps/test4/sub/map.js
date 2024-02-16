@@ -4,7 +4,7 @@ export const tiles = [
     [
         [
             new Tile({ symbol: '+', color: 'red', backgroundColor: 'blue' }),
-            new Tile({ symbol: ',', color: 'red', backgroundColor: 'green' })
+            new Tile({ symbol: ',', color: 'red', backgroundColor: 'green', isSolid: true })
         ],
         [
             new Tile({ symbol: ' ', backgroundColor: 'green' }),

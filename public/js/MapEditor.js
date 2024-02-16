@@ -12,7 +12,7 @@ class MapEditorHtml {
 
     toggleEditorButton = document.getElementById('toggle-editor');
 
-    #controlsContainer;
+    #mapControlsContainer;
     toggleGridCheckbox;
     toggleMaxViewCheckbox;
 
@@ -22,6 +22,9 @@ class MapEditorHtml {
     updateMapNameButton;
     createMapButton;
     deleteMapButton;
+
+    #tileControlsContainer;
+    toggleTileIsSolidCheckbox;
 
     increaseMapWidthOnLeftButton;
     decreaseMapWidthOnLeftButton;
@@ -142,6 +145,41 @@ class MapEditorHtml {
         container.appendChild(textbox);
     
         return textbox;
+    }
+
+    #createTileControls() {
+        // symbol (dropdown or textbox)
+
+        // isSolid (checkbox)
+        this.toggleTileIsSolidCheckbox = this.#createCheckboxInside(this.#tileControlsContainer, 'toggle-tile-solid', 'Solid');
+
+        // scripts i.e. warp (???)
+    }
+
+    #createTileControlsContainer(tile) {
+        this.#tileControlsContainer = document.createElement('div');
+        // Tile controls will appear under view/map
+        this.#controller.viewHtml.after(this.#tileControlsContainer);
+        this.#createTileControls();
+
+        // Only show if map editor is visible
+        // FIX ME: This doesn't work when infoContainer hasn't been init'd yet
+        // - should we have updateTileControls just give up if infoContainer isn't there yet?
+        // if (this.#infoContainer.style.display === 'block') {
+        //     this.#tileControlsContainer.style.display = 'block';
+        // } else {
+            this.#tileControlsContainer.style.display = 'none';
+        // }
+    }
+
+    updateTileControls(tile) {
+        // if (!this.#tileControlsContainer) {
+        //     this.#createTileControlsContainer();
+        // }
+        if (!this.#mapControlsContainer) { return; }
+
+        this.#tileControlsContainer.style.display = 'block';
+        this.toggleTileIsSolidCheckbox.checked = tile.isSolid;
     }
 
     async #createMapNameControls() {
@@ -278,7 +316,7 @@ class MapEditorHtml {
     }
 
     // TODO: This logic should probably be removed from the creation methods
-    updateControls() {
+    updateMapControls() {
         // Don't try to update anything if we've never opened the editor
         if (!this.#infoContainer) { return; }
 
@@ -307,12 +345,13 @@ class MapEditorHtml {
         this.toggleEditorButton.textContent = buttonText;
         
         // TODO: probably break this block into its own func
-        this.#controlsContainer = document.createElement('div');
-        this.toggleEditorButton.after(this.#controlsContainer);
-        this.toggleGridCheckbox = this.#createCheckboxInside(this.#controlsContainer, 'toggle-grid', 'Grid');
-        this.toggleMaxViewCheckbox = this.#createCheckboxInside(this.#controlsContainer, 'toggle-max-view', 'Show whole map');
+        this.#mapControlsContainer = document.createElement('div'); 
+        this.toggleEditorButton.after(this.#mapControlsContainer);
+        this.toggleGridCheckbox = this.#createCheckboxInside(this.#mapControlsContainer, 'toggle-grid', 'Grid');
+        this.toggleMaxViewCheckbox = this.#createCheckboxInside(this.#mapControlsContainer, 'toggle-max-view', 'Show whole map');
         
         await this.#createInfoContainer();
+        this.#createTileControlsContainer();
 
         this.#addAdditionalEventListeners();
     }
@@ -320,14 +359,16 @@ class MapEditorHtml {
     async toggleEditor() {
         const toggleEditorButtonEnabledText = 'Disable Edit Mode';
         // If we're editing now or have ever been, just toggle control visibility
-        if (this.#controlsContainer) {
-            if (this.#controlsContainer.style.display === 'none') {
-                this.#controlsContainer.style.display = 'block';
+        if (this.#mapControlsContainer) {
+            if (this.#mapControlsContainer.style.display === 'none') {
+                this.#mapControlsContainer.style.display = 'block';
                 this.#infoContainer.style.display = 'block';
+                this.#tileControlsContainer.style.display = 'block';
                 this.toggleEditorButton.textContent = toggleEditorButtonEnabledText;
             } else {
-                this.#controlsContainer.style.display = 'none'
+                this.#mapControlsContainer.style.display = 'none'
                 this.#infoContainer.style.display = 'none';
+                this.#tileControlsContainer.style.display = 'none';
                 this.toggleEditorButton.textContent = 'Enable Edit Mode';
             }
         } else {
@@ -376,7 +417,7 @@ export default class MapEditor {
         console.debug(`User clicked view at ${column},${line}`);
 
         const mapTile = this.#model.getTileAtViewCoordinate(column, line);
-        // this.#html.updateTileProperties('TBD');
+        this.#html.updateTileControls(mapTile);
     }
 
     #addEventListeners(elements, eventType) {
@@ -540,7 +581,7 @@ export default class MapEditor {
     // Observe a notification, as a listener
     // Currently this is exclusively for map changes
     listen() {
-        this.#html.updateControls();
+        this.#html.updateMapControls();
     }
 }
 
