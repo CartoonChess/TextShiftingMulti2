@@ -299,20 +299,31 @@ export class View {
         return this.#map.border.lines[line][column];
     }
 
+    getTile(rowIndex, lineIndex, layerIndex) {
+        if (rowIndex >= 0 && lineIndex >= 0
+            && rowIndex < this.#map.width && lineIndex < this.#map.height) {
+             // If within map bounds, grab from there
+             return this.#map.lines[layerIndex][lineIndex][rowIndex];
+         } else {
+             // If outside map bounds, generate from border
+             return this.#getTileFromBorder(rowIndex, lineIndex);
+         }
+    }
+
     // Builds line, using border for negative indexes
     // TODO: Should all instances of `#map` be `map` (also in getTileFromBorder)? Or do reverse in update()?
     #getLine(lineIndex, layerIndex) {
         const line = [];
         for (let x = this.left; x < this.left + this.width; x++) {
-            if (x >= 0 && lineIndex >= 0
-               && x < this.#map.width && lineIndex < this.#map.height) {
-                // If within map bounds, grab from there
-                // line.push(this.#map.lines[lineIndex][x]);
-                line.push(this.#map.lines[layerIndex][lineIndex][x]);
-            } else {
-                // If outside map bounds, generate from border
-                line.push(this.#getTileFromBorder(x, lineIndex));
-            }
+            // if (x >= 0 && lineIndex >= 0
+            //    && x < this.#map.width && lineIndex < this.#map.height) {
+            //     // If within map bounds, grab from there
+            //     line.push(this.#map.lines[layerIndex][lineIndex][x]);
+            // } else {
+            //     // If outside map bounds, generate from border
+            //     line.push(this.#getTileFromBorder(x, lineIndex));
+            // }
+            line.push(this.getTile(x, lineIndex, layerIndex));
         }
         return line;
     }

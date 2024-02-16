@@ -362,16 +362,21 @@ export default class MapEditor {
     }
 
     #didClickViewTile(tile) {
-        const rowHtml = tile.parentElement;
-        const layerHtml = rowHtml.parentElement;
+        const lineHtml = tile.parentElement;
+        const layerHtml = lineHtml.parentElement;
 
-        const column = Array.from(rowHtml.querySelectorAll('span')).indexOf(tile);
-        const row = Array.from(layerHtml.querySelectorAll('pre')).indexOf(rowHtml);
+        const column = Array.from(lineHtml.querySelectorAll('span')).indexOf(tile);
+        const line = Array.from(layerHtml.querySelectorAll('pre')).indexOf(lineHtml);
         // This would presumably always result in the uppermost layer
         // const layer = Array.from(this.#model.viewHtml.children).indexOf(layerHtml);
 
-        console.debug(`${column},${row}`);
-        // TODO: Make this match map (model) coords too
+        // TODO: Shorten logic for when using "show whole map"
+        // - view coords and map coords should be identical
+
+        console.debug(`User clicked view at ${column},${line}`);
+
+        const mapTile = this.#model.getTileAtViewCoordinate(column, line);
+        // this.#html.updateTileProperties('TBD');
     }
 
     #addEventListeners(elements, eventType) {
@@ -583,6 +588,27 @@ class MapEditorModel {
 
     updateMapName(name) {
         // TODO: Implement
+    }
+
+    // #getTile(coordinate) {
+    //     //
+    // }
+
+    getTileAtViewCoordinate(viewColumn, viewLine) {
+        const columnOffset = viewColumn - this.#game.view.staticCenter.column;
+        const lineOffset = viewLine - this.#game.view.staticCenter.line;
+
+        console.debug(`Clicked tile offset from view center: ${columnOffset},${lineOffset}`);
+
+        const mapColumn = this.#game.view.mapCoordinateAtViewCenter.column + columnOffset;
+        const mapLine = this.#game.view.mapCoordinateAtViewCenter.line + lineOffset;
+
+        console.debug(`Corresponds to map coord ${mapColumn},${mapLine}`);
+
+        // return this.#getTile(new Coordinate(mapColumn, mapLine));
+        // FIXME: This basically needs to return every tile in the z stack
+        const fakeLayer = 0;
+        return this.#game.view.getTile(mapColumn, mapLine, fakeLayer);
     }
 
     // TODO: Maybe this should just be in the controller?
