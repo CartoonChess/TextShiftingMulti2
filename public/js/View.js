@@ -299,18 +299,13 @@ export class View {
         return this.#map.border.lines[line][column];
     }
 
-    tileIsInBounds(rowIndex, lineIndex) {
+    #tileIsInBounds(rowIndex, lineIndex) {
         return rowIndex >= 0 && lineIndex >= 0
             && rowIndex < this.#map.width && lineIndex < this.#map.height;
     }
 
-    // getTileIfInBounds(rowIndex, lineIndex, layerIndex) {
-    //     if (!this.tileIsInBounds(rowIndex, lineIndex)) { return null; }
-    //     return this.#map.lines[layerIndex][lineIndex][rowIndex];
-    // }
-
     getTile(rowIndex, lineIndex, layerIndex, includeBorder = true) {
-        if (this.tileIsInBounds(rowIndex, lineIndex)) {
+        if (this.#tileIsInBounds(rowIndex, lineIndex)) {
             // If within map bounds, grab from there
             return this.#map.lines[layerIndex][lineIndex][rowIndex];
         } else if (includeBorder) {
@@ -320,18 +315,6 @@ export class View {
         // If OOB and we don't want border
         return null;
     }
-
-    // getTile(rowIndex, lineIndex, layerIndex) {
-    //     // if (rowIndex >= 0 && lineIndex >= 0
-    //     //     && rowIndex < this.#map.width && lineIndex < this.#map.height) {
-    //     if (this.tileIsInBounds(rowIndex, lineIndex)) {
-    //          // If within map bounds, grab from there
-    //          return this.#map.lines[layerIndex][lineIndex][rowIndex];
-    //      } else {
-    //          // If outside map bounds, generate from border
-    //          return this.#getTileFromBorder(rowIndex, lineIndex);
-    //      }
-    // }
 
     // Builds line, using border for negative indexes
     // TODO: Should all instances of `#map` be `map` (also in getTileFromBorder)? Or do reverse in update()?

@@ -116,6 +116,39 @@ app.post('/createMap', async (req, res) => {
     }
 });
 
+app.get('/createMapFromTemplate', async (req, res) => {
+    // Get path with random name
+    let parentDir = req.query.parentDir;
+    let mapName = randomBytes.alphanumeric(8);
+    if (parentDir) {
+        mapName = parentDir + '/' + mapName;
+    }
+
+    // Create new map directory
+    const newDir = path.join(mapsDir, mapName);
+    await fs.mkdir(newDir);
+
+    // Copy over default map files
+    try {
+        const templateDir = 'map_template';
+        const files = await fs.readdir('map_template');
+
+        for (const file of files) {
+            const source = path.resolve(templateDir, file);
+            const destination = path.join(newDir, path.basename(source));
+            console.debug(`Copying from ${source} to ${destination}.`);
+            await fs.copyFile(source, destination);
+        }
+    } catch (err) {
+        res.status(500).send(`Server failed to make new map from template: ${err}.`);
+        console.error(err);
+        return;
+    }
+    
+    // Return new name to client
+    res.send(mapName);
+});
+
 import Game from './public/js/Game.js';
 const defaultGameMap = Game.defaultMapPackage;
 const defaultPositionOnMapJson = await Game.getDefaultStartPositionJson();

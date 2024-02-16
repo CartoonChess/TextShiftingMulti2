@@ -506,6 +506,10 @@ export default class MapEditor {
     }
 
     async #createMap() {
+        // NOTE: Currently bypassing below
+        return this.#createMapFromTemplate();
+
+        // TODO: Make this foolproof
         const shortName = randomName();
         // Create blank map one directory above current
         let fullName = shortName;
@@ -600,7 +604,6 @@ export default class MapEditor {
                     ]
                 ];`,
             border: `// TODO: Use new border format`
-
         };
 
         try {
@@ -629,6 +632,36 @@ export default class MapEditor {
         // Reflect map stats in html
         // - should be same as first load of EditorView obj I guess?
         // - change to new name in dropdown (should also happen when warping...)
+    }
+
+    async #createMapFromTemplate() {
+        // Get parent directory of current map (new map will be a "sibling")
+        const pathParts = this.#model.mapName.split('/');
+        pathParts.pop();
+        const parentDir = pathParts.join('/');
+
+        const query = '?' + new URLSearchParams({ parentDir: parentDir }).toString();
+
+        try {
+            const response = await fetch('/createMapFromTemplate' + query);
+
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err);
+            }
+
+            const newMap = await response.text();
+            console.log(newMap);
+
+            // Update Game etc. with new map
+            await this.#model.changeMap(newMap);
+            // Reflect map stats in html
+            // - should be same as first load of EditorView obj I guess?
+            // - change to new name in dropdown (should also happen when warping...)
+        } catch (err) {
+            console.error(err.message);
+        }
+
     }
 
     // Observe a notification, as a listener
