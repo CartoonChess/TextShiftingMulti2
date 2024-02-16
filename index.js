@@ -44,6 +44,10 @@ app.get('/String_prototype.js', (req, res) => {
     res.sendFile(__dirname + '/String_prototype.js');
 });
 
+app.get('/Element_prototype.js', (req, res) => {
+    res.sendFile(__dirname + '/Element_prototype.js');
+});
+
 // TODO: Remove?
 // app.get('/fs_readdirRecursive.js', (req, res) => {
 //     res.sendFile(__dirname + '/fs_readdirRecursive.js');

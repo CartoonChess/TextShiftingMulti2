@@ -1,3 +1,5 @@
+import '../../Element_prototype.js';
+
 // MVC's view
 class MapEditorHtml {
     // TODO: Don't show any buttons until load is complete
@@ -163,22 +165,13 @@ class MapEditorHtml {
         this.#createTileControls();
 
         // Only show if map editor is visible
-        // FIX ME: This doesn't work when infoContainer hasn't been init'd yet
-        // - should we have updateTileControls just give up if infoContainer isn't there yet?
-        // if (this.#infoContainer.style.display === 'block') {
-        //     this.#tileControlsContainer.style.display = 'block';
-        // } else {
-            this.#tileControlsContainer.style.display = 'none';
-        // }
+        this.#tileControlsContainer.hide();
     }
 
     updateTileControls(tile) {
-        // if (!this.#tileControlsContainer) {
-        //     this.#createTileControlsContainer();
-        // }
-        if (!this.#mapControlsContainer) { return; }
+        if (!this.#mapControlsContainer || this.#mapControlsContainer.style.display === 'none') { return; }
 
-        this.#tileControlsContainer.style.display = 'block';
+        this.#tileControlsContainer.show();
         this.toggleTileIsSolidCheckbox.checked = tile.isSolid;
     }
 
@@ -358,17 +351,19 @@ class MapEditorHtml {
     
     async toggleEditor() {
         const toggleEditorButtonEnabledText = 'Disable Edit Mode';
+        // Only some controls are shown when first entering edit mode
+        const startContainers = [
+            this.#mapControlsContainer,
+            this.#infoContainer
+        ];
+        const allContainers = [this.#tileControlsContainer, ...startContainers];
         // If we're editing now or have ever been, just toggle control visibility
         if (this.#mapControlsContainer) {
             if (this.#mapControlsContainer.style.display === 'none') {
-                this.#mapControlsContainer.style.display = 'block';
-                this.#infoContainer.style.display = 'block';
-                this.#tileControlsContainer.style.display = 'block';
+                for (const container of startContainers) { container.show(); }
                 this.toggleEditorButton.textContent = toggleEditorButtonEnabledText;
             } else {
-                this.#mapControlsContainer.style.display = 'none'
-                this.#infoContainer.style.display = 'none';
-                this.#tileControlsContainer.style.display = 'none';
+                for (const container of allContainers) { container.hide(); }
                 this.toggleEditorButton.textContent = 'Enable Edit Mode';
             }
         } else {
@@ -379,7 +374,7 @@ class MapEditorHtml {
 }
 
 
-import { RandomBytes } from '/randomBytes.js';
+import { RandomBytes } from '../../randomBytes.js';
 const randomBytes = new RandomBytes();
 const randomName = () => randomBytes.alphanumeric(8);
 
