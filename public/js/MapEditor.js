@@ -422,8 +422,6 @@ export default class MapEditor {
         // TODO: Shorten logic for when using "show whole map"
         // - view coords and map coords should be identical
 
-        // const mapTile = this.#model.getTileAtViewCoordinate(column, line);
-        // this.#html.updateTileControls(mapTile);
         this.#selectedTileMapCoordinate = this.#model.getMapCoordinateForViewCoordinate(column, line);
         this.#selectedTileMapCoordinate.layer = fakeLayer;
         this.#html.updateTileControls(this.#model.getTileAtCoordinate(this.#selectedTileMapCoordinate));
@@ -523,13 +521,13 @@ export default class MapEditor {
             info: `export const data = {
                 "name": "${fullName}",
                 "dimensions": {
-                    "width": 1,
-                    "height": 1,
+                    "width": 7,
+                    "height": 7,
                     "depth": 1
                 },
                 "startPosition": {
-                    "column": 0,
-                    "line": 0
+                    "column": 3,
+                    "line": 3
                 }
             }`,
             map: `import Tile, { WarpTileScript } from '/js/Tile.js';
@@ -537,24 +535,67 @@ export default class MapEditor {
                 export const tiles = [
                     [
                         [
-                            new Tile({ symbol: '+', color: 'red', backgroundColor: 'blue' }),
-                            new Tile({ symbol: ',', color: 'red', backgroundColor: 'green' })
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: '#', isSolid: true })
                         ],
                         [
-                            new Tile({ symbol: ' ', backgroundColor: 'green' }),
-                            new Tile({ symbol: ' ', backgroundColor: 'blue' })
-                        ]
-                    ],
-                    [
-                        [
-                            new Tile({ symbol: 'n', color: 'yellow' }),
-                            new Tile({ symbol: 'e', color: 'yellow', isSolid: true })
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: '#', isSolid: true })
                         ],
                         [
-                            new Tile({ symbol: 'e', color: 'yellow' }),
-                            new Tile({ symbol: 'w', color: 'yellow', scripts: [
-                                new WarpTileScript(new Coordinate(-2, -2), 'test5')
-                            ] })
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: '#', isSolid: true })
+                        ],
+                        [
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: '#', isSolid: true })
+                        ],
+                        [
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: '#', isSolid: true })
+                        ],
+                        [
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: ' ' }),
+                            new Tile({ symbol: '#', isSolid: true })
+                        ],
+                        [
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: '#', isSolid: true }),
+                            new Tile({ symbol: '#', isSolid: true })
                         ]
                     ]
                 ];`,
@@ -596,7 +637,7 @@ export default class MapEditor {
         this.#html.updateMapControls();
         // Clear selected tile
         this.#selectedTileMapCoordinate = null;
-        this.#html.updateTileControls(null);
+        this.#html.updateTileControls(this.#selectedTileMapCoordinate);
     }
 }
 
@@ -646,24 +687,10 @@ class MapEditorModel {
         // TODO: Implement
     }
 
-    // getTileAtViewCoordinate(viewColumn, viewLine) {
-    //     const columnOffset = viewColumn - this.#game.view.staticCenter.column;
-    //     const lineOffset = viewLine - this.#game.view.staticCenter.line;
-
-    //     console.debug(`Clicked tile offset from view center: ${columnOffset},${lineOffset}`);
-
-    //     const mapColumn = this.#game.view.mapCoordinateAtViewCenter.column + columnOffset;
-    //     const mapLine = this.#game.view.mapCoordinateAtViewCenter.line + lineOffset;
-
-    //     console.debug(`Corresponds to map coord ${mapColumn},${mapLine}`);
-
-    //     // return this.#getTile(new Coordinate(mapColumn, mapLine));
-    //     // FIXME: This basically needs to return every tile in the z stack
-    //     const fakeLayer = 0;
-    //     return this.#game.view.getTile(mapColumn, mapLine, fakeLayer);
-    // }
     getTileAtCoordinate(coordinate) {
-        return this.#game.view.getTile(coordinate.column, coordinate.line, coordinate.layer);
+        // if (!this.#game.view.tileIsInBounds(coordinate.column, coordinate.line, coordinate.layer)) { return; }
+        // return this.#game.view.getTile(coordinate.column, coordinate.line, coordinate.layer);
+        return this.#game.view.getTile(coordinate.column, coordinate.line, coordinate.layer, false);
     }
 
     getMapCoordinateForViewCoordinate(viewColumn, viewLine) {
