@@ -165,7 +165,6 @@ class MapEditorHtml {
     }
 
     #updateTileSymbolDropdown(tile) {
-        console.debug(tile);
         for (const option of this.tileSymbolDropdown.options) {
             if (option.value === tile.symbol) {
                 option.selected = true;
@@ -532,7 +531,7 @@ export default class MapEditor {
                 await this.#createMap();
                 break;
             case this.#html.tileSymbolDropdown:
-                //
+                this.#model.updateTile(this.#selectedTileMapCoordinate, 'symbol', this.#html.tileSymbolDropdown.value);
                 break;
             case this.#html.toggleTileIsSolidCheckbox:
                 // TODO: We should probably sanity check selectedTileMapCoordinate
@@ -796,6 +795,7 @@ class MapEditorModel {
     updateTile(coordinate, property, value) {
         const tile = this.#game.view.map.lines[coordinate.layer][coordinate.line][coordinate.column];
         tile[property] = value;
+        this.#updateView();
     }
 
     // TODO: Maybe this should just be in the controller?

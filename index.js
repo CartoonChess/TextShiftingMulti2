@@ -136,7 +136,7 @@ app.get('/createMapFromTemplate', async (req, res) => {
         for (const file of files) {
             const source = path.resolve(templateDir, file);
             const destination = path.join(newDir, path.basename(source));
-            console.debug(`Copying from ${source} to ${destination}.`);
+            console.log(`Copying from ${source} to ${destination}.`);
             await fs.copyFile(source, destination);
         }
     } catch (err) {
