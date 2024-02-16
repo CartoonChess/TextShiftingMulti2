@@ -90,29 +90,60 @@ async function writeFileExclusive(file, data) {
     await fs.writeFile(file, data, { flag: 'wx'});
 }
 
-app.post('/createMap', async (req, res) => {
+// app.post('/createMap', async (req, res) => {
+//     try {
+//         const { dir, info, map, border } = req.body;
+//         const fullDir = path.join(mapsDir, dir);
+//         // TODO: Should this and below be array + loop?
+//         const infoPath = path.join(fullDir, 'info.js');
+//         const mapPath = path.join(fullDir, 'map.js');
+//         // TODO: Use new border format (.js)
+//         const borderPath = path.join(fullDir, 'border');
+
+//         // Create directories, including intermediate
+//         await fs.mkdir(fullDir, { recursive: true });
+//         // Create js files but throw error if any already exist
+//         await writeFileExclusive(infoPath, info);
+//         await writeFileExclusive(mapPath, map);
+//         await writeFileExclusive(borderPath, border);
+
+//         const message = `Created map package ${dir}.`;
+//         console.log(message);
+//         res.send(message);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Failed to create one or more map files or directories on server.');
+//     }
+// });
+
+// TODO: We can make a create/update combo function by calling /..template if dir/files missing
+app.post('/updateMap', async (req, res) => {
     try {
-        const { dir, info, map, border } = req.body;
-        const fullDir = path.join(mapsDir, dir);
-        // TODO: Should this and below be array + loop?
-        const infoPath = path.join(fullDir, 'info.js');
-        const mapPath = path.join(fullDir, 'map.js');
-        // TODO: Use new border format (.js)
-        const borderPath = path.join(fullDir, 'border');
+        const { name, tiles } = req.body;
+        const dir = path.join(mapsDir, name);
+        const mapPath = path.join(dir, 'map.js');
 
-        // Create directories, including intermediate
-        await fs.mkdir(fullDir, { recursive: true });
-        // Create js files but throw error if any already exist
-        await writeFileExclusive(infoPath, info);
-        await writeFileExclusive(mapPath, map);
-        await writeFileExclusive(borderPath, border);
+        // Get existing map.js
+        const mapFileData = await fs.readFile(mapPath);
 
-        const message = `Created map package ${dir}.`;
+        // Assume tiles var is last part of file
+        // Find its declaration and overwrite to end
+        const tilesDeclare = 'export const tiles = ';
+        const rewriteStart = mapFileData.indexOf(tilesDeclare);
+        if (rewriteStart === -1) {
+            throw new Error('No tiles declaration in map.js file.');
+        }
+        const newData = mapFileData.toString().substring(0, rewriteStart) + tilesDeclare + JSON.stringify(tiles);
+
+        // Overwrite file
+        await fs.writeFile(mapPath, newData);
+
+        const message = `Saved ${name} to server.`;
         console.log(message);
         res.send(message);
     } catch (err) {
         console.error(err);
-        res.status(500).send('Failed to create one or more map files or directories on server.');
+        res.status(500).send('Failed to save map to server.');
     }
 });
 

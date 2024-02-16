@@ -27,6 +27,7 @@ class MapEditorHtml {
     updateMapNameButton;
     createMapButton;
     deleteMapButton;
+    saveMapButton;
 
     #tileControlsContainer;
     tileSymbolDropdown;
@@ -97,7 +98,8 @@ class MapEditorHtml {
         }
 
         const buttons = [
-            this.createMapButton
+            this.createMapButton,
+            this.saveMapButton
         ]
         // // game-view of course is not a button but a div
         // const buttons = [
@@ -279,6 +281,8 @@ class MapEditorHtml {
         // TODO: Make these work
         this.updateMapNameButton = this.#createButtonInside(this.#infoContainer, 'update-map-name', 'Rename/Move');
         this.deleteMapButton = this.#createButtonInside(this.#infoContainer, 'delete-map', 'Delete');
+        // TODO: Make this automatic
+        this.saveMapButton = this.#createButtonInside(this.#infoContainer, 'save-map', 'Save');
 
         this.createMapButton = this.#createButtonInside(this.#infoContainer, 'create-map', 'New');
     }
@@ -529,6 +533,9 @@ export default class MapEditor {
                 break;
             case this.#html.createMapButton:
                 await this.#createMap();
+                break;
+            case this.#html.saveMapButton:
+                await this.#model.saveMap();
                 break;
             case this.#html.tileSymbolDropdown:
                 this.#model.updateTile(this.#selectedTileMapCoordinate, 'symbol', this.#html.tileSymbolDropdown.value);
@@ -819,6 +826,29 @@ class MapEditorModel {
         this.#updateView();
         // socket.broadcastMove();
         // - or should this be in #updateView()?
+    }
+
+    async saveMap() {
+        try {
+            const response = await fetch('/updateMap', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: this.mapName,
+                    tiles: this.#game.view.map.lines
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err);
+            }
+
+            const responseText = await response.text();
+            console.log(responseText);
+        } catch (err) {
+            console.error(err.message);
+        }
     }
 
     #updateView() {

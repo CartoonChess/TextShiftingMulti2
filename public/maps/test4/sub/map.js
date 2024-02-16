@@ -1,26 +1,3 @@
 import Tile, { WarpTileScript } from '/js/Tile.js';
 import { Coordinate } from '/js/GameMap.js';
-export const tiles = [
-    [
-        [
-            new Tile({ symbol: '+', color: 'red', backgroundColor: 'blue' }),
-            new Tile({ symbol: ',', color: 'red', backgroundColor: 'green', isSolid: true })
-        ],
-        [
-            new Tile({ symbol: ' ', backgroundColor: 'green' }),
-            new Tile({ symbol: ' ', backgroundColor: 'blue' })
-        ]
-    ],
-    [
-        [
-            new Tile({ symbol: 's', color: 'yellow' }),
-            new Tile({ symbol: 'u', color: 'yellow', isSolid: false })
-        ],
-        [
-            new Tile({ symbol: 'u', color: 'yellow' }),
-            new Tile({ symbol: 'b', color: 'yellow', scripts: [
-                new WarpTileScript(new Coordinate(-2, -2), 'test5')
-            ] })
-        ]
-    ]
-];
+export const tiles = [[[{"symbol":"+","isVisible":true,"isSolid":false,"color":"red","backgroundColor":"blue","layer":0},{"symbol":",","isVisible":true,"isSolid":true,"color":"red","backgroundColor":"green","layer":0}],[{"symbol":"#","isVisible":true,"isSolid":false,"color":"inherit","backgroundColor":"green","layer":0},{"symbol":" ","isVisible":true,"isSolid":false,"color":"inherit","backgroundColor":"blue","layer":0}]],[[{"symbol":"s","isVisible":true,"isSolid":false,"color":"yellow","backgroundColor":"inherit","layer":0},{"symbol":"u","isVisible":true,"isSolid":false,"color":"yellow","backgroundColor":"inherit","layer":0}],[{"symbol":"u","isVisible":true,"isSolid":false,"color":"yellow","backgroundColor":"inherit","layer":0},{"symbol":"b","isVisible":true,"isSolid":false,"color":"yellow","backgroundColor":"inherit","layer":0,"scripts":[{"destinationCoordinate":{"column":-2,"line":-2},"destinationMap":"test5"}]}]]]
