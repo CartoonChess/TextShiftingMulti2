@@ -23,7 +23,7 @@ export const tiles = [
         [
             new Tile({ symbol: '#', isSolid: true }),
             new Tile({ symbol: ' ' }),
-            new Tile({ symbol: '%' }),
+            new Tile({ symbol: ' ' }),
             new Tile({ symbol: ' ' }),
             new Tile({ symbol: ' ' }),
             new Tile({ symbol: ' ' }),

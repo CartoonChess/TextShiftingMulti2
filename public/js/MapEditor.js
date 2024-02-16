@@ -29,6 +29,7 @@ class MapEditorHtml {
     deleteMapButton;
 
     #tileControlsContainer;
+    tileSymbolDropdown;
     toggleTileIsSolidCheckbox;
 
     increaseMapWidthOnLeftButton;
@@ -82,12 +83,12 @@ class MapEditorHtml {
 
     #addAdditionalEventListeners() {
         // TODO: Integrate with above once everything is programmatic
-        // TODO: Are tile controls okay here even though they're loaded later?
         // Note that mapNameDropdown isn't actually `input` but `select` (rename to `elements`?)
         const inputs = [
             this.toggleGridCheckbox,
             this.toggleMaxViewCheckbox,
             this.mapNameDropdown,
+            this.tileSymbolDropdown,
             this.toggleTileIsSolidCheckbox
         ]
         
@@ -154,6 +155,29 @@ class MapEditorHtml {
         return textbox;
     }
 
+    #createOptionInside(dropdown, text, before = null) {
+        const option = document.createElement('option');
+        option.text = text;
+        option.value = text;
+        dropdown.add(option, before);
+    
+        return option;
+    }
+
+    #updateTileSymbolDropdown(tile) {
+        console.debug(tile);
+        for (const option of this.tileSymbolDropdown.options) {
+            if (option.value === tile.symbol) {
+                option.selected = true;
+                return;
+            }
+        }
+        
+        // Add symbol if not already in dropbox
+        const newOption = this.#createOptionInside(this.tileSymbolDropdown, tile.symbol);
+        newOption.selected = true;
+    }
+
     updateTileControls(tile) {
         // Don't do anything if not visible
         if (!this.#mapControlsContainer || this.#mapControlsContainer.style.display === 'none') { return; }
@@ -162,18 +186,39 @@ class MapEditorHtml {
 
         this.#tileControlsContainer.show();
         
+        // Update individual controls
+        this.#updateTileSymbolDropdown(tile);
         this.toggleTileIsSolidCheckbox.checked = tile.isSolid;
     }
 
-    // TODO: The rest of these
-    #createTileControls() {
-        // symbol (dropdown or textbox)
-        // maybe dropdown with "enter new" option that transforms into textbox, like map rename is supposed to do
+    #createTileSymbolDropdown() {
+        this.tileSymbolDropdown = document.createElement('select');
+        this.tileSymbolDropdown.id = 'tile-symbol';
 
-        // isSolid (checkbox)
+        const symbols = [
+            ' ',
+            '.',
+            '#'
+        ];
+        
+        for (const symbol of symbols) {
+            this.#createOptionInside(this.tileSymbolDropdown, symbol);
+        }
+    
+        this.#tileControlsContainer.appendChild(this.tileSymbolDropdown);
+    }
+
+    #createTileControls() {
+        // Symbol
+        // TODO: Maybe dropdown with "enter new" option that transforms into textbox, like map rename is supposed to do
+        this.#createTileSymbolDropdown();
+
+        // isSolid
         this.toggleTileIsSolidCheckbox = this.#createCheckboxInside(this.#tileControlsContainer, 'toggle-tile-solid', 'Solid');
 
-        // scripts i.e. warp (???)
+        // TODO: Scripts i.e. warp
+        // - Maybe a checkbox (or just blank entry in dropdown for laziness) followed by same map dropdown
+        // - Could also create a new map (in background) for later
     }
 
     #createTileControlsContainer(tile) {
@@ -207,9 +252,12 @@ class MapEditorHtml {
             const option = document.createElement('option');
             option.text = map;
             option.value = option.text;
-            this.mapNameDropdown.appendChild(option);
+            // this.mapNameDropdown.appendChild(option);
+            this.mapNameDropdown.add(option);
     
             // Remove pre-await map name and highlight identical replacement in list
+            // TODO: Isn't this actually useless? We should just .add(option, [before...]) until we get to current and then append the rest
+            // - Or remove the old one and add them all, just .selected=true the current map when we go by in the loop
             if (!didFindCurrentMap && map === this.#mapName) {
                 this.mapNameDropdown.options[0].remove();
                 option.selected = true;
@@ -232,6 +280,7 @@ class MapEditorHtml {
         // TODO: Make these work
         this.updateMapNameButton = this.#createButtonInside(this.#infoContainer, 'update-map-name', 'Rename/Move');
         this.deleteMapButton = this.#createButtonInside(this.#infoContainer, 'delete-map', 'Delete');
+
         this.createMapButton = this.#createButtonInside(this.#infoContainer, 'create-map', 'New');
     }
 
@@ -311,12 +360,20 @@ class MapEditorHtml {
         }
         
         // Add map if we couldn't find it in the list
-        // TODO: Insert in proper alpha order
-        const option = document.createElement('option');
-        option.text = this.#mapName;
-        option.value = option.text;
-        this.mapNameDropdown.add(option);
-        option.selected = true;
+        const newOption = document.createElement('option');
+        newOption.text = this.#mapName;
+        newOption.value = newOption.text;
+
+        // Place in correct order in hierarchy
+        let nextOption = null;
+        for (const option of this.mapNameDropdown.options) {
+            if (option.text > newOption.text) {
+                nextOption = option;
+                break;
+            }
+        }
+        this.mapNameDropdown.add(newOption, nextOption);
+        newOption.selected = true;
     }
 
     // TODO: This logic should probably be removed from the creation methods
@@ -473,6 +530,9 @@ export default class MapEditor {
                 break;
             case this.#html.createMapButton:
                 await this.#createMap();
+                break;
+            case this.#html.tileSymbolDropdown:
+                //
                 break;
             case this.#html.toggleTileIsSolidCheckbox:
                 // TODO: We should probably sanity check selectedTileMapCoordinate
@@ -655,9 +715,6 @@ export default class MapEditor {
 
             // Update Game etc. with new map
             await this.#model.changeMap(newMap);
-            // Reflect map stats in html
-            // - should be same as first load of EditorView obj I guess?
-            // - change to new name in dropdown (should also happen when warping...)
         } catch (err) {
             console.error(err.message);
         }
