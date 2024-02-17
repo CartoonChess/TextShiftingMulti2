@@ -280,7 +280,9 @@ class MapEditorHtml {
     
         // TODO: Make these work
         this.updateMapNameButton = this.#createButtonInside(this.#infoContainer, 'update-map-name', 'Rename/Move');
+        this.updateMapNameButton.disabled = true;
         this.deleteMapButton = this.#createButtonInside(this.#infoContainer, 'delete-map', 'Delete');
+        this.deleteMapButton.disabled = true;
         // TODO: Make this automatic
         this.saveMapButton = this.#createButtonInside(this.#infoContainer, 'save-map', 'Save');
 
@@ -352,6 +354,7 @@ class MapEditorHtml {
         // TODO: Buttons
         // Numerical size
         this.mapDepthTextbox = this.#createTextboxInside(this.#infoContainer, 'map-depth', this.#mapDepth);
+        this.mapDepthTextbox.disabled = true;
     }
 
     #updateMapNameDropdown() {

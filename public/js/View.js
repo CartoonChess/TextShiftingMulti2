@@ -296,7 +296,9 @@ export class View {
             line = (line + height) % height;
         }
 
-        return this.#map.border.lines[line][column];
+        // return this.#map.border.lines[line][column];
+        const fakeLayer = 0;
+        return this.#map.border.lines[fakeLayer][line][column];
     }
 
     #tileIsInBounds(rowIndex, lineIndex) {

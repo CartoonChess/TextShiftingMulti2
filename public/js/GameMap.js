@@ -32,9 +32,17 @@ export class Coordinate {
 // TODO: Make child (or sibling) of Map (~fromFile methods redundant)
 class MapBorder {
     constructor(width = 1, height = 1, lines = [[' ']]) {
-        this.lines = lines;
-        this.height = lines && lines.length ? lines.length : height;
-        this.width = lines && lines.length && lines[0].length ? lines[0].length: width;
+        // this.lines = lines;
+        // this.height = lines && lines.length ? lines.length : height;
+        // this.width = lines && lines.length && lines[0].length ? lines[0].length: width;
+
+        if (lines && lines.length && lines[0].length && lines[0][0].length) {
+            this.lines = lines;
+            this.height = lines[0].length;
+            this.width = lines[0][0].length;
+        } else {
+            console.error('Error constructing MapBorder.');
+        }
     }
 
     // currently redundant
@@ -49,22 +57,31 @@ class MapBorder {
         return this.createFromLines(lines);
     }
 
+    // static async #loadLinesFromFile(filePath) {
+    //     let data;
+    //     try {
+    //         const response = await fetch(filePath);
+    //         data = await response.text();
+    //     } catch (err) {
+    //         return console.error(`MapBorder.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
+    //     }
+
+    //     // Split into 2D array of lines and their tiles
+    //     const lines = data.split('\n');
+    //     for (let i = 0; i < lines.length; i++) {
+    //         lines[i] = lines[i].split('');
+    //     }
+        
+    //     return lines;
+    // }
     static async #loadLinesFromFile(filePath) {
         let data;
         try {
-            const response = await fetch(filePath);
-            data = await response.text();
+            const file = await import(filePath);
+            return file.tiles;
         } catch (err) {
             return console.error(`MapBorder.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
         }
-
-        // Split into 2D array of lines and their tiles
-        const lines = data.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-            lines[i] = lines[i].split('');
-        }
-        
-        return lines;
     }
 }
 
@@ -178,7 +195,8 @@ export class GameMap {
             return this.#loadInfoFromFile(infoFilePath, pkgName);
         } else {
             const filePath = prefix + 'map.js';
-            const borderFilePath = prefix + 'border';
+            // const borderFilePath = prefix + 'border';
+            const borderFilePath = prefix + 'border.js';
             return this.loadFromFile(filePath, borderFilePath, infoFilePath, pkgName);
         }
     }
