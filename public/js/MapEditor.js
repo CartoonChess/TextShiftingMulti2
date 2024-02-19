@@ -738,7 +738,6 @@ export default class MapEditor {
         } catch (err) {
             console.error(err.message);
         }
-
     }
 
     // Observe a notification, as a listener

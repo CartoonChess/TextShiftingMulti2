@@ -1,10 +1,6 @@
 import '../../ConsoleColor.js';
 
 export class Coordinate {
-    // constructor(column, line) {
-    //     this.column = column;
-    //     this.line = line;
-    // }
     constructor(column, line, layer) {
         this.column = column;
         this.line = line;
@@ -22,9 +18,8 @@ export class Coordinate {
     toJson() {
         return JSON.stringify(this);
     }
-    
+
     toString() {
-        // return `(x: ${this.column}, y: ${this.line})`;
         if (this.layer) {
             return `(x: ${this.column}, y: ${this.line}, z: {${this.layer})`;
         }
@@ -88,6 +83,11 @@ class MapBorder {
         }
     }
 }
+
+import '../../JSON_stringifyWithClasses.js';
+import Tile, { WarpTileScript } from './Tile.js';
+// TODO: Are we okay declaring this here?
+const customJsonClasses = { Tile, Coordinate, WarpTileScript };
 
 export class GameMap {
     static #packagePath = '../maps/';
@@ -170,7 +170,35 @@ export class GameMap {
 
             return file.data;
         } catch(err) {
-            console.error(`Couldn't open file "${filePath}": ${err}`);
+            console.error(`Couldn't open file ${filePath}: ${err}`);
+        }
+    }
+
+    // static async #loadLinesFromFile(filePath) {
+    //     let data;
+    //     try {
+    //         const file = await import(filePath);
+    //         return file.tiles;
+    //     } catch (err) {
+    //         return console.error(`GameMap.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
+    //     }
+    // }
+    static async #loadLinesFromFile(filePath) {
+        const query = '?' + new URLSearchParams({ name: filePath }).toString();
+        try {
+            // Fetch map json from API point
+            const response = await fetch('/fetchMap' + query);
+
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err);
+            }
+
+            // Deserialize with classes intact
+            const json = await response.text();
+            return JSON.parseWithClasses(json, customJsonClasses);
+        } catch (err) {
+            return console.error(`GameMap.#loadLinesFromFile('${`filePath`}') failed with error: ${err}`);
         }
     }
 
@@ -194,12 +222,16 @@ export class GameMap {
 
         // "advised to access private static props thru class NAME"
         // TODO: Should ask server for path separator symbol (diff for Windows?)
+        // TODO: Clean up all this prefix nonsense (handled by server now)
         const prefix = GameMap.#packagePath + pkgName + '/';
+        // const prefix__ = pkgName + '/';
         const infoFilePath = prefix + 'info.js'
         if (infoOnly) {
             return this.#loadInfoFromFile(infoFilePath, pkgName);
         } else {
-            const filePath = prefix + 'map.js';
+            // TODO: Change to .json
+            // const filePath = prefix + 'map.js';
+            const filePath = pkgName;
             // const borderFilePath = prefix + 'border';
             const borderFilePath = prefix + 'border.js';
             return this.loadFromFile(filePath, borderFilePath, infoFilePath, pkgName);
@@ -210,16 +242,6 @@ export class GameMap {
     static loadInfoFromPackage(pkgName) {
         if (!pkgName) { return console.error(`Must provide a package name to use GameMap.loadInfoFromPackage.`); }
         return this.loadFromPackage(pkgName, true);
-    }
-
-    static async #loadLinesFromFile(filePath) {
-        let data;
-        try {
-            const file = await import(filePath);
-            return file.tiles;
-        } catch (err) {
-            return console.error(`GameMap.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
-        }
     }
 
     static createTestMap(view, width = view.width * 2, height = view.height * 2, boundCharacter = '#', border) {

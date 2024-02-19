@@ -4,10 +4,6 @@
 // 2. we use `import x from y` instead of require()
 // 3. we have to use `import="module"` in html <script>
 
-// Generate list of all custom classes for use with custom json deserialization
-import { generateCustomClassesList } from './generateCustomClassesList.js';
-generateCustomClassesList();
-
 import express from 'express';
 const app = express();
 import http from 'http';
@@ -173,7 +169,7 @@ app.post('/updateMap', async (req, res) => {
 
 app.get('/createMapFromTemplate', async (req, res) => {
     // Get path with random name
-    let parentDir = req.query.parentDir;
+    const parentDir = req.query.parentDir;
     let mapName = randomBytes.alphanumeric(8);
     if (parentDir) {
         mapName = parentDir + '/' + mapName;
@@ -202,6 +198,21 @@ app.get('/createMapFromTemplate', async (req, res) => {
     
     // Return new name to client
     res.send(mapName);
+});
+
+import './JSON_stringifyWithClasses.js';
+// TODO: Redundancy with template creation above, probably
+app.get('/fetchMap', async (req, res) => {
+    const mapFile = req.query.name + '/map.js';
+    const mapPath = path.join(mapsDir, mapFile);
+    
+    try {
+        const data = await fs.readFile(mapPath);
+        res.send(data);
+    } catch(err) {
+        console.error(`Couldn't fetch map data: ${err}.`);
+        return;
+    }
 });
 
 import Game from './public/js/Game.js';

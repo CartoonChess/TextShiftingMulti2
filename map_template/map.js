@@ -1,69 +1,238 @@
-import Tile, { WarpTileScript } from '/js/Tile.js';
-import { Coordinate } from '/js/GameMap.js';
-export const tiles = [
+[
     [
         [
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: '#', isSolid: true })
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            }
         ],
         [
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: '#', isSolid: true })
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            }
         ],
         [
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: '#', isSolid: true })
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            }
         ],
         [
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: '#', isSolid: true })
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            }
         ],
         [
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: '#', isSolid: true })
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            }
         ],
         [
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: ' ' }),
-            new Tile({ symbol: '#', isSolid: true })
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": " ",
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            }
         ],
         [
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: '#', isSolid: true }),
-            new Tile({ symbol: '#', isSolid: true })
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isSolid": true,
+                "__type": "Tile"
+            }
         ]
     ]
-];
+]
