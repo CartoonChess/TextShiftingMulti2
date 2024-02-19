@@ -99,7 +99,11 @@ class MapEditorHtml {
 
         const buttons = [
             this.createMapButton,
-            this.saveMapButton
+            this.saveMapButton,
+            this.increaseMapWidthOnRightButton,
+            this.decreaseMapWidthOnRightButton,
+            this.increaseMapHeightOnBottomButton,
+            this.decreaseMapHeightOnBottomButton
         ]
         // // game-view of course is not a button but a div
         // const buttons = [
@@ -448,6 +452,7 @@ class MapEditorHtml {
 }
 
 
+import { Direction } from './Direction.js';
 import { RandomBytes } from '../../randomBytes.js';
 const randomBytes = new RandomBytes();
 const randomName = () => randomBytes.alphanumeric(8);
@@ -539,6 +544,12 @@ export default class MapEditor {
                 break;
             case this.#html.saveMapButton:
                 await this.#model.saveMap();
+                break;
+            case this.#html.increaseMapWidthOnRightButton:
+                this.#model.updateMapSize(Direction.Right, 1);
+                break;
+            case this.#html.increaseMapHeightOnBottomButton:
+                this.#model.updateMapSize(Direction.Down, 1);
                 break;
             case this.#html.tileSymbolDropdown:
                 this.#model.updateTile(this.#selectedTileMapCoordinate, 'symbol', this.#html.tileSymbolDropdown.value);
@@ -742,6 +753,8 @@ export default class MapEditor {
 
 
 import { Coordinate } from './GameMap.js';
+import Tile from './Tile.js';
+import '../JSON_stringifyWithClasses.js';
 
 // MVC's model
 class MapEditorModel {
@@ -820,6 +833,51 @@ class MapEditorModel {
         }
     }
 
+    #increaseMapSizeOnRight(amount) {
+        const layers = this.#game.view.map.lines;
+        for (const layer of layers) {
+            for (const line of layer) {
+                for (let i = 0; i < amount; i++) {
+                    // FIXME: Only shows up after saving and reloading
+                    const tile = new Tile({ symbol: '.' });
+                    // const tile = { symbol: '.' };
+                    // const tile = new Object({ symbol: '.' });
+                    line.push(
+                        tile
+                    )
+                    console.debug(line);
+                }
+            }
+        }
+        console.debug(layers);
+    }
+
+    updateMapSize(side, amount) {
+        const absAmount = Math.abs(amount);
+        const willGrow = amount > 0;
+        switch (side) {
+            case Direction.Up: {
+                break;
+            }
+            case Direction.Down: {
+                // TODO:
+                break;
+            }
+            case Direction.Left: {
+                break;
+            }
+            case Direction.Right: {
+                if (willGrow) { this.#increaseMapSizeOnRight(absAmount); }
+                break;
+            }
+            default: {
+                console.warn(`Don't use Direction.Here when calling MapEditorModel.updateMapSize().`);
+            }
+        }
+
+        this.#updateView();
+    }
+
     // #deleteMap() {
 
     // }
@@ -833,10 +891,18 @@ class MapEditorModel {
 
     async saveMap() {
         try {
+            // const response = await fetch('/updateMap', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({
+            //         name: this.mapName,
+            //         tiles: this.#game.view.map.lines
+            //     })
+            // });
             const response = await fetch('/updateMap', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+                body: JSON.stringifyWithClasses({
                     name: this.mapName,
                     tiles: this.#game.view.map.lines
                 })

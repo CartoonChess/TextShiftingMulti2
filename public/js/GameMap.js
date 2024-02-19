@@ -10,15 +10,19 @@ export class Coordinate {
         this.line = line;
         this.layer = layer;
     }
+
     static fromObject(obj) {
         return Object.assign(new this, obj);
     }
+
     static fromJson(json) {
         return Object.assign(new this, JSON.parse(json));
     }
+
     toJson() {
         return JSON.stringify(this);
     }
+    
     toString() {
         // return `(x: ${this.column}, y: ${this.line})`;
         if (this.layer) {
@@ -98,6 +102,7 @@ export class GameMap {
     // info must be an object
     constructor(width = 0, height = 0, lines, border = new MapBorder(), info) {
         if (lines && lines.length && lines[0].length && lines[0][0].length) {
+            console.debug(lines);
             this.lines = lines;
             this.depth = lines.length;
             this.height = lines[0].length;

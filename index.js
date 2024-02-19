@@ -4,6 +4,10 @@
 // 2. we use `import x from y` instead of require()
 // 3. we have to use `import="module"` in html <script>
 
+// Generate list of all custom classes for use with custom json deserialization
+import { generateCustomClassesList } from './generateCustomClassesList.js';
+generateCustomClassesList();
+
 import express from 'express';
 const app = express();
 import http from 'http';
@@ -31,22 +35,21 @@ const mapRoom = (mapName) => 'map:' + mapName;
 //     res.sendFile(__dirname + '/index.html');
 // });
 
+// Make certain non-public files available clientside
 // Feels like a hack lol
-app.get('/randomBytes.js', (req, res) => {
-    res.sendFile(__dirname + '/randomBytes.js');
-});
+const exposedFiles = [
+    '/randomBytes.js',
+    '/ConsoleColor.js',
+    '/String_prototype.js',
+    '/Element_prototype.js',
+    '/JSON_stringifyWithClasses.js'
+];
 
-app.get('/ConsoleColor.js', (req, res) => {
-    res.sendFile(__dirname + '/ConsoleColor.js');
-});
-
-app.get('/String_prototype.js', (req, res) => {
-    res.sendFile(__dirname + '/String_prototype.js');
-});
-
-app.get('/Element_prototype.js', (req, res) => {
-    res.sendFile(__dirname + '/Element_prototype.js');
-});
+for (const file of exposedFiles) {
+    app.get(file, (req, res) => {
+        res.sendFile(__dirname + file);
+    });
+}
 
 // TODO: Remove?
 // app.get('/fs_readdirRecursive.js', (req, res) => {
@@ -117,23 +120,44 @@ async function writeFileExclusive(file, data) {
 // });
 
 // TODO: We can make a create/update combo function by calling /..template if dir/files missing
+// app.post('/updateMap', async (req, res) => {
+//     try {
+//         const { name, tiles } = req.body;
+//         const dir = path.join(mapsDir, name);
+//         const mapPath = path.join(dir, 'map.js');
+
+//         // Get existing map.js
+//         const mapFileData = await fs.readFile(mapPath);
+
+//         // Assume tiles var is last part of file
+//         // Find its declaration and overwrite to end
+//         const tilesDeclare = 'export const tiles = ';
+//         const rewriteStart = mapFileData.indexOf(tilesDeclare);
+//         if (rewriteStart === -1) {
+//             throw new Error('No tiles declaration in map.js file.');
+//         }
+//         const newData = mapFileData.toString().substring(0, rewriteStart) + tilesDeclare + JSON.stringify(tiles, null, 4);
+
+//         // Overwrite file
+//         await fs.writeFile(mapPath, newData);
+
+//         const message = `Saved ${name} to server.`;
+//         console.log(message);
+//         res.send(message);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Failed to save map to server.');
+//     }
+// });
 app.post('/updateMap', async (req, res) => {
     try {
         const { name, tiles } = req.body;
         const dir = path.join(mapsDir, name);
         const mapPath = path.join(dir, 'map.js');
 
-        // Get existing map.js
-        const mapFileData = await fs.readFile(mapPath);
-
-        // Assume tiles var is last part of file
-        // Find its declaration and overwrite to end
-        const tilesDeclare = 'export const tiles = ';
-        const rewriteStart = mapFileData.indexOf(tilesDeclare);
-        if (rewriteStart === -1) {
-            throw new Error('No tiles declaration in map.js file.');
-        }
-        const newData = mapFileData.toString().substring(0, rewriteStart) + tilesDeclare + JSON.stringify(tiles);
+        const newData = JSON.stringify(tiles, null, 4);
+        // const newData = JSON.stringify(tiles);
+        // const newData = tiles;
 
         // Overwrite file
         await fs.writeFile(mapPath, newData);

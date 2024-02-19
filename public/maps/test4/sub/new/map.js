@@ -1,6 +1,4 @@
-import Tile, { WarpTileScript } from '/js/Tile.js';
-import { Coordinate } from '/js/GameMap.js';
-export const tiles = [
+[
     [
         [
             {
@@ -9,31 +7,28 @@ export const tiles = [
                 "isSolid": false,
                 "color": "red",
                 "backgroundColor": "blue",
-                "layer": 0
+                "layer": 0,
+                "__type": "Tile"
             },
             {
                 "symbol": ",",
                 "isVisible": true,
-                "isSolid": true,
+                "isSolid": false,
                 "color": "red",
                 "backgroundColor": "green",
-                "layer": 0
-            },
-            {
-                "symbol": "#"
-            },
-            {
-                "symbol": "."
+                "layer": 0,
+                "__type": "Tile"
             }
         ],
         [
             {
-                "symbol": "#",
+                "symbol": " ",
                 "isVisible": true,
                 "isSolid": false,
                 "color": "inherit",
                 "backgroundColor": "green",
-                "layer": 0
+                "layer": 0,
+                "__type": "Tile"
             },
             {
                 "symbol": " ",
@@ -41,52 +36,44 @@ export const tiles = [
                 "isSolid": false,
                 "color": "inherit",
                 "backgroundColor": "blue",
-                "layer": 0
-            },
-            {
-                "symbol": "."
-            },
-            {
-                "symbol": "."
+                "layer": 0,
+                "__type": "Tile"
             }
         ]
     ],
     [
         [
             {
-                "symbol": "s",
+                "symbol": "4",
                 "isVisible": true,
                 "isSolid": false,
                 "color": "yellow",
                 "backgroundColor": "inherit",
-                "layer": 0
+                "layer": 0,
+                "__type": "Tile"
             },
             {
-                "symbol": "u",
+                "symbol": "4",
                 "isVisible": true,
-                "isSolid": false,
+                "isSolid": true,
                 "color": "yellow",
                 "backgroundColor": "inherit",
-                "layer": 0
-            },
-            {
-                "symbol": "."
-            },
-            {
-                "symbol": "."
+                "layer": 0,
+                "__type": "Tile"
             }
         ],
         [
             {
-                "symbol": "u",
+                "symbol": "4",
                 "isVisible": true,
                 "isSolid": false,
                 "color": "yellow",
                 "backgroundColor": "inherit",
-                "layer": 0
+                "layer": 0,
+                "__type": "Tile"
             },
             {
-                "symbol": "b",
+                "symbol": "4",
                 "isVisible": true,
                 "isSolid": false,
                 "color": "yellow",
@@ -96,17 +83,14 @@ export const tiles = [
                     {
                         "destinationCoordinate": {
                             "column": -2,
-                            "line": -2
+                            "line": -2,
+                            "__type": "Coordinate"
                         },
-                        "destinationMap": "test5"
+                        "destinationMap": "test5",
+                        "__type": "WarpTileScript"
                     }
-                ]
-            },
-            {
-                "symbol": "."
-            },
-            {
-                "symbol": "."
+                ],
+                "__type": "Tile"
             }
         ]
     ]

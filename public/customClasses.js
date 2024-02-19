@@ -1,0 +1,23 @@
+export default { {
+  "Character": null,
+  "Player": null,
+  "RemotePlayer": null,
+  "Direction": null,
+  "Surroundings": null,
+  "Game": null,
+  "Coordinate": null,
+  "MapBorder": null,
+  "GameMap": null,
+  "GameSocket": null,
+  "InputController": null,
+  "MapEditorHtml": null,
+  "MapEditor": null,
+  "MapEditorModel": null,
+  "MessageLog": null,
+  "TileScript": null,
+  "TileScripts": null,
+  "WarpTileScript": null,
+  "Tile": null,
+  "ViewHtml": null,
+  "View": null
+}}

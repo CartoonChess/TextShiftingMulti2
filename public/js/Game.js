@@ -24,8 +24,7 @@ export default class Game {
         }
     }
 
-    // static defaultMapPackage = 'test4';
-    static defaultMapPackage = 'test4/sub';
+    static defaultMapPackage = 'test4/sub/new';
 
     static async #getMapPackageInfo(pkgName) {
         if (!pkgName || typeof pkgName === 'object') {
