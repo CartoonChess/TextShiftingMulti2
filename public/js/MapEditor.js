@@ -105,11 +105,6 @@ class MapEditorHtml {
             this.increaseMapHeightOnBottomButton,
             this.decreaseMapHeightOnBottomButton
         ]
-        // // game-view of course is not a button but a div
-        // const buttons = [
-        //     this.createMapButton,
-        //     this.#controller.viewHtml
-        // ]
 
         for (const button of buttons) {
             button.addEventListener('click', this.#controller);
@@ -551,8 +546,16 @@ export default class MapEditor {
                 this.#model.updateMapSize(Direction.Right, 1);
                 this.#html.updateMapDimensionTextboxes();
                 break;
+            case this.#html.decreaseMapWidthOnRightButton:
+                this.#model.updateMapSize(Direction.Right, -1);
+                this.#html.updateMapDimensionTextboxes();
+                break;
             case this.#html.increaseMapHeightOnBottomButton:
                 this.#model.updateMapSize(Direction.Down, 1);
+                this.#html.updateMapDimensionTextboxes();
+                break;
+            case this.#html.decreaseMapHeightOnBottomButton:
+                this.#model.updateMapSize(Direction.Down, -1);
                 this.#html.updateMapDimensionTextboxes();
                 break;
             case this.#html.tileSymbolDropdown:
@@ -730,25 +733,33 @@ class MapEditorModel {
         for (const layer of layers) {
             layer.push(line);
         }
+    }
 
-        // Update dimension vars
-        this.#game.view.map.height += amount;
+    #decreaseMapSizeOnBottom(amount) {
+        const layers = this.#game.view.map.lines;
+        const newLineIndex = this.mapHeight;
+
+        for (const layer of layers) {
+            layer.splice(amount);
+        }
     }
 
     #increaseMapSizeOnRight(amount) {
         const layers = this.#game.view.map.lines;
         for (const layer of layers) {
             for (let line of layer) {
-                // for (let i = 0; i < amount; i++) {
-                //     const tile = new Tile({ symbol: '.' });
-                //     line.push(tile);
-                // }
                 line = this.#addTilesToLine(line, amount);
             }
         }
+    }
 
-        // Update dimension vars
-        this.#game.view.map.width += amount;
+    #decreaseMapSizeOnRight(amount) {
+        const layers = this.#game.view.map.lines;
+        for (const layer of layers) {
+            for (let line of layer) {
+                line.splice(amount);
+            }
+        }
     }
 
     updateMapSize(side, amount) {
@@ -756,17 +767,30 @@ class MapEditorModel {
         const willGrow = amount > 0;
         switch (side) {
             case Direction.Up: {
+                // TODO: willGrow -> layer.unshift(line, line) (adds new index 0..., shifts everything else up)
+                // TODO: !willGrow -> layer.shift() (removes layer[0])
+                // WARN: This func breaks all coord refs line warp tiles
                 break;
             }
             case Direction.Down: {
-                if (willGrow) { this.#increaseMapSizeOnBottom(absAmount); }
+                if (willGrow) {
+                    this.#increaseMapSizeOnBottom(absAmount);
+                } else {
+                    this.#decreaseMapSizeOnBottom(amount);
+                }
+                this.#game.view.map.height += amount;
                 break;
             }
             case Direction.Left: {
                 break;
             }
             case Direction.Right: {
-                if (willGrow) { this.#increaseMapSizeOnRight(absAmount); }
+                if (willGrow) {
+                    this.#increaseMapSizeOnRight(absAmount);
+                } else {
+                    this.#decreaseMapSizeOnRight(amount);
+                }
+                this.#game.view.map.width += amount;
                 break;
             }
             default: {

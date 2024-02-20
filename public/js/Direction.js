@@ -34,11 +34,6 @@ export class Surroundings {
     }
 
     clear() {
-        // this.here = ' ';
-        // this.up = ' ';
-        // this.down = ' ';
-        // this.left = ' ';
-        // this.right = ' ';
         this.here = [' '];
         this.up = [' '];
         this.down = [' '];
@@ -54,28 +49,13 @@ export class Surroundings {
         const y = coordinate.line;
         
         // If OOB somehow, blank everything at stop
-        // if (x < 0 || y < 0
-        //    || y >= map.lines.length
-        //    || x >= map.lines[y].length) {
-        //     return this.clear();
-        // }
         if (x < 0 || y < 0
-           // || y >= map.lines[0].length
-           // || x >= map.lines[0][0].length) {
            || y >= map.height
            || x >= map.width) {
             return;
         }
 
         // // If inbounds, update 'here' and any other inbound values
-        // this.here = map.lines[y][x];
-        
-        // if (y > 0) { this.up = map.lines[y - 1][x] }
-        // if (y < map.lines.length - 1) { this.down = map.lines[y + 1][x] }
-        // if (map.lines[y][x - 1]) { this.left = map.lines[y][x - 1] }
-        // if (map.lines[y][x + 1]) { this.right = map.lines[y][x + 1] }
-        
-        // If inbounds, update 'here' and any other inbound values
         for (const layer of map.lines) {
             this.here.push(layer[y][x]);
             
@@ -92,29 +72,7 @@ export class Surroundings {
         return this[direction.toString()];
     }
 
-    // TODO: How do we handle the boolean check so doInclude and areAll can both call here setting matchAll?
-    // #[combines doInclude and areAll](property, direction, matchAll) {
-    //     if (!direction) { console.error(`Surroundings.doInclude must be supplied a Tile property and a Direction.`); }
-    //     const tiles = this.at(direction);
-    //     for (let tile of tiles) {
-    //         // TODO: How do we check the condition...?
-    //         if (tile[property]) { return true; }
-    //     }
-    //     return false;
-    // }
-
-    // // Return true if at least one tile meets condition
-    // doInclude(property, direction) {
-    //     if (!direction) { return console.error(`Surroundings.doInclude must be supplied a Tile property and a Direction.`); }
-    //     const tiles = this.at(direction);
-    //     for (let tile of tiles) {
-    //         // TODO: How do we check the condition...?
-    //         if (tile[property]) { return true; }
-    //     }
-    //     return false;
-    // }
-    
-    // Return array of all tiles that meet condition, or empty array if none
+    // TODO: Consider using Array.some()
     thatInclude(property, direction) {
         if (!direction) { return console.error(`Surroundings.doInclude must be supplied a Tile property and a Direction.`); }
         const allTiles = this.at(direction);
@@ -138,7 +96,6 @@ export class Surroundings {
 
     // TODO: Update to show uppermost tile at each coord. Or ask for layer? Or give full details??
     toString() {
-        // return `\n ${this.up} \n${this.left}${this.here}${this.right}\n ${this.down} `;
         return `\n ${this.up} \n${this.left}${this.here}${this.right}\n ${this.down} `;
     }
 }
