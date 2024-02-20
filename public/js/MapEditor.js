@@ -776,6 +776,7 @@ class MapEditorModel {
                 if (willGrow) {
                     this.#increaseMapSizeOnBottom(absAmount);
                 } else {
+                    if (this.mapHeight - absAmount <= 0) { return; }
                     this.#decreaseMapSizeOnBottom(amount);
                 }
                 this.#game.view.map.height += amount;
@@ -788,6 +789,7 @@ class MapEditorModel {
                 if (willGrow) {
                     this.#increaseMapSizeOnRight(absAmount);
                 } else {
+                    if (this.mapWidth - absAmount <= 0) { return; }
                     this.#decreaseMapSizeOnRight(amount);
                 }
                 this.#game.view.map.width += amount;
