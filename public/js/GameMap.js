@@ -102,7 +102,6 @@ export class GameMap {
     // info must be an object
     constructor(width = 0, height = 0, lines, border = new MapBorder(), info) {
         if (lines && lines.length && lines[0].length && lines[0][0].length) {
-            console.debug(lines);
             this.lines = lines;
             this.depth = lines.length;
             this.height = lines[0].length;

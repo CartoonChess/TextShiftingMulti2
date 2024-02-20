@@ -361,6 +361,12 @@ class MapEditorHtml {
         this.mapDepthTextbox.disabled = true;
     }
 
+    updateMapDimensionTextboxes() {
+        this.mapWidthTextbox.value = this.#mapWidth;
+        this.mapHeightTextbox.value = this.#mapHeight;
+        this.mapDepthTextbox.value = this.#mapDepth;
+    }
+
     #updateMapNameDropdown() {
         for (const option of this.mapNameDropdown.options) {
             if (option.value === this.#mapName) {
@@ -391,13 +397,9 @@ class MapEditorHtml {
         // Don't try to update anything if we've never opened the editor
         if (!this.#infoContainer) { return; }
 
-        // Update map name dropdown
         this.#updateMapNameDropdown();
-
-        // Update map dimension textboxes
-        this.mapWidthTextbox.value = this.#mapWidth;
-        this.mapHeightTextbox.value = this.#mapHeight;
-        this.mapDepthTextbox.value = this.#mapDepth;
+        this.updateMapDimensionTextboxes();
+        
     }
 
     async #createInfoContainer() {
@@ -547,9 +549,11 @@ export default class MapEditor {
                 break;
             case this.#html.increaseMapWidthOnRightButton:
                 this.#model.updateMapSize(Direction.Right, 1);
+                this.#html.updateMapDimensionTextboxes();
                 break;
             case this.#html.increaseMapHeightOnBottomButton:
                 this.#model.updateMapSize(Direction.Down, 1);
+                this.#html.updateMapDimensionTextboxes();
                 break;
             case this.#html.tileSymbolDropdown:
                 this.#model.updateTile(this.#selectedTileMapCoordinate, 'symbol', this.#html.tileSymbolDropdown.value);
@@ -588,130 +592,6 @@ export default class MapEditor {
     async #createMap() {
         // NOTE: Currently bypassing below
         return this.#createMapFromTemplate();
-
-        // TODO: Make this foolproof
-        const shortName = randomName();
-        // Create blank map one directory above current
-        let fullName = shortName;
-        const pathParts = this.#model.mapName.split('/');
-        if (pathParts.length > 1) {
-            pathParts.pop();
-            fullName = pathParts.join('/') + '/' + shortName;
-        }
-
-        // TODO: Rather than defining info etc. here, have the server clone template files
-        const data = {
-            dir: fullName,
-            info: `export const data = {
-                "name": "${fullName}",
-                "dimensions": {
-                    "width": 7,
-                    "height": 7,
-                    "depth": 1
-                },
-                "startPosition": {
-                    "column": 3,
-                    "line": 3
-                }
-            }`,
-            map: `import Tile, { WarpTileScript } from '/js/Tile.js';
-                import { Coordinate } from '/js/GameMap.js';
-                export const tiles = [
-                    [
-                        [
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: '#', isSolid: true })
-                        ],
-                        [
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: '#', isSolid: true })
-                        ],
-                        [
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: '#', isSolid: true })
-                        ],
-                        [
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: '#', isSolid: true })
-                        ],
-                        [
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: '#', isSolid: true })
-                        ],
-                        [
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: ' ' }),
-                            new Tile({ symbol: '#', isSolid: true })
-                        ],
-                        [
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: '#', isSolid: true }),
-                            new Tile({ symbol: '#', isSolid: true })
-                        ]
-                    ]
-                ];`,
-            border: `// TODO: Use new border format`
-        };
-
-        try {
-            const response = await fetch('/createMap', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (!response.ok) {
-                const err = await response.text();
-                throw new Error(err);
-            }
-
-            const responseText = await response.text();
-            console.log(responseText);
-        } catch (err) {
-            console.error(err.message);
-        }
-
-
-        // Update Game etc. with new map
-        await this.#model.changeMap(fullName);
-        // Reflect map stats in html
-        // - should be same as first load of EditorView obj I guess?
-        // - change to new name in dropdown (should also happen when warping...)
     }
 
     async #createMapFromTemplate() {
@@ -832,23 +712,43 @@ class MapEditorModel {
         }
     }
 
+    #addTilesToLine(line, amount) {
+        for (let i = 0; i < amount; i++) {
+            const tile = new Tile({ symbol: '.' });
+            line.push(tile);
+        }
+        return line;
+    }
+
+    #increaseMapSizeOnBottom(amount) {
+        const layers = this.#game.view.map.lines;
+        const newLineIndex = this.mapHeight;
+
+        let line = [];
+        line = this.#addTilesToLine(line, this.mapWidth);
+
+        for (const layer of layers) {
+            layer.push(line);
+        }
+
+        // Update dimension vars
+        this.#game.view.map.height += amount;
+    }
+
     #increaseMapSizeOnRight(amount) {
         const layers = this.#game.view.map.lines;
         for (const layer of layers) {
-            for (const line of layer) {
-                for (let i = 0; i < amount; i++) {
-                    // FIXME: Only shows up after saving and reloading
-                    const tile = new Tile({ symbol: '.' });
-                    // const tile = { symbol: '.' };
-                    // const tile = new Object({ symbol: '.' });
-                    line.push(
-                        tile
-                    )
-                    console.debug(line);
-                }
+            for (let line of layer) {
+                // for (let i = 0; i < amount; i++) {
+                //     const tile = new Tile({ symbol: '.' });
+                //     line.push(tile);
+                // }
+                line = this.#addTilesToLine(line, amount);
             }
         }
-        console.debug(layers);
+
+        // Update dimension vars
+        this.#game.view.map.width += amount;
     }
 
     updateMapSize(side, amount) {
@@ -859,7 +759,7 @@ class MapEditorModel {
                 break;
             }
             case Direction.Down: {
-                // TODO:
+                if (willGrow) { this.#increaseMapSizeOnBottom(absAmount); }
                 break;
             }
             case Direction.Left: {

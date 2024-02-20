@@ -18,6 +18,42 @@
                 "backgroundColor": "green",
                 "layer": 0,
                 "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
             }
         ],
         [
@@ -36,6 +72,210 @@
                 "isSolid": false,
                 "color": "inherit",
                 "backgroundColor": "blue",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            }
+        ],
+        [
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isVisible": true,
+                "isSolid": true,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            }
+        ],
+        [
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            }
+        ],
+        [
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
                 "layer": 0,
                 "__type": "Tile"
             }
@@ -57,6 +297,42 @@
                 "isVisible": true,
                 "isSolid": true,
                 "color": "yellow",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
                 "backgroundColor": "inherit",
                 "layer": 0,
                 "__type": "Tile"
@@ -90,6 +366,210 @@
                         "__type": "WarpTileScript"
                     }
                 ],
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            }
+        ],
+        [
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isVisible": true,
+                "isSolid": true,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            }
+        ],
+        [
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            }
+        ],
+        [
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": "#",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
+                "__type": "Tile"
+            },
+            {
+                "symbol": ".",
+                "isVisible": true,
+                "isSolid": false,
+                "color": "inherit",
+                "backgroundColor": "inherit",
+                "layer": 0,
                 "__type": "Tile"
             }
         ]
