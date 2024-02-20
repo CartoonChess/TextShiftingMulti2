@@ -9,6 +9,7 @@ body {
     /* grid allows overlapping without `position` */
     display: grid;
     width: fit-content;
+    cursor: crosshair;
 }
 
 /* #game-view.edit-mode { */

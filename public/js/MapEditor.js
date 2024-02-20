@@ -30,6 +30,9 @@ class MapEditorHtml {
     saveMapButton;
 
     #tileControlsContainer;
+    #coordinatesTextContainer;
+    #lineCoordinateText;
+    #columnCoordinateText;
     tileSymbolDropdown;
     toggleTileIsSolidCheckbox;
 
@@ -178,7 +181,12 @@ class MapEditorHtml {
         newOption.selected = true;
     }
 
-    updateTileControls(tile) {
+    #updateCoordinatesText(coordinate) {
+        this.#columnCoordinateText.textContent = coordinate.column;
+        this.#lineCoordinateText.textContent = coordinate.line;
+    }
+
+    updateTileControls(tile, coordinate) {
         // Don't do anything if not visible
         if (!this.#mapControlsContainer || this.#mapControlsContainer.style.display === 'none') { return; }
         // Hide if no tile selected
@@ -187,6 +195,7 @@ class MapEditorHtml {
         this.#tileControlsContainer.show();
         
         // Update individual controls
+        this.#updateCoordinatesText(coordinate);
         this.#updateTileSymbolDropdown(tile);
         this.toggleTileIsSolidCheckbox.checked = tile.isSolid;
     }
@@ -208,12 +217,30 @@ class MapEditorHtml {
         this.#tileControlsContainer.appendChild(this.tileSymbolDropdown);
     }
 
+    // TODO: Not like this
+    #createCoordinatesText() {
+        this.#coordinatesTextContainer = document.createElement('div');
+        this.#tileControlsContainer.appendChild(this.#coordinatesTextContainer);
+
+        this.#columnCoordinateText = document.createElement('span');
+        this.#columnCoordinateText.id = 'tile-x-coordinate';
+        this.#lineCoordinateText = document.createElement('span');
+        this.#lineCoordinateText.id = 'tile-y-coordinate';
+
+        this.#coordinatesTextContainer.textContent = '(';
+        this.#coordinatesTextContainer.appendChild(this.#columnCoordinateText);
+        this.#coordinatesTextContainer.appendChild(document.createTextNode(','));
+        this.#coordinatesTextContainer.appendChild(this.#lineCoordinateText);
+        this.#coordinatesTextContainer.appendChild(document.createTextNode(')'));
+    }
+
     #createTileControls() {
-        // Symbol
+        // Coordinates
+        this.#createCoordinatesText();
+
         // TODO: Maybe dropdown with "enter new" option that transforms into textbox, like map rename is supposed to do
         this.#createTileSymbolDropdown();
 
-        // isSolid
         this.toggleTileIsSolidCheckbox = this.#createCheckboxInside(this.#tileControlsContainer, 'toggle-tile-solid', 'Solid');
 
         // TODO: Scripts i.e. warp
@@ -348,6 +375,12 @@ class MapEditorHtml {
         this.decreaseMapHeightOnBottomButton = this.#createMapDimensionButton('-', 'y', 'b', up);
         this.increaseMapHeightOnBottomButton = this.#createMapDimensionButton('+', 'y', 'b', dn);
 
+        // TODO: Remove someday
+        this.increaseMapWidthOnLeftButton.disabled = true;
+        this.decreaseMapWidthOnLeftButton.disabled = true;
+        this.increaseMapHeightOnTopButton.disabled = true;
+        this.decreaseMapHeightOnTopButton.disabled = true;
+        
         // Depth
         this.#infoContainer.appendChild(document.createElement('hr'));
         // TODO: Buttons
@@ -489,7 +522,7 @@ export default class MapEditor {
 
         this.#selectedTileMapCoordinate = this.#model.getMapCoordinateForViewCoordinate(column, line);
         this.#selectedTileMapCoordinate.layer = fakeLayer;
-        this.#html.updateTileControls(this.#model.getTileAtCoordinate(this.#selectedTileMapCoordinate));
+        this.#html.updateTileControls(this.#model.getTileAtCoordinate(this.#selectedTileMapCoordinate), this.#selectedTileMapCoordinate);
     }
 
     #addEventListeners(elements, eventType) {
@@ -717,27 +750,26 @@ class MapEditorModel {
 
     #addTilesToLine(line, amount) {
         for (let i = 0; i < amount; i++) {
-            const tile = new Tile({ symbol: '.' });
-            line.push(tile);
+            line.push(new Tile());
         }
         return line;
     }
 
     #increaseMapSizeOnBottom(amount) {
         const layers = this.#game.view.map.lines;
-        const newLineIndex = this.mapHeight;
 
         let line = [];
         line = this.#addTilesToLine(line, this.mapWidth);
 
         for (const layer of layers) {
-            layer.push(line);
+            for (let i = 0; i < amount; i++) {
+                layer.push(line);
+            }
         }
     }
 
     #decreaseMapSizeOnBottom(amount) {
         const layers = this.#game.view.map.lines;
-        const newLineIndex = this.mapHeight;
 
         for (const layer of layers) {
             layer.splice(amount);
@@ -748,6 +780,7 @@ class MapEditorModel {
         const layers = this.#game.view.map.lines;
         for (const layer of layers) {
             for (let line of layer) {
+                // Linter complains, but this seems necessary...
                 line = this.#addTilesToLine(line, amount);
             }
         }
@@ -774,7 +807,7 @@ class MapEditorModel {
             }
             case Direction.Down: {
                 if (willGrow) {
-                    this.#increaseMapSizeOnBottom(absAmount);
+                    this.#increaseMapSizeOnBottom(amount);
                 } else {
                     if (this.mapHeight - absAmount <= 0) { return; }
                     this.#decreaseMapSizeOnBottom(amount);
