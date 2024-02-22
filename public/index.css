@@ -44,6 +44,12 @@ body {
     border-left: 1px solid #7f7f7f;
 }
 
+/* only happens in grid mode for now */
+.edit-mode #game-view span:hover {
+    border-top: 1px solid #ff0000;
+    border-left: 1px solid #ff0000;
+}
+
 #message-log {
     /* keep multiplace spaces but still wrap */
     white-space: pre-wrap;
