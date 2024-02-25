@@ -50,6 +50,11 @@ body {
     border-left: 1px solid #ff0000;
 }
 
+/* errors; when validation fails, etc. */
+.error {
+    background: #ff8888;
+}
+
 #message-log {
     /* keep multiplace spaces but still wrap */
     white-space: pre-wrap;

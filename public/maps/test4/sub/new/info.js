@@ -1,8 +1,8 @@
 export const data = {
     "name": "doesnt-mean-anything",
     "dimensions": {
-        "width": 2,
-        "height": 2,
+        "width": 1,
+        "height": 1,
         "depth": 2
     },
     "startPosition": {
