@@ -6,7 +6,7 @@ export const data = {
         "depth": 1
     },
     "startPosition": {
-        "column": 3,
-        "line": 3
+        "column": 1,
+        "line": 1
     }
 }

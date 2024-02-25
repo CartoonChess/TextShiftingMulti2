@@ -8,6 +8,8 @@ body {
 #game-view {
     /* grid allows overlapping without `position` */
     display: grid;
+    /* linter says firefox doesn't support the normal way */
+    width: -moz-fit-content;
     width: fit-content;
     cursor: crosshair;
 }
