@@ -112,7 +112,7 @@ class MapEditorHtml {
             this.mapNameDropdown,
             this.tileSymbolDropdown,
             this.toggleTileIsSolidCheckbox,
-            this.tileScriptsGroupContainer
+            // this.tileScriptsGroupContainer
         ]
         
         for (const input of inputs) {
@@ -127,15 +127,20 @@ class MapEditorHtml {
             this.decreaseMapWidthOnRightButton,
             this.increaseMapHeightOnBottomButton,
             this.decreaseMapHeightOnBottomButton,
-            this.tileScriptsGroupContainer
+            // this.tileScriptsGroupContainer
         ]
 
         for (const button of buttons) {
             button.addEventListener('click', this.#controller);
         }
 
-        // TODO: Do we want mapNameDropdown to trigger on change or on input? Seems fine for now...
-        // this.mapNameDropdown.addEventListener('input', this.#controller);
+        // tileScriptsGroupContainer needs lots of different events handled
+        // [[x change for dropdowns]], click for buttons, input for textboxes and dropdowns
+        // const eventTypes = ['change', 'click', 'input'];
+        const eventTypes = ['click', 'input'];
+        for (const eventType of eventTypes) {
+            this.tileScriptsGroupContainer.addEventListener(eventType, this.#controller);
+        }
     }
 
     #addEventListenerOnChange(element) {
@@ -673,6 +678,7 @@ export default class MapEditor {
         ], 'click');
     }
 
+    // FIXME: Still triggers when map editor is hidden
     #didClickViewTile(tile) {
         const lineHtml = tile.parentElement;
         const layerHtml = lineHtml.parentElement;
@@ -701,6 +707,7 @@ export default class MapEditor {
         this.#html.updateTileControls(this.#model.getTileAtCoordinate(this.#selectedTileMapCoordinate), this.#selectedTileMapCoordinate);
     }
 
+    // FIXME: Groups container remains in error state after clicking another tile
     #getValidWarpTileScript(container) {
         let column = container.querySelector('.' + this.#html.warpTileScriptColumnTextboxClass).value;
         let line = container.querySelector('.' + this.#html.warpTileScriptLineTextboxClass).value;
@@ -777,6 +784,8 @@ export default class MapEditor {
 
         // Check if user chose new script from dropdown
         if (event.target === this.#html.tileScriptDropdown) {
+        // Check if user chose new script from dropdown, but ignore 'input' event
+        // if (event.target === this.#html.tileScriptDropdown && event.type === 'change') {
             this.#html.createTileScriptContainer();
             return;
         }
@@ -787,10 +796,18 @@ export default class MapEditor {
             return;
         }
 
+
+        // TODO: debug
+        if (this.#html.tileScriptsGroupContainer?.contains(event.target)) {
+            console.debug(`${event.type} on ${event.target}`);
+        }
+
+
         // Check if user changed any other tile script controls
-        // But ignore clicks and just look for changes
+        // But ignore clicks and just look for inputs
         if (this.#html.tileScriptsGroupContainer?.contains(event.target)
-            && event.type === 'change') {
+            // && event.type === 'change') {
+            && event.type === 'input') {
             this.#didChangeTileScriptControl();
             return;
         }

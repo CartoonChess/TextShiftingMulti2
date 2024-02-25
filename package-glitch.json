@@ -1,0 +1,17 @@
+{
+  "name": "text-shifting-multi",
+  "version": "0.0.1",
+  "description": "textshifting with socket.io",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^4.1.2",
+    "socket.io-client": "^4.6.1"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "type":"module"
+}
