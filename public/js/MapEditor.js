@@ -41,6 +41,7 @@ class MapEditorHtml {
     #tileCoordinatesTextContainer;
     #lineCoordinateText;
     #columnCoordinateText;
+    toggleCloneModeCheckbox
     tileSymbolDropdown;
     toggleTileIsSolidCheckbox;
 
@@ -387,6 +388,9 @@ class MapEditorHtml {
     }
 
     #createTileControls() {
+        // Copy/duplicate/paint mode
+        this.toggleCloneModeCheckbox = this.#createCheckboxInside(this.#tileControlsContainer, 'Clone Mode', 'toggle-tile-clone');
+
         // Coordinates
         this.#createTileCoordinatesText();
 
@@ -399,7 +403,6 @@ class MapEditorHtml {
         this.#createTileScriptsGroupContainer();
     }
 
-    // #createTileControlsContainer(tile) {
     #createTileControlsContainer() {
         this.#tileControlsContainer = document.createElement('div');
 
@@ -660,6 +663,10 @@ export default class MapEditor {
         this.#addClickEventListeners();
     }
 
+    get #cloneModeIsEnabled() {
+        return this.#html.toggleCloneModeCheckbox.checked;
+    }
+
     #addClickEventListeners() {
         this.#addEventListeners([
             this.#model.viewHtml
@@ -678,8 +685,19 @@ export default class MapEditor {
         // TODO: Shorten logic for when using "show whole map"
         // - view coords and map coords should be identical
 
+        // Get current (soon to previous) coord in case we're in clone mode
+        // const previousTile = this.#model.getTileAtCoordinate(this.#selectedTileMapCoordinate);
+        const previousCoordinate = this.#selectedTileMapCoordinate;
+
         this.#selectedTileMapCoordinate = this.#model.getMapCoordinateForViewCoordinate(column, line);
         this.#selectedTileMapCoordinate.layer = fakeLayer;
+
+        // Clone into model before loading if clone mode enabled
+        if (this.#cloneModeIsEnabled) {
+            this.#model.replaceTile(this.#selectedTileMapCoordinate, this.#model.getTileAtCoordinate(previousCoordinate));
+        }
+
+        // Show controls for newly selected tile
         this.#html.updateTileControls(this.#model.getTileAtCoordinate(this.#selectedTileMapCoordinate), this.#selectedTileMapCoordinate);
     }
 
@@ -902,6 +920,8 @@ export default class MapEditor {
 
 
 import '../JSON_stringifyWithClasses.js';
+// TODO: Make some shared import with this all-classes obj
+const customJsonClasses = { Tile, Coordinate, WarpTileScript };
 
 // MVC's model
 class MapEditorModel {
@@ -959,8 +979,20 @@ class MapEditorModel {
         return new Coordinate(mapColumn, mapLine);
     }
 
+    // Replace all properties of a tile
+    replaceTile(coordinate, sourceTile) {
+        // Clone the source tile (yes we have to do it this way)
+        const json = JSON.stringifyWithClasses(sourceTile);
+        // Assign clone to target tile (yes we have to do it this way)
+        this.#game.view.map.lines[coordinate.layer][coordinate.line][coordinate.column] = new Tile(JSON.parseWithClasses(json, customJsonClasses));
+
+        this.#updateView();
+    }
+
+    // Change single property of a tile
     updateTile(coordinate, property, value) {
-        const tile = this.#game.view.map.lines[coordinate.layer][coordinate.line][coordinate.column];
+        // const tile = this.#game.view.map.lines[coordinate.layer][coordinate.line][coordinate.column];
+        const tile = this.getTileAtCoordinate(coordinate);
         tile[property] = value;
         this.#updateView();
     }

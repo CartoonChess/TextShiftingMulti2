@@ -148,12 +148,11 @@ async function writeFileExclusive(file, data) {
 app.post('/updateMap', async (req, res) => {
     try {
         const { name, tiles } = req.body;
+        // TODO: Sanity check this so it isn't like /maps/../[root]/
         const dir = path.join(mapsDir, name);
         const mapPath = path.join(dir, 'map.js');
 
         const newData = JSON.stringify(tiles, null, 4);
-        // const newData = JSON.stringify(tiles);
-        // const newData = tiles;
 
         // Overwrite file
         await fs.writeFile(mapPath, newData);
