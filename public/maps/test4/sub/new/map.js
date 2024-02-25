@@ -70,7 +70,7 @@
                 "__type": "Tile"
             },
             {
-                "symbol": " ",
+                "symbol": "~",
                 "isVisible": true,
                 "isSolid": false,
                 "color": "inherit",
