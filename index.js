@@ -31,18 +31,26 @@ const mapRoom = (mapName) => 'map:' + mapName;
 //     res.sendFile(__dirname + '/index.html');
 // });
 
+// Make certain non-public files available clientside
 // Feels like a hack lol
-app.get('/randomBytes.js', (req, res) => {
-    res.sendFile(__dirname + '/randomBytes.js');
-});
+const exposedFiles = [
+    '/randomBytes.js',
+    '/ConsoleColor.js',
+    '/String_prototype.js',
+    '/Element_prototype.js',
+    '/JSON_stringifyWithClasses.js'
+];
 
-app.get('/String_prototype.js', (req, res) => {
-    res.sendFile(__dirname + '/String_prototype.js');
-});
+for (const file of exposedFiles) {
+    app.get(file, (req, res) => {
+        res.sendFile(__dirname + file);
+    });
+}
 
-app.get('/chat.html', (req, res) => {
-    res.sendFile(__dirname + '/__old/chat.html');
-});
+// TODO: Remove?
+// app.get('/fs_readdirRecursive.js', (req, res) => {
+//     res.sendFile(__dirname + '/fs_readdirRecursive.js');
+// });
 
 // Serve up the /public folder as the root html folder
 // Use `__dirname` in ES module: https://flaviocopes.com/fix-dirname-not-defined-es-module-scope/
@@ -53,6 +61,159 @@ const __dirname = path.dirname(__filename);
 
 const publicDir = path.join(__dirname, 'public');
 app.use('/', express.static(publicDir));
+
+// Let express parse json POSTs
+app.use(express.json());
+
+// Provide maps directory listing for editor mode
+// Gives name, or name with relative path if in subdirectory
+import fs from './fs_readdirRecursive.js';
+const mapsDir = publicDir + '/maps';
+app.get('/maps', async (req, res) => {
+    try {
+        const files = await fs.readdirRecursive(mapsDir, true, false);
+        // Strip leading directory info
+        const maps = files.map(path => path.substring(mapsDir.length + 1));
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(maps));
+    } catch (err) {
+        const error = `Server cannot read maps directory: ${err}.`;
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: error }));
+        return console.error(error);
+    }
+});
+
+async function writeFileExclusive(file, data) {
+    await fs.writeFile(file, data, { flag: 'wx'});
+}
+
+// app.post('/createMap', async (req, res) => {
+//     try {
+//         const { dir, info, map, border } = req.body;
+//         const fullDir = path.join(mapsDir, dir);
+//         // TODO: Should this and below be array + loop?
+//         const infoPath = path.join(fullDir, 'info.js');
+//         const mapPath = path.join(fullDir, 'map.js');
+//         // TODO: Use new border format (.js)
+//         const borderPath = path.join(fullDir, 'border');
+
+//         // Create directories, including intermediate
+//         await fs.mkdir(fullDir, { recursive: true });
+//         // Create js files but throw error if any already exist
+//         await writeFileExclusive(infoPath, info);
+//         await writeFileExclusive(mapPath, map);
+//         await writeFileExclusive(borderPath, border);
+
+//         const message = `Created map package ${dir}.`;
+//         console.log(message);
+//         res.send(message);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Failed to create one or more map files or directories on server.');
+//     }
+// });
+
+// TODO: We can make a create/update combo function by calling /..template if dir/files missing
+// app.post('/updateMap', async (req, res) => {
+//     try {
+//         const { name, tiles } = req.body;
+//         const dir = path.join(mapsDir, name);
+//         const mapPath = path.join(dir, 'map.js');
+
+//         // Get existing map.js
+//         const mapFileData = await fs.readFile(mapPath);
+
+//         // Assume tiles var is last part of file
+//         // Find its declaration and overwrite to end
+//         const tilesDeclare = 'export const tiles = ';
+//         const rewriteStart = mapFileData.indexOf(tilesDeclare);
+//         if (rewriteStart === -1) {
+//             throw new Error('No tiles declaration in map.js file.');
+//         }
+//         const newData = mapFileData.toString().substring(0, rewriteStart) + tilesDeclare + JSON.stringify(tiles, null, 4);
+
+//         // Overwrite file
+//         await fs.writeFile(mapPath, newData);
+
+//         const message = `Saved ${name} to server.`;
+//         console.log(message);
+//         res.send(message);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Failed to save map to server.');
+//     }
+// });
+app.post('/updateMap', async (req, res) => {
+    try {
+        const { name, tiles } = req.body;
+        // TODO: Sanity check this so it isn't like /maps/../[root]/
+        const dir = path.join(mapsDir, name);
+        const mapPath = path.join(dir, 'map.js');
+
+        const newData = JSON.stringify(tiles, null, 4);
+
+        // Overwrite file
+        await fs.writeFile(mapPath, newData);
+
+        const message = `Saved ${name} to server.`;
+        console.log(message);
+        res.send(message);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Failed to save map to server.');
+    }
+});
+
+app.get('/createMapFromTemplate', async (req, res) => {
+    // Get path with random name
+    const parentDir = req.query.parentDir;
+    let mapName = randomBytes.alphanumeric(8);
+    if (parentDir) {
+        mapName = parentDir + '/' + mapName;
+    }
+
+    // Create new map directory
+    const newDir = path.join(mapsDir, mapName);
+    await fs.mkdir(newDir);
+
+    // Copy over default map files
+    try {
+        const templateDir = 'map_template';
+        const files = await fs.readdir('map_template');
+
+        for (const file of files) {
+            const source = path.resolve(templateDir, file);
+            const destination = path.join(newDir, path.basename(source));
+            console.log(`Copying from ${source} to ${destination}.`);
+            await fs.copyFile(source, destination);
+        }
+    } catch (err) {
+        res.status(500).send(`Server failed to make new map from template: ${err}.`);
+        console.error(err);
+        return;
+    }
+    
+    // Return new name to client
+    res.send(mapName);
+});
+
+import './JSON_stringifyWithClasses.js';
+
+// TODO: Redundancy with template creation above, probably
+app.get('/fetchMap', async (req, res) => {
+    const mapFile = req.query.name + '/map.js';
+    const mapPath = path.join(mapsDir, mapFile);
+    
+    try {
+        const data = await fs.readFile(mapPath);
+        res.send(data);
+    } catch(err) {
+        console.error(`Couldn't fetch map data: ${err}.`);
+        return;
+    }
+});
 
 import Game from './public/js/Game.js';
 const defaultGameMap = Game.defaultMapPackage;
@@ -127,7 +288,7 @@ io.on('connection', (socket) => {
     
 
     // Save sessions so they persist across refreshes
-    // Doesn't apply if repl restarts
+    // Doesn't apply if server restarts
     sessionStore.saveSession(socket.sessionId, {
         userId: socket.userId,
         isOnline: true,

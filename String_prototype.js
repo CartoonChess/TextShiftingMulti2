@@ -1,3 +1,5 @@
+// TODO: Not currently using this function?
+
 function replaceCharAt(index, chr, str) {
     // If called as a func of string, operate on copy of String itself
     if (!str) { str = this; }

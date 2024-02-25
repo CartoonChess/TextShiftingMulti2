@@ -1,3 +1,5 @@
+import '../../ConsoleColor.js';
+
 // abstract
 class Character {
     move() {}
@@ -6,9 +8,10 @@ class Character {
 import { Direction, Surroundings } from './Direction.js';
 export class Player extends Character {
     position;
+    // #position;
     surroundings = new Surroundings();
-
-    move(direction) {
+    
+    #shiftPosition(direction) {
         switch (direction) {
             case Direction.Up: {
                 return this.position.line--;
@@ -27,6 +30,37 @@ export class Player extends Character {
             }
         }
     }
+
+    #warpTo(coordinate) {
+        this.position.line = coordinate.line;
+        this.position.column = coordinate.column;
+    }
+
+    move(destination) {
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
+        const className = destination?.constructor?.name;
+        // if (typeof className === 'string' && className !== '') {
+        //     return className;
+        // }
+        
+        if (className === 'Direction') {
+            this.#shiftPosition(destination);
+        } else if (className === 'Coordinate') {
+            this.#warpTo(destination)
+        } else {
+            console.error('Character.move() must be passed a Direction or a Coordinate.');
+        }
+    }
+
+    // // TODO: remove these DEBUG funcs
+    // get position() {
+    //     console.debug(`Player.position (get): ${this.#position}.`);
+    //     return this.#position;
+    // }
+    // set position(coord) {
+    //     console.debug(`Player.position (set): ${this.#position} -> ${coord}.`);
+    //     this.#position = coord;
+    // }
 }
 
 import { Coordinate } from './GameMap.js';

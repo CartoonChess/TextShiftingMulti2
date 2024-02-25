@@ -5,16 +5,54 @@ body {
     /* Disable touch events */
 }
 
+#game-view {
+    /* grid allows overlapping without `position` */
+    display: grid;
+    width: fit-content;
+    cursor: crosshair;
+}
+
+/* #game-view.edit-mode { */
+.edit-mode #game-view {
+    border: 3px solid #7f7f7f;
+    border-width: 2px 3px 3px 2px;
+}
+
+/* z-layer */
+#game-view div {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+/* y-line(row) */
 #game-view pre {
     margin: 0;
 }
 
-#game-view pre span {
+/* x tile */
+/* #game-view pre span { */
+#game-view span {
     /* roughly emulates a square for now */
     display: inline-block;
     width: 0.93rem;
     /* height: 1rem; */
     text-align: center;
+}
+
+.edit-mode #game-view span {
+    border-top: 1px solid #7f7f7f;
+    border-left: 1px solid #7f7f7f;
+}
+
+/* only happens in grid mode for now */
+.edit-mode #game-view span:hover {
+    border-top: 1px solid #ff0000;
+    border-left: 1px solid #ff0000;
+}
+
+/* errors; when validation fails, etc. */
+.error {
+    background: #ff8888;
 }
 
 #message-log {

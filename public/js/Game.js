@@ -1,5 +1,5 @@
+import '../../ConsoleColor.js';
 import { Coordinate, GameMap } from './GameMap.js';
-// import InputController from './js/InputController.js';
 
 export default class Game {
     log;
@@ -8,7 +8,23 @@ export default class Game {
     remotePlayers;
     inputController;
 
-    static defaultMapPackage = 'test1';
+    #listeners = new Set();
+
+    addListener(listener) {
+        this.#listeners.add(listener);
+    }
+
+    // removeListener(listener) {
+    //     this.#listeners.delete(listener);
+    // }
+
+    #notifyListeners() {
+        for (const listener of this.#listeners) {
+            listener.listen();
+        }
+    }
+
+    static defaultMapPackage = 'test4/sub/new';
 
     static async #getMapPackageInfo(pkgName) {
         if (!pkgName || typeof pkgName === 'object') {
@@ -55,11 +71,14 @@ export default class Game {
         }
         this.log.print(`Moved to map '${this.view.map.name}'`);
         // TODO: This should be derived from info.js or something
+        // -(isn't that what it's doing already?)
         if (!position) { position = this.view.map.startPosition; }
         this.player.position = position;
         // Blank out surroundings in case we land OOB
         this.player.surroundings.clear();
         this.player.surroundings.update(this.player.position, this.view.map);
+
+        this.#notifyListeners();
     }
     
     toggleInput(isEnabled) {
