@@ -48,7 +48,7 @@ export class Surroundings {
         const x = coordinate.column;
         const y = coordinate.line;
         
-        // If OOB somehow, blank everything at stop
+        // If OOB somehow, blank everything and stop
         if (x < 0 || y < 0
            || y >= map.height
            || x >= map.width) {
@@ -57,6 +57,7 @@ export class Surroundings {
 
         // // If inbounds, update 'here' and any other inbound values
         for (const layer of map.lines) {
+            // TODO: Should we be removing the blank ' ' first..?
             this.here.push(layer[y][x]);
             
             if (y > 0) { this.up.push(layer[y - 1][x]) }

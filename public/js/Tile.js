@@ -41,6 +41,9 @@ export default class Tile {
     // [facing]Direction = Direction.Down;
     // "action/trigger/script" -> for example, as an NPC, or a warp point
 
+    // #scripts;
+    // _scripts;
+
     constructor(json) {
         if (!json) { return; }
         if (json.symbol) { this.symbol = json.symbol };
@@ -49,4 +52,36 @@ export default class Tile {
         if (json.backgroundColor) { this.backgroundColor = json.backgroundColor };
         this.scripts = json.scripts;
     }
+
+    // get scripts() {
+    //     // if (arr.length > 0) {
+    //         return this.#scripts;
+    //     // }
+    // }
+
+    // // Remove scripts altogether if array becomes empty
+    // set scripts(arr) {
+    //     // if (arr.length === 0) {
+    //     //     delete this.#scripts;
+    //     // } else {
+    //         this.#scripts = arr;
+    //     // }
+    // }
+
+
+
+    // get scripts() {
+    //     if (arr.length > 0) {
+    //         return this._scripts;
+        // }
+    // }
+
+    // Remove scripts altogether if array becomes empty
+    // set scripts(arr) {
+    //     if (arr.length === 0) {
+    //         delete this._scripts;
+    //     } else {
+    //         this._scripts = arr;
+    //     }
+    // }
 }
