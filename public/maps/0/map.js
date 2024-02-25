@@ -283,7 +283,6 @@
                 "color": "inherit",
                 "backgroundColor": "inherit",
                 "layer": 0,
-                "scripts": [],
                 "__type": "Tile"
             },
             {

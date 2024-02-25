@@ -732,7 +732,7 @@ export default class MapEditor {
     #didChangeTileScriptControl() {
         // Evaluate all tile script controls
         const scriptContainers = this.#html.tileScriptsGroupContainer.querySelectorAll('.' + this.#html.tileScriptContainerClass);
-        const scripts = [];
+        let scripts = [];
         // Visually show user when something is wrong
         const errorClass = 'error';
 
@@ -756,6 +756,9 @@ export default class MapEditor {
 
         // All passed, remove error CSS class if previously applied
         this.#html.tileScriptsGroupContainer.classList.remove(errorClass);
+
+        // Remove array if empty
+        if (!scripts.length) { scripts = undefined; }
 
         // Update model
         this.#model.updateTile(this.#selectedTileMapCoordinate, 'scripts', scripts);
