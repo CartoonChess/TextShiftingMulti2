@@ -799,13 +799,6 @@ export default class MapEditor {
             return;
         }
 
-
-        // TODO: debug
-        if (this.#html.tileScriptsGroupContainer?.contains(event.target)) {
-            console.debug(`${event.type} on ${event.target}`);
-        }
-
-
         // Check if user changed any other tile script controls
         // But ignore clicks and just look for inputs
         if (this.#html.tileScriptsGroupContainer?.contains(event.target)
