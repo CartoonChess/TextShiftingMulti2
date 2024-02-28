@@ -932,6 +932,7 @@ export default class MapEditor {
 }
 
 
+import MessageLog from './MessageLog.js';
 import '../JSON_stringifyWithClasses.js';
 // TODO: Make some shared import with this all-classes obj
 const customJsonClasses = { Tile, Coordinate, WarpTileScript };
@@ -1138,9 +1139,11 @@ class MapEditorModel {
             }
 
             const responseText = await response.text();
-            console.log(responseText);
+            // console.log(responseText);
+            this.#game.log.print(responseText);
         } catch (err) {
             console.error(err.message);
+            this.#game.log.print('Error saving map to server.');
         }
     }
 
