@@ -932,7 +932,7 @@ export default class MapEditor {
 }
 
 
-import MessageLog from './MessageLog.js';
+// import MessageLog from './MessageLog.js';
 import '../JSON_stringifyWithClasses.js';
 // TODO: Make some shared import with this all-classes obj
 const customJsonClasses = { Tile, Coordinate, WarpTileScript };
