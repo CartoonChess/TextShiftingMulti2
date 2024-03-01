@@ -7,11 +7,12 @@
 import express from 'express';
 const app = express();
 import http from 'http';
-const httpServer = http.Server(app);
+const httpServer = new http.Server(app);
 // this is probably a lie
-const port = process.env.PORT || 3000; // 443 is frontend tho
+const port = process.env.PORT ?? 3000; // 443 is frontend tho
 
-import { Server } from 'socket.io';
+// import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 const io = new Server(httpServer);
 
 // For saving sessions and identifying users
@@ -24,8 +25,8 @@ const randomBytes = new RandomBytes();
 const randomId = () => randomBytes.hex(16);
 
 // Return formatted room names
-const userRoom = (userId) => 'user:' + userId;
-const mapRoom = (mapName) => 'map:' + mapName;
+const userRoom = (userId: string) => 'user:' + userId;
+const mapRoom = (mapName: string) => 'map:' + mapName;
 
 // app.get('/', (req, res) => {
 //     res.sendFile(__dirname + '/index.html');
@@ -71,11 +72,13 @@ app.use(express.urlencoded({ limit: '50mb' }));
 
 // Provide maps directory listing for editor mode
 // Gives name, or name with relative path if in subdirectory
-import fs from './fs_readdirRecursive.js';
+// import fs from './fs_readdirRecursive.js';
+import FsExt from './fs_readdirRecursive.js';
 const mapsDir = publicDir + '/maps';
 app.get('/maps', async (req, res) => {
     try {
-        const files = await fs.readdirRecursive(mapsDir, true, false);
+        // const files = await fs.readdirRecursive(mapsDir, true, false);
+        const files = await FsExt.readdirRecursive(mapsDir, true, false);
         // Strip leading directory info
         const maps = files.map(path => path.substring(mapsDir.length + 1));
 
@@ -89,9 +92,9 @@ app.get('/maps', async (req, res) => {
     }
 });
 
-async function writeFileExclusive(file, data) {
-    await fs.writeFile(file, data, { flag: 'wx'});
-}
+// async function writeFileExclusive(file, data) {
+//     await fs.writeFile(file, data, { flag: 'wx'});
+// }
 
 // app.post('/createMap', async (req, res) => {
 //     try {
@@ -102,14 +105,14 @@ async function writeFileExclusive(file, data) {
 //         const mapPath = path.join(fullDir, 'map.js');
 //         // TODO: Use new border format (.js)
 //         const borderPath = path.join(fullDir, 'border');
-
+//
 //         // Create directories, including intermediate
 //         await fs.mkdir(fullDir, { recursive: true });
 //         // Create js files but throw error if any already exist
 //         await writeFileExclusive(infoPath, info);
 //         await writeFileExclusive(mapPath, map);
 //         await writeFileExclusive(borderPath, border);
-
+//
 //         const message = `Created map package ${dir}.`;
 //         console.log(message);
 //         res.send(message);
@@ -119,36 +122,8 @@ async function writeFileExclusive(file, data) {
 //     }
 // });
 
+import fs from 'fs/promises';
 // TODO: We can make a create/update combo function by calling /..template if dir/files missing
-// app.post('/updateMap', async (req, res) => {
-//     try {
-//         const { name, tiles } = req.body;
-//         const dir = path.join(mapsDir, name);
-//         const mapPath = path.join(dir, 'map.js');
-
-//         // Get existing map.js
-//         const mapFileData = await fs.readFile(mapPath);
-
-//         // Assume tiles var is last part of file
-//         // Find its declaration and overwrite to end
-//         const tilesDeclare = 'export const tiles = ';
-//         const rewriteStart = mapFileData.indexOf(tilesDeclare);
-//         if (rewriteStart === -1) {
-//             throw new Error('No tiles declaration in map.js file.');
-//         }
-//         const newData = mapFileData.toString().substring(0, rewriteStart) + tilesDeclare + JSON.stringify(tiles, null, 4);
-
-//         // Overwrite file
-//         await fs.writeFile(mapPath, newData);
-
-//         const message = `Saved ${name} to server.`;
-//         console.log(message);
-//         res.send(message);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Failed to save map to server.');
-//     }
-// });
 app.post('/updateMap', async (req, res) => {
     try {
         const { name, tiles } = req.body;
@@ -221,14 +196,42 @@ app.get('/fetchMap', async (req, res) => {
 
 import Game from './public/js/Game.js';
 const defaultGameMap = Game.defaultMapPackage;
+// Had to set `"target": "es2017" in `tsconfig` for this `await` to work; 
+// TODO: move all this logic into separate module
 const defaultPositionOnMapJson = await Game.getDefaultStartPositionJson();
 const defaultPositionOnMap = JSON.stringify(defaultPositionOnMapJson);
 
 // Send data on all other users back to caller
 // TODO: Can we make 'move' await this, so players don't flash into view?
 // function emitAllPlayers(socket, sameMapOnly) {
-function emitAllPlayers(socket) {
-    const allPlayers = [];
+// function emitAllPlayers(socket: Socket) {
+//     const allPlayers = [];
+//     sessionStore.findAllSessions().forEach((session) => {
+//         if (session.isOnline) {
+//         // TODO: Fix ghosting when we only send users on current map
+//         // A, B on map 1
+//         // A, B -> 2
+//         // B -> 1 -> 3
+//         // A -> 1 => ghost of B where they came in
+//         // if (session.isOnline
+//         //    && session.gameMap === socket.gameMap) {
+//             allPlayers.push({
+//                 userId: session.userId,
+//                 gameMap: session.gameMap,
+//                 positionOnMap: session.positionOnMap
+//             });
+//         }
+//     });
+//     socket.emit('all players', allPlayers);
+// }
+// TODO: Consolidate SessionlessPlayer, Session, (extended) Socket
+interface SessionlessPlayer {
+    userId: string;
+    gameMap: string;
+    positionOnMap: string
+}
+function emitAllPlayers(socket: Socket) {
+    const allPlayers: SessionlessPlayer[] = [];
     sessionStore.findAllSessions().forEach((session) => {
         if (session.isOnline) {
         // TODO: Fix ghosting when we only send users on current map

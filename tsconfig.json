@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "es2017",
+        "module": "NodeNext",
+        "esModuleInterop": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "outDir": "js"
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}

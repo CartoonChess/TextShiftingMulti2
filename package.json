@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "description": "textshifting with socket.io",
   "dependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.24",
     "express": "^4.17.1",
     "socket.io": "^4.1.2",
     "socket.io-client": "^4.6.1"
@@ -10,5 +12,5 @@
   "scripts": {
     "start": "node index.js"
   },
-  "type":"module"
+  "type": "module"
 }
