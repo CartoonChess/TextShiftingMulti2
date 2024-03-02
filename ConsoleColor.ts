@@ -1,12 +1,12 @@
 // level    4       3      1    Safari color
 //
 // debug    DBUG    DBG    D    cyan
-// log      LOG?    LOG    L    white (grey/bright black showing no diff in repl)
+// log      LOG?    LOG    L    white (grey/bright black showing no diff in some contexts)
 // info     INFO    INF    I    blue
 // warn     WARN    WRN    W    yellow
 // error    ERRO    ERR    E    red
 
-let _isServer;
+let _isServer: boolean;
 const isServer = function() {
     if (_isServer === undefined) {
         // https://stackoverflow.com/a/31456668/141032
@@ -26,21 +26,26 @@ class ConsoleColor {
     static Cyan = new this('cyan', 36);
     static White = new this('white', 37);
 
+    name: string;
+    code: number;
+
     constructor(name = 'transparent', code = 0) {
         this.name = name;
         this.code = code;
     }
 
-    get bright() {
+    // Unused?
+    get bright(): ConsoleColor {
         if (!isServer()) { return this; }
-        return new this.constructor(undefined, this.code + 60);
+        return new ConsoleColor(undefined, this.code + 60);
     };
     
-    get background() {
+    get background(): ConsoleColor {
         if (!isServer()) { return this; }
-        return new this.constructor(undefined, this.code + 10);
+        return new ConsoleColor(undefined, this.code + 10);
     }
     
+    // WARN: Can also return `number`...
     toString() {
         if (isServer()) {
             return this.code;
@@ -50,20 +55,20 @@ class ConsoleColor {
     }
 }
 
-function colorString(str, color) {
+function colorString(str: string, color: ConsoleColor) {
     if (!str) { return ''; }
     if (!color) { return str; }
     
     const esc = '\x1b[';
     const codeSuffix = 'm';
-    const getSequence = (color) => esc + color + codeSuffix;
+    const getSequence = (color: ConsoleColor) => esc + color + codeSuffix;
     const prefix = getSequence(color);
     const suffix = getSequence(ConsoleColor.Reset);
 
     return prefix + str + suffix;
 }
 
-function getTag(label, color) {
+function getTag(label: string, color: ConsoleColor) {
     label = '[' + label + ']';
     if (isServer()) {
         return colorString(label, color);
@@ -72,7 +77,14 @@ function getTag(label, color) {
     }
 }
 
-function printToConsole(consoleCopy, args, label, color) {
+type ConsoleCopy = {
+    (...data: any[]): void;
+    (message?: any, ...optionalParams: any[]): void;
+}
+
+// function printToConsole(consoleCopy: Function, args, label: string, color: ConsoleColor) {
+// function printToConsole(this: ConsoleCopy, consoleCopy: ConsoleCopy, args: IArguments, label: string, color: ConsoleColor) {
+function printToConsole(consoleCopy: ConsoleCopy, args: IArguments, label: string, color: ConsoleColor) {
     if (isServer()) {
         color = color.background;
     }
@@ -82,7 +94,9 @@ function printToConsole(consoleCopy, args, label, color) {
         Array.prototype.unshift.call(args, `color: ${fontColor}; background-color: ${color}`);
     }
     Array.prototype.unshift.call(args, tag);
-    consoleCopy.apply(this, args);
+    // this/consoleCopy -> console?
+    // consoleCopy.apply(this, args);
+    consoleCopy.apply(consoleCopy, [args]);
 }
 
 const consoleDebug = console.debug;
@@ -100,7 +114,6 @@ console.info = function() {
     printToConsole(consoleInfo, arguments, 'INF', ConsoleColor.Blue);
 };
 
-// Unfortunately, replit webview console prints HTML...
 const consoleWarn = console.warn;
 console.warn = function() {
     printToConsole(consoleWarn, arguments, 'WRN', ConsoleColor.Yellow);
