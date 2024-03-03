@@ -3,15 +3,6 @@
 // 1. we write `export class/function Foo {}` instead of `module.exports ...`
 // 2. we use `import x from y` instead of require()
 // 3. we have to use `import="module"` in html <script>
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var _a;
 import express from 'express';
 const app = express();
@@ -72,10 +63,10 @@ app.use(express.urlencoded({ limit: '50mb' }));
 // import fs from './fs_readdirRecursive.js';
 import FsExt from './fs_readdirRecursive.js';
 const mapsDir = publicDir + '/maps';
-app.get('/maps', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get('/maps', async (req, res) => {
     try {
         // const files = await fs.readdirRecursive(mapsDir, true, false);
-        const files = yield FsExt.readdirRecursive(mapsDir, true, false);
+        const files = await FsExt.readdirRecursive(mapsDir, true, false);
         // Strip leading directory info
         const maps = files.map(path => path.substring(mapsDir.length + 1));
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -87,7 +78,7 @@ app.get('/maps', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.end(JSON.stringify({ error: error }));
         return console.error(error);
     }
-}));
+});
 // async function writeFileExclusive(file, data) {
 //     await fs.writeFile(file, data, { flag: 'wx'});
 // }
@@ -118,7 +109,7 @@ app.get('/maps', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 // });
 import fs from 'fs/promises';
 // TODO: We can make a create/update combo function by calling /..template if dir/files missing
-app.post('/updateMap', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/updateMap', async (req, res) => {
     try {
         const { name, tiles } = req.body;
         // TODO: Sanity check this so it isn't like /maps/../[root]/
@@ -126,7 +117,7 @@ app.post('/updateMap', (req, res) => __awaiter(void 0, void 0, void 0, function*
         const mapPath = path.join(dir, 'map.js');
         const newData = JSON.stringify(tiles, null, 4);
         // Overwrite file
-        yield fs.writeFile(mapPath, newData);
+        await fs.writeFile(mapPath, newData);
         const message = `Saved ${name} to server.`;
         console.log(message);
         res.send(message);
@@ -135,8 +126,8 @@ app.post('/updateMap', (req, res) => __awaiter(void 0, void 0, void 0, function*
         console.error(err);
         res.status(500).send('Failed to save map to server.');
     }
-}));
-app.get('/createMapFromTemplate', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+});
+app.get('/createMapFromTemplate', async (req, res) => {
     // Get path with random name
     const parentDir = req.query.parentDir;
     let mapName = randomBytes.alphanumeric(8);
@@ -145,16 +136,16 @@ app.get('/createMapFromTemplate', (req, res) => __awaiter(void 0, void 0, void 0
     }
     // Create new map directory
     const newDir = path.join(mapsDir, mapName);
-    yield fs.mkdir(newDir);
+    await fs.mkdir(newDir);
     // Copy over default map files
     try {
         const templateDir = 'map_template';
-        const files = yield fs.readdir('map_template');
+        const files = await fs.readdir('map_template');
         for (const file of files) {
             const source = path.resolve(templateDir, file);
             const destination = path.join(newDir, path.basename(source));
             console.log(`Copying from ${source} to ${destination}.`);
-            yield fs.copyFile(source, destination);
+            await fs.copyFile(source, destination);
         }
     }
     catch (err) {
@@ -164,23 +155,25 @@ app.get('/createMapFromTemplate', (req, res) => __awaiter(void 0, void 0, void 0
     }
     // Return new name to client
     res.send(mapName);
-}));
+});
 import './JSON_stringifyWithClasses.js';
 // TODO: Redundancy with template creation above, probably
-app.get('/fetchMap', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get('/fetchMap', async (req, res) => {
     const mapFile = req.query.name + '/map.js';
     const mapPath = path.join(mapsDir, mapFile);
     try {
-        const data = yield fs.readFile(mapPath);
+        const data = await fs.readFile(mapPath);
         res.send(data);
     }
     catch (err) {
         console.error(`Couldn't fetch map data: ${err}.`);
         return;
     }
-}));
+});
 import Game from './public/js/Game.js';
 const defaultGameMap = Game.defaultMapPackage;
+// Had to set `"target": "es2017" in `tsconfig` for this `await` to work; 
+// TODO: move all this logic into separate module
 const defaultPositionOnMapJson = await Game.getDefaultStartPositionJson();
 const defaultPositionOnMap = JSON.stringify(defaultPositionOnMapJson);
 function emitAllPlayers(socket) {
@@ -270,9 +263,9 @@ io.on('connection', (socket) => {
         gameMap: socket.gameMap,
         positionOnMap: socket.positionOnMap
     });
-    socket.on('disconnect', (reason) => __awaiter(void 0, void 0, void 0, function* () {
+    socket.on('disconnect', async (reason) => {
         console.log(`User with ID ${socket.userId} closed a session. Reason: ${reason}.`);
-        const matchingSockets = yield io.in(userRoom(socket.userId)).fetchSockets();
+        const matchingSockets = await io.in(userRoom(socket.userId)).fetchSockets();
         const isDisconnected = matchingSockets.length === 0;
         if (isDisconnected) {
             socket.broadcast.emit('other disconnected', socket.userId);
@@ -287,7 +280,7 @@ io.on('connection', (socket) => {
         else {
             console.log(`-> (but they still have ${matchingSockets.length} session(s) open.)`);
         }
-    }));
+    });
     socket.on('latency', (callback) => {
         callback();
     });

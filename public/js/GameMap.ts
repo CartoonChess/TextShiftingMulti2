@@ -1,96 +1,94 @@
-import '../../ConsoleColor.js';
+import '../../ConsoleColor.js'
 
 export class Coordinate {
-    constructor(column, line, layer) {
-        this.column = column;
-        this.line = line;
-        this.layer = layer;
+    column: number
+    line: number
+    layer?: number
+
+    // constructor(data: any);
+    constructor(column: number, line: number, layer?: number) {
+        this.column = column
+        this.line = line
+        this.layer = layer
+    }
+ 
+    // static fromObject(obj: any) {
+    static fromObject(obj: { column: number, line: number, layer?: number} ): Coordinate {
+        // return Object.assign(new this, obj);
+        return new this(obj.column, obj.line, obj.layer)
     }
 
-    static fromObject(obj) {
-        return Object.assign(new this, obj);
+    static fromJson(json: string): Coordinate {
+        // return Object.assign(new this, JSON.parse(json));
+        // return new this
+        return Coordinate.fromObject(JSON.parse(json))
     }
 
-    static fromJson(json) {
-        return Object.assign(new this, JSON.parse(json));
-    }
-
-    toJson() {
-        return JSON.stringify(this);
+    toJson(): string {
+        return JSON.stringify(this)
     }
 
     toString() {
         if (this.layer) {
-            return `(x: ${this.column}, y: ${this.line}, z: {${this.layer})`;
+            return `(x: ${this.column}, y: ${this.line}, z: {${this.layer})`
         }
-        return `(x: ${this.column}, y: ${this.line})`;
+        return `(x: ${this.column}, y: ${this.line})`
     }
     // possibly provide some func/prop that provides .leftOfMe
 }
 
+type GameMapLines2D = string[][]
+type GameMapLines3D = string[][][]
+
 // TODO: Make child (or sibling) of Map (~fromFile methods redundant)
 class MapBorder {
-    constructor(width = 1, height = 1, lines = [[' ']]) {
-        // this.lines = lines;
-        // this.height = lines && lines.length ? lines.length : height;
-        // this.width = lines && lines.length && lines[0].length ? lines[0].length: width;
+    lines: GameMapLines2D
+    width: number
+    height: number
 
-        if (lines && lines.length && lines[0].length && lines[0][0].length) {
-            this.lines = lines;
-            this.height = lines[0].length;
-            this.width = lines[0][0].length;
+    constructor(width = 1, height = 1, lines = [[' ']]) {
+        // if (lines && lines.length && lines[0].length && lines[0][0].length) {
+        if (lines?.length && lines[0].length && lines[0][0].length) {
+            this.lines = lines
+            this.height = lines[0].length
+            this.width = lines[0][0].length
         } else {
-            console.error('Error constructing MapBorder.');
+           throw new Error('Error constructing MapBorder.')
         }
     }
 
     // currently redundant
-    static createFromLines(lines) {
-        return new this(undefined, undefined, lines);
+    // static createFromLines(lines: any[] | undefined) {
+    static createFromLines(lines: GameMapLines2D): MapBorder {
+        return new this(undefined, undefined, lines)
     }
 
-    static async loadFromFile(filePath) {
-        if (!filePath) { return console.error(`Must provide a file path to use MapBorder.loadFromFile.`); }
+    // static async loadFromFile(filePath: any) {
+    static async loadFromFile(filePath: string): Promise<MapBorder> {
+        // if (!filePath) { return console.error(`Must provide a file path to use MapBorder.loadFromFile.`); }
 
-        const lines = await this.#loadLinesFromFile(filePath);
-        return this.createFromLines(lines);
+        const lines: GameMapLines2D = await this.#loadLinesFromFile(filePath)
+        return this.createFromLines(lines)
     }
 
-    // static async #loadLinesFromFile(filePath) {
-    //     let data;
-    //     try {
-    //         const response = await fetch(filePath);
-    //         data = await response.text();
-    //     } catch (err) {
-    //         return console.error(`MapBorder.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
-    //     }
-
-    //     // Split into 2D array of lines and their tiles
-    //     const lines = data.split('\n');
-    //     for (let i = 0; i < lines.length; i++) {
-    //         lines[i] = lines[i].split('');
-    //     }
-        
-    //     return lines;
-    // }
-    static async #loadLinesFromFile(filePath) {
-        let data;
+    static async #loadLinesFromFile(filePath: string): Promise<GameMapLines2D> {
         try {
-            const file = await import(filePath);
-            return file.tiles;
+            const file = await import(filePath)
+            return file.tiles
         } catch (err) {
-            return console.error(`MapBorder.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
+            // return console.error(`MapBorder.#loadLinesFromFile(${filePath}) failed with error: ${err}`);
+            throw new Error(`MapBorder.#loadLinesFromFile(${filePath}) failed with error: ${err}`)
         }
     }
 }
 
-import '../../JSON_stringifyWithClasses.js';
-import Tile, { WarpTileScript } from './Tile.js';
+import '../../JSON_stringifyWithClasses.js'
+import Tile, { WarpTileScript } from './Tile.js'
 // TODO: Are we okay declaring this here?
-const customJsonClasses = { Tile, Coordinate, WarpTileScript };
+const customJsonClasses = { Tile, Coordinate, WarpTileScript }
 
 export class GameMap {
-    static #packagePath = '../maps/';
+    static readonly #packagePath = '../maps/';
     // TODO: Potential for bug with #center
     // If map has even dimensions, then View.isVisible could have OBOE error...
     // esp. for remotePlayers prior to first loading the view
@@ -98,19 +96,30 @@ export class GameMap {
     name;
     startPosition;
 
+    lines: GameMapLines3D
+    width: number
+    height: number
+    depth: number
+
+    border: MapBorder
+
     // dimension are overridden if lines is supplied
     // info must be an object
-    constructor(width = 0, height = 0, lines, border = new MapBorder(), info) {
-        if (lines && lines.length && lines[0].length && lines[0][0].length) {
+    // constructor(width = 0, height = 0, lines: string | any[], border = new MapBorder(), info: { startPosition: any; name: any; }) {
+    constructor(width = 0, height = 0, lines: GameMapLines3D, border = new MapBorder(), info?: { startPosition?: Coordinate; name?: string; }) {
+        // if (lines && lines.length && lines[0].length && lines[0][0].length) {
+        if (lines?.length && lines[0].length && lines[0][0].length) {
             this.lines = lines;
             this.depth = lines.length;
             this.height = lines[0].length;
             this.width = lines[0][0].length;
         } else {
             // If there's no lines data or it seems improperly formatted
+            // FIXME: This assigns a 2d array rather than 3d
             this.lines = GameMap.#generateBlankLines(width, height);
             this.width = width;
             this.height = height;
+            this.depth = 1; // see above
         }
 
         // If border is a 2D array rather than object, create object first
@@ -142,23 +151,26 @@ export class GameMap {
         }
     }
 
-    static #generateBlankLines(width, height) {
-        const lines = new Array(height);
+    static #generateBlankLines(width: number, height: number): GameMapLines3D {
+        const lines: GameMapLines2D = new Array(height);
         for (let y = 0; y < height; y++) {
             lines[y] = new Array(width).fill(' ');
         }
-        return lines;
+        return [lines];
     }
 
-    static createBlank(width, height, border, info) {
+    // static createBlank(width: number | undefined, height: number | undefined, border: MapBorder | undefined, info: any) {
+    static createBlank(width: number, height: number, border: MapBorder, info?: { startPosition?: Coordinate; name: string; }) {
         return new this(width, height, GameMap.#generateBlankLines(width, height), border, info);
     }
 
-    static createFromLines(lines, border, info) {
+    // static createFromLines(lines: any[][], border: void | MapBorder, info: { name: string; }) {
+    static createFromLines(lines: GameMapLines3D, border?: MapBorder, info?: { startPosition?: Coordinate; name: string; }) {
         return new this(undefined, undefined, lines, border, info);
     }
 
-    static async #loadInfoFromFile(filePath, pkgName) {
+    // FIXME: Return type
+    static async #loadInfoFromFile(filePath: string, pkgName: string): Promise<any> {
         try {
             const file = await import(filePath);
             
@@ -169,7 +181,7 @@ export class GameMap {
 
             return file.data;
         } catch(err) {
-            console.error(`Couldn't open file ${filePath}: ${err}`);
+            throw new Error(`Couldn't open file ${filePath}: ${err}`);
         }
     }
 
@@ -182,7 +194,7 @@ export class GameMap {
     //         return console.error(`GameMap.#loadLinesFromFile(${`filePath`}) failed with error: ${err}`);
     //     }
     // }
-    static async #loadLinesFromFile(filePath) {
+    static async #loadLinesFromFile(filePath: string): Promise<GameMapLines3D> {
         const query = '?' + new URLSearchParams({ name: filePath }).toString();
         try {
             // Fetch map json from API point
@@ -197,14 +209,14 @@ export class GameMap {
             const json = await response.text();
             return JSON.parseWithClasses(json, customJsonClasses);
         } catch (err) {
-            return console.error(`GameMap.#loadLinesFromFile('${`filePath`}') failed with error: ${err}`);
+            throw new Error(`GameMap.#loadLinesFromFile('${filePath}') failed with error: ${err}`);
         }
     }
 
-    static async loadFromFile(filePath, borderFilePath, infoFilePath, pkgName) {
-        if (!filePath) { return console.error(`Must provide a file path to use GameMap.loadFromFile.`); }
+    static async loadFromFile(filePath: string, borderFilePath: string, infoFilePath: string, pkgName: string) {
+        // if (!filePath) { return console.error(`Must provide a file path to use GameMap.loadFromFile.`); }
 
-        const lines = await this.#loadLinesFromFile(filePath);
+        const lines: GameMapLines3D = await this.#loadLinesFromFile(filePath);
 
         let border;
         if (borderFilePath) {
@@ -215,36 +227,37 @@ export class GameMap {
         return this.createFromLines(lines, border, info);
     }
 
-    // static async loadFromPackage(pkgName, infoOnly) {
-    static loadFromPackage(pkgName, infoOnly) {
-        if (!pkgName) { return console.error(`Must provide a package name to use GameMap.loadFromPackage.`); }
+    // +async
+    static async loadFromPackage(pkgName: string, infoOnly?: boolean): Promise<GameMap> {
+        // if (!pkgName) { return console.error(`Must provide a package name to use GameMap.loadFromPackage.`); }
 
         // "advised to access private static props thru class NAME"
         // TODO: Should ask server for path separator symbol (diff for Windows?)
         // TODO: Clean up all this prefix nonsense (handled by server now)
         const prefix = GameMap.#packagePath + pkgName + '/';
-        // const prefix__ = pkgName + '/';
         const infoFilePath = prefix + 'info.js'
         if (infoOnly) {
-            return this.#loadInfoFromFile(infoFilePath, pkgName);
+            // +await
+            return await this.#loadInfoFromFile(infoFilePath, pkgName);
         } else {
             // TODO: Change to .json
             // const filePath = prefix + 'map.js';
             const filePath = pkgName;
-            // const borderFilePath = prefix + 'border';
             const borderFilePath = prefix + 'border.js';
-            return this.loadFromFile(filePath, borderFilePath, infoFilePath, pkgName);
+            // +await
+            return await this.loadFromFile(filePath, borderFilePath, infoFilePath, pkgName);
         }
     }
 
-    // static async loadInfoFromPackage(pkgName) {
-    static loadInfoFromPackage(pkgName) {
-        if (!pkgName) { return console.error(`Must provide a package name to use GameMap.loadInfoFromPackage.`); }
-        return this.loadFromPackage(pkgName, true);
+    // +async
+    static async loadInfoFromPackage(pkgName: string): Promise<GameMap> {
+        // if (!pkgName) { return console.error(`Must provide a package name to use GameMap.loadInfoFromPackage.`); }
+        return await this.loadFromPackage(pkgName, true);
     }
 
-    static createTestMap(view, width = view.width * 2, height = view.height * 2, boundCharacter = '#', border) {
-        if (!view) { return console.warn(`Can't call GameMap.createTestMap without providing view argument.`); }
+    // NOTE: Currently unused
+    static createTestMap(view: { width: number; height: number; }, width = view.width * 2, height = view.height * 2, boundCharacter = '#', border?: MapBorder): GameMap {
+        // if (!view) { return console.warn(`Can't call GameMap.createTestMap without providing view argument.`); }
         
         const lines = [];
         
@@ -285,6 +298,7 @@ export class GameMap {
             }
             lines.push(line);
         }
+        // return this.createFromLines(lines, border, { name: 'testMap' });
         return this.createFromLines(lines, border, { name: 'testMap' });
     }
 
