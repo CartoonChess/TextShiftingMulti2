@@ -173,6 +173,7 @@ export class GameMap {
     // NOTE: Currently unused
     static createTestMap(view, width = view.width * 2, height = view.height * 2, boundCharacter = '#', border) {
         // if (!view) { return console.warn(`Can't call GameMap.createTestMap without providing view argument.`); }
+        // const lines = [];
         const lines = [];
         // Build walls around map edge
         const leftBound = Math.floor(view.width / 2) - 1;
@@ -212,8 +213,9 @@ export class GameMap {
             }
             lines.push(line);
         }
+        const singleLayerMap = [lines];
         // return this.createFromLines(lines, border, { name: 'testMap' });
-        return this.createFromLines(lines, border, { name: 'testMap' });
+        return this.createFromLines(singleLayerMap, border, { name: 'testMap' });
     }
     get center() {
         return __classPrivateFieldGet(this, _GameMap_center, "f");

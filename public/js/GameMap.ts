@@ -38,7 +38,8 @@ export class Coordinate {
 }
 
 type GameMapLines2D = string[][]
-type GameMapLines3D = string[][][]
+// type GameMapLines3D = string[][][]
+type GameMapLines3D = [GameMapLines2D]
 
 // TODO: Make child (or sibling) of Map (~fromFile methods redundant)
 class MapBorder {
@@ -259,7 +260,8 @@ export class GameMap {
     static createTestMap(view: { width: number; height: number; }, width = view.width * 2, height = view.height * 2, boundCharacter = '#', border?: MapBorder): GameMap {
         // if (!view) { return console.warn(`Can't call GameMap.createTestMap without providing view argument.`); }
         
-        const lines = [];
+        // const lines = [];
+        const lines: GameMapLines2D = [];
         
         // Build walls around map edge
         const leftBound = Math.floor(view.width / 2) - 1;
@@ -298,8 +300,10 @@ export class GameMap {
             }
             lines.push(line);
         }
+        
+        const singleLayerMap: GameMapLines3D = [lines]
         // return this.createFromLines(lines, border, { name: 'testMap' });
-        return this.createFromLines(lines, border, { name: 'testMap' });
+        return this.createFromLines(singleLayerMap, border, { name: 'testMap' });
     }
 
     get center() {

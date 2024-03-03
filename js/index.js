@@ -57,7 +57,7 @@ app.use('/', express.static(publicDir));
 // Increase acceptable filesize/URL encoded strings
 // TODO: Use gzip (JS now has CompressionStreams for client side)
 app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Provide maps directory listing for editor mode
 // Gives name, or name with relative path if in subdirectory
 // import fs from './fs_readdirRecursive.js';

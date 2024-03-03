@@ -21,12 +21,18 @@ class Game {
     }
     static async getDefaultStartPosition() {
         const startPositionJson = await this.getDefaultStartPositionJson();
-        return Coordinate.fromObject(startPositionJson);
+        if (startPositionJson) {
+            return Coordinate.fromObject(startPositionJson);
+        }
     }
+    // printToLog(msg: string) {
+    // }
     async changeMap(map, position) {
+        var _b;
         if (!map) {
             return console.error(`Can't call Game.changeMap() without providing a package name or GameMap object.`);
         }
+        // TODO: Should this be `=== GameMap`?
         if (typeof map === 'object') {
             // Assume it's a GameMap object
             this.view.map = map;
@@ -45,7 +51,7 @@ class Game {
             this.view.map = newMap;
             this.toggleInput(true);
         }
-        this.log.print(`Moved to map '${this.view.map.name}'`);
+        (_b = this.log) === null || _b === void 0 ? void 0 : _b.print(`Moved to map '${this.view.map.name}'`);
         // TODO: This should be derived from info.js or something
         // -(isn't that what it's doing already?)
         if (!position) {
@@ -58,13 +64,14 @@ class Game {
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_notifyListeners).call(this);
     }
     toggleInput(isEnabled) {
+        var _b, _c;
         if (isEnabled) {
             document.addEventListener('keydown', this.inputController);
-            this.log.print('Keyboard input enabled.');
+            (_b = this.log) === null || _b === void 0 ? void 0 : _b.print('Keyboard input enabled.');
         }
         else {
             document.removeEventListener('keydown', this.inputController);
-            this.log.print('Keyboard input disabled.');
+            (_c = this.log) === null || _c === void 0 ? void 0 : _c.print('Keyboard input disabled.');
         }
     }
 }
@@ -73,14 +80,14 @@ _a = Game, _Game_listeners = new WeakMap(), _Game_instances = new WeakSet(), _Ga
         listener.listen();
     }
 }, _Game_getMapPackageInfo = async function _Game_getMapPackageInfo(pkgName) {
-    if (!pkgName || typeof pkgName === 'object') {
-        return console.error(`Can't call Game.#getMapPackageInfo() without providing a package name as string.`);
-    }
+    // if (!pkgName || typeof pkgName === 'object') {
+    //     return console.error(`Can't call Game.#getMapPackageInfo() without providing a package name as string.`);
+    // }
     try {
         return await GameMap.loadInfoFromPackage(pkgName);
     }
     catch (err) {
-        return console.error(`Couldn't load map package "${pkgMap}".`);
+        throw new Error(`Couldn't load map package "${pkgName}".`);
     }
 };
 Game.defaultMapPackage = '0';
