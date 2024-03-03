@@ -3,14 +3,14 @@ export default class MessageLog {
     #element;
     #isAppending; // bool
     
-    constructor(element, isAppending) {
+    constructor(element: HTMLElement, isAppending = false) {
         this.#element = element;
         // Below also works...
         // this.element = document.getElementById('message-log');
         this.#isAppending = isAppending;
     }
     
-    print(msg) {
+    print(msg: string) {
         if (this.#isAppending) {
             const msgHtml = document.createElement('div');
             msgHtml.textContent = `• ${msg}\n`;

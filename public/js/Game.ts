@@ -1,8 +1,9 @@
-import '../../ConsoleColor.js';
-import { Coordinate, GameMap } from './GameMap.js';
+import '../../ConsoleColor.js'
+import MessageLog from './MessageLog.js'
+import { Coordinate, GameMap } from './GameMap.js'
 
 export default class Game {
-    log;
+    log: MessageLog
     view;
     player;
     remotePlayers;
