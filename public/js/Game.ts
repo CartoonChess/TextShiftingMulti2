@@ -1,17 +1,23 @@
 import '../../ConsoleColor.js'
 import MessageLog from './MessageLog.js'
 import { Coordinate, GameMap } from './GameMap.js'
+import Listener from '../../Listener.js'
 
 export default class Game {
-    log: MessageLog
-    view;
-    player;
-    remotePlayers;
-    inputController;
+    log?: MessageLog
+    // FIXME: Use real types once TypeScript is available
+    // view?: View
+    // player?: Player
+    // remotePlayers?: [RemotePlayer]
+    // inputController?: InputController
+    view?: any
+    player?: any
+    remotePlayers?: [any]
+    inputController?: any
 
-    #listeners = new Set();
+    #listeners = new Set<Listener>();
 
-    addListener(listener) {
+    addListener(listener: Listener) {
         this.#listeners.add(listener);
     }
 
@@ -25,35 +31,42 @@ export default class Game {
         }
     }
 
-    static defaultMapPackage = '0';
+    static readonly defaultMapPackage = '0';
 
-    static async #getMapPackageInfo(pkgName) {
-        if (!pkgName || typeof pkgName === 'object') {
-            return console.error(`Can't call Game.#getMapPackageInfo() without providing a package name as string.`);
-        }
+    static async #getMapPackageInfo(pkgName: string): Promise<GameMap> {
+        // if (!pkgName || typeof pkgName === 'object') {
+        //     return console.error(`Can't call Game.#getMapPackageInfo() without providing a package name as string.`);
+        // }
         
         try {
             return await GameMap.loadInfoFromPackage(pkgName);
         } catch(err) {
-            return console.error(`Couldn't load map package "${pkgMap}".`);
+            throw new Error(`Couldn't load map package "${pkgName}".`);
         }
     }
 
     // Returns [Object], NOT json string
-    static async getDefaultStartPositionJson() {
+    static async getDefaultStartPositionJson(): Promise<Coordinate | undefined> {
         const info = await this.#getMapPackageInfo(Game.defaultMapPackage);
         return info.startPosition;
     }
 
-    static async getDefaultStartPosition() {
+    static async getDefaultStartPosition(): Promise<Coordinate | undefined> {
         const startPositionJson = await this.getDefaultStartPositionJson();
-        return Coordinate.fromObject(startPositionJson);
+        if (startPositionJson) {
+            return Coordinate.fromObject(startPositionJson);
+        }
     }
 
-    async changeMap(map, position) {
+    // printToLog(msg: string) {
+
+    // }
+
+    async changeMap(map: string | GameMap, position: Coordinate) {
         if (!map) {
             return console.error(`Can't call Game.changeMap() without providing a package name or GameMap object.`);
         }
+        // TODO: Should this be `=== GameMap`?
         if (typeof map === 'object') {
             // Assume it's a GameMap object
             this.view.map = map;
@@ -70,7 +83,7 @@ export default class Game {
             this.view.map = newMap;
             this.toggleInput(true);
         }
-        this.log.print(`Moved to map '${this.view.map.name}'`);
+        this.log?.print(`Moved to map '${this.view.map.name}'`);
         // TODO: This should be derived from info.js or something
         // -(isn't that what it's doing already?)
         if (!position) { position = this.view.map.startPosition; }
@@ -82,13 +95,13 @@ export default class Game {
         this.#notifyListeners();
     }
     
-    toggleInput(isEnabled) {
+    toggleInput(isEnabled: boolean) {
         if (isEnabled) {
             document.addEventListener('keydown', this.inputController);
-            this.log.print('Keyboard input enabled.');
+            this.log?.print('Keyboard input enabled.');
         } else {
             document.removeEventListener('keydown', this.inputController);
-            this.log.print('Keyboard input disabled.');
+            this.log?.print('Keyboard input disabled.');
         }
     }
 }
