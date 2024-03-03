@@ -1,6 +1,6 @@
 // Game controller
-import Game from '../js/Game.js';
-const game = new Game();
+// NOTE: Was '../' ... but why
+import Game from './js/Game.js';
 
 import MessageLog from './js/MessageLog.js';
 const log = new MessageLog(document.getElementById('message-log'), true);

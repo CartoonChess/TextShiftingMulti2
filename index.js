@@ -32,7 +32,7 @@ const exposedFiles = [
     '/randomBytes.js',
     '/ConsoleColor.js',
     '/String_prototype.js',
-    '/Element_prototype.js',
+    '/HTMLElement_prototype.js',
     '/JSON_stringifyWithClasses.js'
 ];
 for (const file of exposedFiles) {
@@ -50,7 +50,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// Path according to generated js file, not base ts file
 const publicDir = path.join(__dirname, 'public');
+// const publicDir = path.join(__dirname, '../public');
 app.use('/', express.static(publicDir));
 // Let express parse json POSTs
 // app.use(express.json());

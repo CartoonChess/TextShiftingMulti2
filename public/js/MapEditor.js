@@ -1,7 +1,7 @@
 // FIXME: This basically needs to return every tile in the z stack
 const fakeLayer = 0;
 
-import '../../Element_prototype.js';
+import '../../HTMLElement_prototype.js';
 
 // MVC's view
 class MapEditorHtml {

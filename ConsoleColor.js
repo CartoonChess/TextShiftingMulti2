@@ -76,9 +76,7 @@ function getTag(label, color) {
         return '%c' + label;
     }
 }
-// function printToConsole(consoleCopy: Function, args, label: string, color: ConsoleColor) {
-// function printToConsole(this: ConsoleCopy, consoleCopy: ConsoleCopy, args: IArguments, label: string, color: ConsoleColor) {
-// function printToConsole(consoleCopy: ConsoleCopy, args: IArguments, label: string, color: ConsoleColor) {
+// function printToConsole(consoleCopy: any, args: IArguments, label: string, color: ConsoleColor) {
 function printToConsole(consoleCopy, args, label, color) {
     if (isServer()) {
         color = color.background;
@@ -91,8 +89,6 @@ function printToConsole(consoleCopy, args, label, color) {
     Array.prototype.unshift.call(args, tag);
     // this/consoleCopy -> console?
     // consoleCopy.apply(this, args)
-    // consoleCopy.apply(consoleCopy, [args])
-    // consoleCopy.apply(consoleCopy, args)
     consoleCopy.apply(consoleCopy, args);
 }
 const consoleDebug = console.debug;

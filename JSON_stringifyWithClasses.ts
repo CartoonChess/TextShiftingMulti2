@@ -11,6 +11,7 @@
 
 declare global {
     interface JSON {
+        // stringifyWithClasses()?
         stringifyWithClasses: any
         parseWithClasses: any
     }

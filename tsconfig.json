@@ -4,8 +4,7 @@
         "module": "NodeNext",
         "esModuleInterop": true,
         "strict": true,
-        "forceConsistentCasingInFileNames": true,
-        "outDir": "js"
+        "forceConsistentCasingInFileNames": true
     },
     "exclude": [
         "node_modules"
