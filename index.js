@@ -1,9 +1,17 @@
+var _a;
+import './String_prototype.js';
+const base = 'Hello world';
+const foo = base.replaceCharAt(4, '0');
+// const foo = base.replaceCharAt(4, '0', 'some other string')
+console.debug(`foo: ${foo}`);
+const bar = String.replaceCharAt(4, '1', base);
+// const bar = String.replaceCharAt(4, '1')
+console.debug(`bar: ${bar}`);
 // adding "type":"module" to package.json means commonjs (x), es6 (o)
 // this changes some things:
 // 1. we write `export class/function Foo {}` instead of `module.exports ...`
 // 2. we use `import x from y` instead of require()
 // 3. we have to use `import="module"` in html <script>
-var _a;
 import express from 'express';
 const app = express();
 import http from 'http';

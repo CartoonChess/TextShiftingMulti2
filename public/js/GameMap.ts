@@ -178,7 +178,7 @@ export class GameMap {
         return new this(undefined, undefined, lines, border, info);
     }
 
-    // FIXME: Return type
+    // FIXME: Return type; replace `import` with `fetch`
     static async #loadInfoFromFile(filePath: string, pkgName: string): Promise<any> {
         try {
             const file = await import(filePath);
