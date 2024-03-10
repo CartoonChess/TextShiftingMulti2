@@ -59,15 +59,22 @@ JSON.stringifyWithClasses = function(data: any, space?: string | number | undefi
     space)
 }
 
+// class Tile {}
+
+
+
 // JSON.parseWithClasses = function(json: string, customClasses: object) {
-JSON.parseWithClasses = function(json: string, customClasses: CustomClassList) {
+// JSON.parseWithClasses = function(json: string, customClasses: CustomClassList) {
+JSON.parseWithClasses = function(json: string, customClasses: any) {
     if (!customClasses) { return console.error('JSON.parseWithClasses() must be passed an object containing one or more custom classes as keys.') }
 
     // FIXME: `any`
     let classes: any = { Object }
 
-    // let classes = { Object }
     classes = {...classes, ...customClasses}
+    // console.debug(classes)
+    // classes = { Object, Tile }
+    // console.debug(classes)
 
 
     // let classes = { 'foo': Object }
@@ -95,14 +102,23 @@ JSON.parseWithClasses = function(json: string, customClasses: CustomClassList) {
             // let DynamicClass = classes[value.__type];
             // let DynamicClass = classes[type];
             // let DynamicClass = Object.keys(type); // should be ObjectConstructor I guess?
-            let DynamicClass: any = new DynamicClassTYPE(type, value, classes)
+            // let DynamicClass: any = new DynamicClassTYPE(type, value, classes)
+            // FIXME: Creates actual instance (w/ all data crammed into first arg) rather than class type
+            // let DynamicClass: any = new classes[type](value) // remove 'new'?
+            let DynamicClass = classes[type]
+            // let DynamicClass = classes[type](value)
+            console.debug(DynamicClass)
             if (!DynamicClass) {
                 console.warn(`Unknown object class "${type}"; casting as generic Object, but you should add it to the customClasses property passed to JSON.parseWithClasses().`)
                 DynamicClass = Object
             }
-            value = Object.assign(new DynamicClass(), value)
+            // console.debug('val1: ' + value)
+            value = Object.assign(new DynamicClass(), value) // crashes silently
+            // value = Object.assign(new Tile(), value)
+            // console.debug('val2: ' + value)
             delete value.__type
         }
+        // console.debug('val_f: ' + value)
         return value
     })
 }
