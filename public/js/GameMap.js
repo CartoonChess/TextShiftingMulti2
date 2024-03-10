@@ -75,7 +75,6 @@ _a = MapBorder, _MapBorder_loadLinesFromFile = async function _MapBorder_loadLin
 };
 import '../../JSON_stringifyWithClasses.js';
 import Tile, { WarpTileScript } from './Tile.js';
-// TODO: Are we okay declaring this here?
 const customJsonClasses = { Tile, Coordinate, WarpTileScript };
 export class GameMap {
     // dimension are overridden if lines is supplied

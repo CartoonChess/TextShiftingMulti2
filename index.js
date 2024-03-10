@@ -158,7 +158,8 @@ app.get('/createMapFromTemplate', async (req, res) => {
     // Return new name to client
     res.send(mapName);
 });
-import './JSON_stringifyWithClasses.js';
+// TODO: Did we need this line?
+// import './JSON_stringifyWithClasses.js';
 // TODO: Redundancy with template creation above, probably
 app.get('/fetchMap', async (req, res) => {
     const mapFile = req.query.name + '/map.js';

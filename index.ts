@@ -180,7 +180,8 @@ app.get('/createMapFromTemplate', async (req, res) => {
     res.send(mapName);
 });
 
-import './JSON_stringifyWithClasses.js';
+// TODO: Did we need this line?
+// import './JSON_stringifyWithClasses.js';
 
 // TODO: Redundancy with template creation above, probably
 app.get('/fetchMap', async (req, res) => {

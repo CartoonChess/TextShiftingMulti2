@@ -86,7 +86,8 @@ class MapBorder {
 import '../../JSON_stringifyWithClasses.js'
 import Tile, { WarpTileScript } from './Tile.js'
 // TODO: Are we okay declaring this here?
-const customJsonClasses = { Tile, Coordinate, WarpTileScript }
+import ClassList from '../../ClassList.js'
+const customJsonClasses: ClassList = { Tile, Coordinate, WarpTileScript }
 
 export class GameMap {
     static readonly #packagePath = '../maps/';

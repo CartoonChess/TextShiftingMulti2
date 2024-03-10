@@ -936,6 +936,8 @@ export default class MapEditor {
 import '../JSON_stringifyWithClasses.js';
 // TODO: Make some shared import with this all-classes obj
 const customJsonClasses = { Tile, Coordinate, WarpTileScript };
+// import ClassList from '../../ClassList.js'
+// const customJsonClasses: ClassList = { Tile, Coordinate, WarpTileScript };
 
 // MVC's model
 class MapEditorModel {
