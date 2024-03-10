@@ -1000,7 +1000,8 @@ class MapEditorModel {
         // Clone the source tile (yes we have to do it this way)
         const json = JSON.stringifyWithClasses(sourceTile);
         // Assign clone to target tile (yes we have to do it this way)
-        this.#game.view.map.lines[coordinate.layer][coordinate.line][coordinate.column] = new Tile(JSON.parseWithClasses(json, customJsonClasses));
+        // this.#game.view.map.lines[coordinate.layer][coordinate.line][coordinate.column] = new Tile(JSON.parseWithClasses(json, customJsonClasses));
+        this.#game.view.map.lines[coordinate.layer][coordinate.line][coordinate.column] = new Tile(JSON.parseWithClasses(json, this.#game.customJsonClasses));
 
         this.#updateView();
     }

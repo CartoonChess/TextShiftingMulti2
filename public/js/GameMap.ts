@@ -87,7 +87,7 @@ import '../../JSON_stringifyWithClasses.js'
 import Tile, { WarpTileScript } from './Tile.js'
 // TODO: Are we okay declaring this here?
 import ClassList from '../../ClassList.js'
-const customJsonClasses: ClassList = { Tile, Coordinate, WarpTileScript }
+// const customJsonClasses: ClassList = { Tile, Coordinate, WarpTileScript }
 
 export class GameMap {
     static readonly #packagePath = '../maps/';
@@ -104,6 +104,13 @@ export class GameMap {
     depth: number
 
     border: MapBorder
+
+    // All classes that can appear in map json data
+    static customJsonClasses: ClassList = { Tile, Coordinate, WarpTileScript }
+    // Instance version
+    get customJsonClasses() {
+        return GameMap.customJsonClasses;
+    }
 
     // dimension are overridden if lines is supplied
     // info must be an object
@@ -209,7 +216,7 @@ export class GameMap {
 
             // Deserialize with classes intact
             const json = await response.text();
-            return JSON.parseWithClasses(json, customJsonClasses);
+            return JSON.parseWithClasses(json, GameMap.customJsonClasses);
         } catch (err) {
             throw new Error(`GameMap.#loadLinesFromFile('${filePath}') failed with error: ${err}`);
         }
