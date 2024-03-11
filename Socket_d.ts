@@ -17,5 +17,12 @@ declare module 'socket.io' {
     }
 }
 
+// Do the same for the client version
+declare module 'socket.io-client' {
+    interface Socket extends SessionlessPlayer {
+        sessionId: string
+    }
+}
+
 // Treat as module (prevents overwrite)
 export {}

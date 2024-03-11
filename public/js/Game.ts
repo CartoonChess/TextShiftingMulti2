@@ -3,13 +3,13 @@ import MessageLog from './MessageLog.js'
 import { Coordinate, GameMap } from './GameMap.js'
 import Listener from '../../Listener.js'
 
+import { View } from './js/View.js'
 import { Player, RemotePlayer } from './Character.js'
 import InputController from './InputController.js'
 
 export default class Game {
     log?: MessageLog
-    // FIXME: view?: View
-    view?: any
+    view?: View
     player?: Player
     // remotePlayers?: [any]
     remotePlayers?: Map<string, RemotePlayer>

@@ -64,8 +64,7 @@ export class Player implements Character {
 }
 
 // FIXME: This probably isn't exposed by express
-// - And also should be its own separate file as the client shouldn't know how the store works
-import { Session } from '../../sessionStore.js'
+import SessionlessPlayer from '../../SessionlessPlayer.js'
 
 export class RemotePlayer extends Player {
     id
@@ -80,8 +79,9 @@ export class RemotePlayer extends Player {
         this.mapName = mapName
         this.position = position
     }
-    // FIXME: Interface/type alias needed here?
-    static fromJson(json: Session) {
+
+    // static fromJson(json: Session) {
+    static fromJson(json: SessionlessPlayer) {
         const position = Coordinate.fromJson(json.positionOnMap)
         return new this(
             json.userId,

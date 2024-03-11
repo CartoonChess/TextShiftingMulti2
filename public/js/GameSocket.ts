@@ -2,6 +2,13 @@ import '../../ConsoleColor.js';
 import { Coordinate } from './GameMap.js';
 import { RemotePlayer } from './Character.js';
 
+import Game from './Game.js';
+
+// import { Socket } from 'socket.io';
+import { io, Socket } from 'socket.io-client';
+import SessionlessPlayer from '../../SessionlessPlayer.js';
+import { Session } from 'inspector';
+
 export default class GameSocket {
     #socket;
     // #sessionId;
@@ -19,7 +26,8 @@ export default class GameSocket {
     #_didReceiveAllPlayers = false;
     #isReadyForView = false;
     
-    constructor(game, remotePlayers) {
+    // constructor(game, remotePlayers) {
+    constructor(game: Game) {
         this.game = game;
         this.#log = game.log;
         this.#view = game.view;
@@ -45,7 +53,7 @@ export default class GameSocket {
             // TODO: Should we be getting map/coords from localStorage?
             this.#socket.auth = { sessionId };
             // this.#socket.auth.sessionId = sessionId;
-            this.#log.print(`had seshId ${sessionId}.`)
+            this.#log?.print(`had seshId ${sessionId}.`)
         }
         
         this.#socket.connect();
@@ -54,7 +62,7 @@ export default class GameSocket {
     #checkIfReadyForView() {
         if (this.#didReceiveSession
            && this.#didReceiveAllPlayers) {
-            if (!this.#isReadyForView) { this.#log.print('Ready!'); }
+            if (!this.#isReadyForView) { this.#log?.print('Ready!'); }
             this.#isReadyForView = true;
         } else {
             this.#isReadyForView = false;
@@ -88,7 +96,7 @@ export default class GameSocket {
         this.#socket.emit(
             'move',
             this.#view.map.name,
-            this.#player.position.toJson()
+            this.#player?.position.toJson()
         );
     }
 
@@ -102,44 +110,36 @@ export default class GameSocket {
 
     listen() {
         // Get session ID, whether new or returning
-        this.#socket.on('session', async ({ sessionId, userId, gameMap, positionOnMap }) => {
+        // this.#socket.on('session', async ({ sessionId, userId, gameMap, positionOnMap }) => {
+        this.#socket.on('session', async (socket: Socket) => {
             // 'attach sessionId to next reconnection attempts'
-            this.#socket.auth = { sessionId };
+            // this.#socket.auth = { sessionId };
+            this.#socket.auth = { sessionId: socket.sessionId };
             // TODO: map/position should keep being updated...
-            // TODO: REMOVE THIS WHEN WE HAVE SERVER PERMANENT STORAGE
-            // THEN LOAD FROM THERE!!
-            // gameMap = 'test1';
-            // const defaultGameMap = gameMap;
-            // const defaultPositionOnMap = positionOnMap;
-            // this.#socket.auth = {
-            //     sessionId,
-            //     defaultGameMap,
-            //     defaultPositionOnMap
-            // };
             
             // Store in browser's localStorage
-            localStorage.setItem('sessionId', sessionId);
+            localStorage.setItem('sessionId', socket.sessionId);
             // Save (public) userId
-            this.#socket.userId = userId;
+            this.#socket.userId = socket.userId;
 
             // TODO: Seems this triggers even with hiccup reconnects
             // - Will this be a problem? Will it cause warping?
             // - Actually, will this ALWAYS be true?
-            if (gameMap && positionOnMap) {
-                this.#log.print('Welcome back.');
-                await this.game.changeMap(gameMap, Coordinate.fromJson(positionOnMap));
+            if (socket.gameMap && socket.positionOnMap) {
+                this.#log?.print('Welcome back.');
+                await this.game.changeMap(socket.gameMap, Coordinate.fromJson(socket.positionOnMap));
             }
-            this.#log.print(`got userId ${this.#socket.userId}.`);
+            this.#log?.print(`got userId ${this.#socket.userId}.`);
             
             // View will only update if everything else is ready
             this.#didReceiveSession = true;
             this.#updateView();
         });
         
-        this.#socket.on('connect_error', (err) => {
-            var errorMessage = '(unknown error)';
+        this.#socket.on('connect_error', (err: Error) => {
+            let errorMessage = '(unknown error)';
             if (err.message) { errorMessage = err.message; }
-            this.#log.print(`ERROR: [Socket.io]: ${errorMessage}.`);
+            this.#log?.print(`ERROR: [Socket.io]: ${errorMessage}.`);
         });
         
         // this.#socket.on('self connected', (id) => {
@@ -148,77 +148,79 @@ export default class GameSocket {
         
         this.#socket.on('connect', () => {
             this.#connectCount++;
-            this.#log.print(`Socket connect count: ${this.#connectCount}.`);
+            this.#log?.print(`Socket connect count: ${this.#connectCount}.`);
         });
         
-        this.#socket.on('disconnect', (reason) => {
+        this.#socket.on('disconnect', (reason: Socket.DisconnectReason) => {
             this.#disconnectCount++;
-            this.#log.print(`Socket disconnect count: ${this.#disconnectCount}. Reason: ${reason}.`);
+            this.#log?.print(`Socket disconnect count: ${this.#disconnectCount}. Reason: ${reason}.`);
         });
         
         // Get already-connected users when joining
         // Also get updates whenever changing map
-        this.#socket.on('all players', (allPlayers) => {
+        this.#socket.on('all players', (allPlayers: SessionlessPlayer[]) => {
             // Let's flush old data when refreshing so we don't see ghosts
             // (optimize someeday by e.g. just removing players in same room/map)
-            this.#remotePlayers.clear();
+            this.#remotePlayers?.clear();
             
             allPlayers.forEach((json) => {
                 // Skip any players who don't provide a map and position
                 if (!json.gameMap || !json.positionOnMap) { return; } // forEach's 'continue'
                 
                 const remotePlayer = RemotePlayer.fromJson(json);
-                this.#log.print(`found player (id ${remotePlayer.id}, map '${remotePlayer.mapName}', position ${remotePlayer.position}`);
+                this.#log?.print(`found player (id ${remotePlayer.id}, map '${remotePlayer.mapName}', position ${remotePlayer.position}`);
                 // Only add if it's not ourself
                 if (remotePlayer.id !== this.#socket.userId) {
-                    this.#remotePlayers.set(remotePlayer.id, remotePlayer);
+                    this.#remotePlayers?.set(remotePlayer.id, remotePlayer);
                 }
             });
-            this.#log.print(`number of remote players: ${this.#remotePlayers.size}`);
+            this.#log?.print(`number of remote players: ${this.#remotePlayers?.size}`);
             this.#didReceiveAllPlayers = true;
             this.#updateView();
         });
         
         // Get new users who join after you
         // socket.on('other connected', ({ userId, positionOnMap }) => {
-        this.#socket.on('other connected', (remotePlayerJson) => {
+        this.#socket.on('other connected', (remotePlayerJson: SessionlessPlayer) => {
             const remotePlayer = RemotePlayer.fromJson(remotePlayerJson);
-            this.#log.print(`Friend's in (ID: ${remotePlayer.id}).`);
+            this.#log?.print(`Friend's in (ID: ${remotePlayer.id}).`);
             if (remotePlayer.id === this.#socket.userId) { return; }
-            this.#remotePlayers.set(remotePlayer.id, remotePlayer);
+            this.#remotePlayers?.set(remotePlayer.id, remotePlayer);
             // TODO: Did we not need this before? This is new...
             // -should we do a map check first? maybe "updateViewIfNeeded," can recycle
             this.#updateView();
         });
         
         // Only happens when remote user ends all sessions
-        this.#socket.on('other disconnected', (userId) => {
-            this.#log.print(`userId ${userId} left.`);
-            this.#remotePlayers.delete(userId);
+        this.#socket.on('other disconnected', (userId: string) => {
+            this.#log?.print(`userId ${userId} left.`);
+            this.#remotePlayers?.delete(userId);
             this.#updateView();
         });
         
         // socket.on('private message'...
-        this.#socket.on('move', async ({ userId, gameMap, positionOnMap }) => {
-            const position = Coordinate.fromJson(positionOnMap);
+        // this.#socket.on('move', async ({ userId, gameMap, positionOnMap }) => {
+        this.#socket.on('move', async (socket: SessionlessPlayer) => {
+            const position = Coordinate.fromJson(socket.positionOnMap);
             
             // If you moved in one tab, update all your tabs
-            if (userId === this.#socket.userId) {
+            if (socket.userId === this.#socket.userId) {
                 // Update map if you moved
-                if (gameMap !== this.game.view.map.name) {
-                    await this.game.changeMap(gameMap, Coordinate.fromJson(positionOnMap));
-                } else {
+                if (socket.gameMap !== this.game.view.map.name) {
+                    await this.game.changeMap(socket.gameMap, Coordinate.fromJson(socket.positionOnMap));
+                // } else {
+                } else if (this.#player) {
                     this.#player.position = position;
                 }
                 return this.#updateView();
             }
             
             // Reference, not value
-            const remotePlayer = this.#remotePlayers.get(userId);
+            const remotePlayer = this.#remotePlayers?.get(socket.userId);
             
-            if (!remotePlayer) { return console.error(`Received move from player with ID#${userId}, but GameSocket.#remotePlayers has no element with this ID.`); }
+            if (!remotePlayer) { return console.error(`Received move from player with ID#${socket.userId}, but GameSocket.#remotePlayers has no element with this ID.`); }
             
-            remotePlayer.mapName = gameMap;
+            remotePlayer.mapName = socket.gameMap;
             remotePlayer.position = position;
             const isInView = this.#view.isVisible(remotePlayer);
             if (remotePlayer.wasInView || isInView) {
