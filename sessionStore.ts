@@ -12,12 +12,14 @@
 //     }
 // }
 
+import SessionlessPlayer from "./SessionlessPlayer.js"
 // FIXME: Is `positionOnMap` truly string(ified json)? Or is it an Object? Coordinate?
-export interface Session {
-    userId: string
+// export interface Session {
+    export interface Session extends SessionlessPlayer {
+    // userId: string
     isOnline: boolean
-    gameMap: string
-    positionOnMap: string
+//     gameMap: string
+//     positionOnMap: string
 }
 
 interface SessionStore {

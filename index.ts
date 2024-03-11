@@ -227,12 +227,13 @@ const defaultPositionOnMap = JSON.stringify(defaultPositionOnMapJson);
 //     });
 //     socket.emit('all players', allPlayers);
 // }
-// TODO: Consolidate SessionlessPlayer, Session, (extended) Socket
-interface SessionlessPlayer {
-    userId: string;
-    gameMap: string;
-    positionOnMap: string
-}
+
+// interface SessionlessPlayer {
+//     userId: string;
+//     gameMap: string;
+//     positionOnMap: string
+// }
+import SessionlessPlayer from "./SessionlessPlayer.js"
 function emitAllPlayers(socket: Socket) {
     const allPlayers: SessionlessPlayer[] = [];
     sessionStore.findAllSessions().forEach((session) => {
