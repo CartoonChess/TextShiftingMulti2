@@ -1,91 +1,88 @@
-import '../../ConsoleColor.js';
+import '../../ConsoleColor.js'
 
-// abstract
-class Character {
-    move() {}
+// class Character {
+interface Character {
+    move(destination: Coordinate): void
 }
 
-import { Direction, Surroundings } from './Direction.js';
-export class Player extends Character {
-    position;
+import { Coordinate } from './GameMap.js'
+import { Direction, Surroundings } from './Direction.js'
+
+// export class Player extends Character {
+export class Player implements Character {
+    // Default position so it's never undefined
+    position = new Coordinate(0, 0)
     // #position;
-    surroundings = new Surroundings();
+    surroundings = new Surroundings()
     
-    #shiftPosition(direction) {
+    #shiftPosition(direction: Direction) {
         switch (direction) {
             case Direction.Up: {
-                return this.position.line--;
+                return this.position.line--
             }
             case Direction.Down: {
-                return this.position.line++;
+                return this.position.line++
             }
             case Direction.Left: {
-                return this.position.column--;
+                return this.position.column--
             }
             case Direction.Right: {
-                return this.position.column++;
+                return this.position.column++
             }
             default: {
-                console.warn(`Player.move() default case was triggered (should never happen).`);
+                console.warn(`Player.move() default case was triggered (should never happen).`)
             }
         }
     }
 
-    #warpTo(coordinate) {
-        this.position.line = coordinate.line;
-        this.position.column = coordinate.column;
+    #warpTo(coordinate: Coordinate) {
+        // this.position.line = coordinate.line
+        // this.position.column = coordinate.column
+        // this.position = { ...coordinate }
+        // Deep copy
+        this.position = Coordinate.fromObject(coordinate)
     }
 
-    move(destination) {
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
-        const className = destination?.constructor?.name;
-        // if (typeof className === 'string' && className !== '') {
-        //     return className;
-        // }
+    move(destination: Direction | Coordinate) {
+        // // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
+        // const className = destination?.constructor?.name
         
-        if (className === 'Direction') {
-            this.#shiftPosition(destination);
-        } else if (className === 'Coordinate') {
-            this.#warpTo(destination)
+        // if (className === 'Direction') {
+        //     this.#shiftPosition(destination)
+        // } else if (className === 'Coordinate') {
+        //     this.#warpTo(destination)
+        // } else {
+        //     console.error('Character.move() must be passed a Direction or a Coordinate.')
+        // }
+        // if (typeof destination === Direction) {
+        if (destination instanceof Direction) {
+            this.#shiftPosition(destination)
         } else {
-            console.error('Character.move() must be passed a Direction or a Coordinate.');
+            this.#warpTo(destination)
         }
     }
-
-    // // TODO: remove these DEBUG funcs
-    // get position() {
-    //     console.debug(`Player.position (get): ${this.#position}.`);
-    //     return this.#position;
-    // }
-    // set position(coord) {
-    //     console.debug(`Player.position (set): ${this.#position} -> ${coord}.`);
-    //     this.#position = coord;
-    // }
 }
 
-import { Coordinate } from './GameMap.js';
-export class RemotePlayer extends Player {
-    // Private properties aren't inherited
-    // (but we got rid of them all)
-    mapName;
-    wasInView = true;
-    // WARN: JS already has a Symbol type
-    // symbol = '%';
-    
-    constructor(id, mapName, position) {
-        // super must be called
-        super();
-        this.id = id;
+// FIXME: This probably isn't exposed by express
+// - And also should be its own separate file as the client shouldn't know how the store works
+import { Session } from '../../sessionStore.js'
 
-        this.mapName = mapName;
-        // if (!position) {
-        //     // TODO: Won't this actually show up in the border now?
-        //     position = new Coordinate(-1, -1);
-        // }
-        this.position = position;
+export class RemotePlayer extends Player {
+    id
+    mapName
+    wasInView = true
+    // WARN: JS already has a Symbol type
+    // symbol = '%'
+    
+    constructor(id: string, mapName: string, position: Coordinate) {
+        super() // required
+        this.id = id
+        this.mapName = mapName
+        this.position = position
     }
-    static fromJson(json) {
-        const position = Coordinate.fromJson(json.positionOnMap);
+    // FIXME: Interface/type alias needed here?
+    static fromJson(json: Session) {
+        const position = Coordinate.fromJson(json.positionOnMap)
         return new this(
             json.userId,
             json.gameMap,

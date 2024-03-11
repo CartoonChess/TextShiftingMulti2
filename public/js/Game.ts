@@ -3,17 +3,17 @@ import MessageLog from './MessageLog.js'
 import { Coordinate, GameMap } from './GameMap.js'
 import Listener from '../../Listener.js'
 
+import { Player, RemotePlayer } from './Character.js'
+import InputController from './InputController.js'
+
 export default class Game {
     log?: MessageLog
-    // FIXME: Use real types once TypeScript is available
-    // view?: View
-    // player?: Player
-    // remotePlayers?: [RemotePlayer]
-    // inputController?: InputController
+    // FIXME: view?: View
     view?: any
-    player?: any
-    remotePlayers?: [any]
-    inputController?: any
+    player?: Player
+    // remotePlayers?: [any]
+    remotePlayers?: Map<string, RemotePlayer>
+    inputController?: InputController
 
     #listeners = new Set<Listener>();
 
@@ -87,15 +87,21 @@ export default class Game {
         // TODO: This should be derived from info.js or something
         // -(isn't that what it's doing already?)
         if (!position) { position = this.view.map.startPosition; }
+
+        // Inelegant but whatever
+        if (!this.player) { return }
+
         this.player.position = position;
         // Blank out surroundings in case we land OOB
         this.player.surroundings.clear();
-        this.player.surroundings.update(this.player.position, this.view.map);
+        this.player.surroundings.update(this.player?.position, this.view.map);
 
         this.#notifyListeners();
     }
     
     toggleInput(isEnabled: boolean) {
+        if (!this.inputController) { return }
+
         if (isEnabled) {
             document.addEventListener('keydown', this.inputController);
             this.log?.print('Keyboard input enabled.');

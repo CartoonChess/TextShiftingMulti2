@@ -31,6 +31,10 @@ export class WarpTileScript implements TileScript {
 }
 
 export default class Tile {
+    // Allow other classes to check if a Tile instance has a certain property assigned
+    // Currently used with Surroundings
+    [key: string]: any
+
     //parent/derivedFrom?/"name/type/class"? for resuable tiles...?
     //id = Symbol(); // prob shouldn't do random, or else we can't refer to it in map design scripts
     symbol = ' ' //if type needed: GameSymbol
@@ -53,44 +57,18 @@ export default class Tile {
     // #scripts;
     // _scripts;
 
-    constructor(json: { symbol: string; isSolid: boolean | undefined; color: string | undefined; backgroundColor: string | undefined; scripts: TileScript[] | undefined }) {
-        if (!json) { return }
-        if (json.symbol) { this.symbol = json.symbol }
-        if (json.isSolid) { this.isSolid = json.isSolid }
-        if (json.color) { this.color = json.color }
-        if (json.backgroundColor) { this.backgroundColor = json.backgroundColor }
+    // constructor(json: { symbol: string; isSolid: boolean | undefined; color: string | undefined; backgroundColor: string | undefined; scripts: TileScript[] | undefined }) {
+    constructor(json: { symbol: string; isSolid?: boolean; color?: string; backgroundColor?: string; scripts?: TileScript[] }) {
+        // FIXME: Will undefineds overwrite defaults?
+        // if (!json) { return }
+        // if (json.symbol) { this.symbol = json.symbol }
+        this.symbol = json.symbol
+        // if (json.isSolid) { this.isSolid = json.isSolid }
+        this.isSolid = json.isSolid
+        // if (json.color) { this.color = json.color }
+        this.color = json.color
+        // if (json.backgroundColor) { this.backgroundColor = json.backgroundColor }
+        this.backgroundColor = json.backgroundColor
         this.scripts = json.scripts
     }
-
-    // get scripts() {
-    //     // if (arr.length > 0) {
-    //         return this.#scripts;
-    //     // }
-    // }
-
-    // // Remove scripts altogether if array becomes empty
-    // set scripts(arr) {
-    //     // if (arr.length === 0) {
-    //     //     delete this.#scripts;
-    //     // } else {
-    //         this.#scripts = arr;
-    //     // }
-    // }
-
-
-
-    // get scripts() {
-    //     if (arr.length > 0) {
-    //         return this._scripts;
-        // }
-    // }
-
-    // Remove scripts altogether if array becomes empty
-    // set scripts(arr) {
-    //     if (arr.length === 0) {
-    //         delete this._scripts;
-    //     } else {
-    //         this._scripts = arr;
-    //     }
-    // }
 }

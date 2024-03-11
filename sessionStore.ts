@@ -13,7 +13,7 @@
 // }
 
 // FIXME: Is `positionOnMap` truly string(ified json)? Or is it an Object? Coordinate?
-interface Session {
+export interface Session {
     userId: string
     isOnline: boolean
     gameMap: string
