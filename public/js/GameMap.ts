@@ -35,8 +35,8 @@ export class Coordinate {
 }
 
 // type GameMapLines2D = string[][]
-type GameMapLines2D = Tile[][]
-type GameMapLines3D = [GameMapLines2D]
+export type GameMapLines2D = Tile[][]
+export type GameMapLines3D = [GameMapLines2D]
 
 // TODO: Make child (or sibling) of Map (~fromFile methods redundant)
 class MapBorder {

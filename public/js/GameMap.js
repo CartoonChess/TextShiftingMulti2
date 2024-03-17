@@ -20,12 +20,9 @@ export class Coordinate {
     }
     // static fromObject(obj: any) {
     static fromObject(obj) {
-        // return Object.assign(new this, obj);
         return new this(obj.column, obj.line, obj.layer);
     }
     static fromJson(json) {
-        // return Object.assign(new this, JSON.parse(json));
-        // return new this
         return Coordinate.fromObject(JSON.parse(json));
     }
     toJson() {
@@ -40,23 +37,24 @@ export class Coordinate {
 }
 // TODO: Make child (or sibling) of Map (~fromFile methods redundant)
 class MapBorder {
-    constructor(width = 1, height = 1, lines = [[' ']]) {
+    // constructor(width = 1, height = 1, lines = [[' ']]) {
+    constructor(width = 1, height = 1, lines = [[new Tile({ symbol: ' ' })]]) {
         // if (lines && lines.length && lines[0].length && lines[0][0].length) {
-        if ((lines === null || lines === void 0 ? void 0 : lines.length) && lines[0].length && lines[0][0].length) {
-            this.lines = lines;
-            this.height = lines[0].length;
-            this.width = lines[0][0].length;
-        }
-        else {
-            throw new Error('Error constructing MapBorder.');
-        }
+        // if (lines?.length && lines[0].length && lines[0][0].length) {
+        this.lines = lines;
+        // this.height = lines[0].length
+        // this.width = lines[0][0].length
+        this.height = lines.length;
+        this.width = lines[0].length;
+        // this.depth = lines[0][0].length
+        // } else {
+        //    throw new Error('Error constructing MapBorder.')
+        // }
     }
     // currently redundant
-    // static createFromLines(lines: any[] | undefined) {
     static createFromLines(lines) {
         return new this(undefined, undefined, lines);
     }
-    // static async loadFromFile(filePath: any) {
     static async loadFromFile(filePath) {
         // if (!filePath) { return console.error(`Must provide a file path to use MapBorder.loadFromFile.`); }
         const lines = await __classPrivateFieldGet(this, _a, "m", _MapBorder_loadLinesFromFile).call(this, filePath);
@@ -174,7 +172,8 @@ export class GameMap {
         return await this.loadFromPackage(pkgName, true);
     }
     // NOTE: Currently unused
-    static createTestMap(view, width = view.width * 2, height = view.height * 2, boundCharacter = '#', border) {
+    // static createTestMap(view: { width: number; height: number; }, width = view.width * 2, height = view.height * 2, boundCharacter = '#', border?: MapBorder): GameMap {
+    static createTestMap(view, width = view.width * 2, height = view.height * 2, boundCharacter = { symbol: '#' }, border) {
         // if (!view) { return console.warn(`Can't call GameMap.createTestMap without providing view argument.`); }
         // const lines = [];
         const lines = [];
@@ -188,6 +187,7 @@ export class GameMap {
                 lines.push(Array(width).fill(boundCharacter));
                 continue;
             }
+            // const line = [];
             const line = [];
             for (let x = 0; x < width; x++) {
                 if (x === leftBound || x === rightBound) {
@@ -207,12 +207,14 @@ export class GameMap {
                     character = ',';
                 }
                 else if (randomNumber < 0.99) {
-                    character = boundCharacter;
+                    // character = boundCharacter;
+                    character = boundCharacter.symbol;
                 }
                 else {
                     character = '~';
                 }
-                line.push(character);
+                // line.push(character);
+                line.push({ symbol: character });
             }
             lines.push(line);
         }

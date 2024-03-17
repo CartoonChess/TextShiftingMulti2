@@ -7,9 +7,13 @@ var _Game_instances, _a, _Game_listeners, _Game_notifyListeners, _Game_getMapPac
 import '../../ConsoleColor.js';
 import { Coordinate, GameMap } from './GameMap.js';
 class Game {
-    constructor() {
+    constructor(log, view, player, remotePlayers) {
         _Game_instances.add(this);
         _Game_listeners.set(this, new Set());
+        this.log = log;
+        this.view = view;
+        this.player = player;
+        this.remotePlayers = remotePlayers;
     }
     addListener(listener) {
         __classPrivateFieldGet(this, _Game_listeners, "f").add(listener);
@@ -28,7 +32,7 @@ class Game {
     // printToLog(msg: string) {
     // }
     async changeMap(map, position) {
-        var _b;
+        var _b, _c;
         if (!map) {
             return console.error(`Can't call Game.changeMap() without providing a package name or GameMap object.`);
         }
@@ -54,17 +58,25 @@ class Game {
         (_b = this.log) === null || _b === void 0 ? void 0 : _b.print(`Moved to map '${this.view.map.name}'`);
         // TODO: This should be derived from info.js or something
         // -(isn't that what it's doing already?)
+        // if (!position) { position = this.view.map.startPosition; }
         if (!position) {
-            position = this.view.map.startPosition;
+            position = this.view.map.startPosition || new Coordinate(0, 0);
+        }
+        // Inelegant but whatever
+        if (!this.player) {
+            return;
         }
         this.player.position = position;
         // Blank out surroundings in case we land OOB
         this.player.surroundings.clear();
-        this.player.surroundings.update(this.player.position, this.view.map);
+        this.player.surroundings.update((_c = this.player) === null || _c === void 0 ? void 0 : _c.position, this.view.map);
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_notifyListeners).call(this);
     }
     toggleInput(isEnabled) {
         var _b, _c;
+        if (!this.inputController) {
+            return;
+        }
         if (isEnabled) {
             document.addEventListener('keydown', this.inputController);
             (_b = this.log) === null || _b === void 0 ? void 0 : _b.print('Keyboard input enabled.');
