@@ -5,9 +5,17 @@ import { RemotePlayer } from './Character.js';
 import Game from './Game.js';
 
 // import { Socket } from 'socket.io';
-import { io, Socket } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client'
+// import { io, Socket } from 'socket.io-client.js'
+// import { io, Socket } from 'socket.io-client/dist/socket.io.js'
+// import { io, Socket } from 'node_modules/socket.io-client/dist/socket.io.js'
+// import { io, Socket } from 'socket.io'
+// Having the (generated) js file import from here instead silences the error... although nothing else happens:
+// import { io, Socket } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js'
+// import { io, Socket } from 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js'
+// import { io, Socket } from '/Users/phil/Documents/GitHub/TextShiftingMulti2/node_modules/socket.io-client/build/esm/index.js';
 import SessionlessPlayer from '../../SessionlessPlayer.js';
-import { Session } from 'inspector';
+// import { Session } from 'inspector';
 
 export default class GameSocket {
     #socket;
@@ -95,7 +103,7 @@ export default class GameSocket {
     broadcastMove() {
         this.#socket.emit(
             'move',
-            this.#view.map.name,
+            this.#view?.map.name,
             this.#player?.position.toJson()
         );
     }
@@ -206,7 +214,7 @@ export default class GameSocket {
             // If you moved in one tab, update all your tabs
             if (socket.userId === this.#socket.userId) {
                 // Update map if you moved
-                if (socket.gameMap !== this.game.view.map.name) {
+                if (socket.gameMap !== this.game.view?.map.name) {
                     await this.game.changeMap(socket.gameMap, Coordinate.fromJson(socket.positionOnMap));
                 // } else {
                 } else if (this.#player) {
@@ -222,7 +230,7 @@ export default class GameSocket {
             
             remotePlayer.mapName = socket.gameMap;
             remotePlayer.position = position;
-            const isInView = this.#view.isVisible(remotePlayer);
+            const isInView = this.#view?.isVisible(remotePlayer);
             if (remotePlayer.wasInView || isInView) {
                 this.#updateView();
             }
@@ -233,6 +241,6 @@ export default class GameSocket {
     #updateView() {
         // TODO: Make sure all ready-requiring events trigger this, or possible that nothing will ever happen
         if (!this.#isReadyForView) { return; }
-        this.#view.update(this.#player, this.#remotePlayers);
+        this.#view?.update(this.#player, this.#remotePlayers);
     }
 }

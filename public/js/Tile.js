@@ -14,6 +14,7 @@ export class WarpTileScript {
 export default class Tile {
     // #scripts;
     // _scripts;
+    // constructor(json: { symbol: string; isSolid: boolean | undefined; color: string | undefined; backgroundColor: string | undefined; scripts: TileScript[] | undefined }) {
     constructor(json) {
         //parent/derivedFrom?/"name/type/class"? for resuable tiles...?
         //id = Symbol(); // prob shouldn't do random, or else we can't refer to it in map design scripts
@@ -29,21 +30,16 @@ export default class Tile {
         // image
         //position = new Coordinate(0, 0);
         this.layer = 0; //or add Z to Coordinate
-        if (!json) {
-            return;
-        }
-        if (json.symbol) {
-            this.symbol = json.symbol;
-        }
-        if (json.isSolid) {
-            this.isSolid = json.isSolid;
-        }
-        if (json.color) {
-            this.color = json.color;
-        }
-        if (json.backgroundColor) {
-            this.backgroundColor = json.backgroundColor;
-        }
+        // FIXME: Will undefineds overwrite defaults?
+        // if (!json) { return }
+        // if (json.symbol) { this.symbol = json.symbol }
+        this.symbol = json.symbol;
+        // if (json.isSolid) { this.isSolid = json.isSolid }
+        this.isSolid = json.isSolid;
+        // if (json.color) { this.color = json.color }
+        this.color = json.color;
+        // if (json.backgroundColor) { this.backgroundColor = json.backgroundColor }
+        this.backgroundColor = json.backgroundColor;
         this.scripts = json.scripts;
     }
 }

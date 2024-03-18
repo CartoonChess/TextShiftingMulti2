@@ -1,29 +1,40 @@
-// Game controller
-// NOTE: Was '../' ... but why
-import Game from './js/Game.js'
-const game = new Game()
+// // Game controller
+// // NOTE: Was '../' ... but why
+// import Game from './js/Game.js'
+// const game = new Game()
 
 import MessageLog from './js/MessageLog.js'
 const logHtml = document.getElementById('message-log')
 if (!logHtml) { throw new Error('Could not create MessageLog: No such element message-log on page.') }
 // const log = new MessageLog(document.getElementById('message-log'), true)
 const log = new MessageLog(logHtml, true)
-game.log = log
-log.print('Loading...')
+// game.log = log
+// log.print('Loading...')
 
 // Map and view
 import { GameMap, Coordinate } from './js/GameMap.js'
 import { View } from './js/View.js'
-const view = new View(7, 7, 'game-view')
-view.map = await GameMap.loadFromPackage(Game.defaultMapPackage)
-game.view = view
+// const view = new View(7, 7, 'game-view')
+// view.map = await GameMap.loadFromPackage(Game.defaultMapPackage)
+const gameMap = await GameMap.loadFromPackage(Game.defaultMapPackage)
+const view = new View(7, 7, 'game-view', gameMap)
+// game.view = view
 
 import { Player, RemotePlayer } from './js/Character.js'
 const player = new Player()
-// Will be overwritten if session data is found
-game.player = player
-// game.remotePlayers = new Map()
-game.remotePlayers = new Map<string, RemotePlayer>
+// // Will be overwritten if session data is found
+// game.player = player
+// // game.remotePlayers = new Map()
+// game.remotePlayers = new Map<string, RemotePlayer>
+
+
+// Game controller
+// NOTE: Was '../' ... but why
+import Game from './js/Game.js'
+const game = new Game(log, view, player, new Map<string, RemotePlayer>)
+
+log.print('Loading...')
+
 
 // TODO: Map never loads if socket isn't used (prevents single-play/offline...)
 import GameSocket from './js/GameSocket.js'
@@ -92,7 +103,7 @@ game.inputController.move = (direction: Direction) => {
 // Map editor
 // TODO: Real user auth
 const isAdmin = true
-import MapEditor from './js/MapEditor.js'
-if (isAdmin) { new MapEditor(game) }
+// import MapEditor from './js/MapEditor.js'
+// if (isAdmin) { new MapEditor(game) }
 
 game.toggleInput(true)

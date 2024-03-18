@@ -3,19 +3,30 @@ import MessageLog from './MessageLog.js'
 import { Coordinate, GameMap } from './GameMap.js'
 import Listener from '../../Listener.js'
 
-import { View } from './js/View.js'
+import { View } from './View.js'
 import { Player, RemotePlayer } from './Character.js'
 import InputController from './InputController.js'
 
 export default class Game {
-    log?: MessageLog
-    view?: View
-    player?: Player
-    // remotePlayers?: [any]
-    remotePlayers?: Map<string, RemotePlayer>
+    // log?: MessageLog
+    // view?: View
+    // player?: Player
+    // // remotePlayers?: [any]
+    // remotePlayers?: Map<string, RemotePlayer>
+    log: MessageLog
+    view: View
+    player: Player
+    remotePlayers: Map<string, RemotePlayer>
     inputController?: InputController
 
     #listeners = new Set<Listener>();
+
+    constructor(log: MessageLog, view: View, player: Player, remotePlayers: Map<string, RemotePlayer>) {
+        this.log = log
+        this.view = view
+        this.player = player
+        this.remotePlayers = remotePlayers
+    }
 
     addListener(listener: Listener) {
         this.#listeners.add(listener);
@@ -86,7 +97,8 @@ export default class Game {
         this.log?.print(`Moved to map '${this.view.map.name}'`);
         // TODO: This should be derived from info.js or something
         // -(isn't that what it's doing already?)
-        if (!position) { position = this.view.map.startPosition; }
+        // if (!position) { position = this.view.map.startPosition; }
+        if (!position) { position = this.view.map.startPosition || new Coordinate(0, 0) }
 
         // Inelegant but whatever
         if (!this.player) { return }
