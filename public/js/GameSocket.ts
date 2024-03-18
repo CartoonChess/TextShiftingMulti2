@@ -5,7 +5,14 @@ import { RemotePlayer } from './Character.js';
 import Game from './Game.js';
 
 // import { Socket } from 'socket.io';
-import { io, Socket } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client'
+// import { io, Socket } from 'socket.io-client.js'
+// import { io, Socket } from 'socket.io-client/dist/socket.io.js'
+// import { io, Socket } from 'node_modules/socket.io-client/dist/socket.io.js'
+// import { io, Socket } from 'socket.io'
+// Having the (generated) js file import from here instead silences the error... although nothing else happens:
+// import { io, Socket } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js'
+// import { io, Socket } from 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js'
 // import { io, Socket } from '/Users/phil/Documents/GitHub/TextShiftingMulti2/node_modules/socket.io-client/build/esm/index.js';
 import SessionlessPlayer from '../../SessionlessPlayer.js';
 // import { Session } from 'inspector';
